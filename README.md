@@ -2,19 +2,21 @@
 
 This is an implementation plan for **IpCHashT (In-place Chained Hash Table)**.
 
-## Compile
+## Usage
 ```
+$ git clone git@github.com:admiswalker/InPlaceChainedHashTable-IpCHashT-
 $ cd ./InPlaceChainedHashTable-IpCHashT-
+```
+### Compile
+```
 $ make
 ```
-
-## Run test
+### Run test
 ```
 $ ./exe_t
 ```
 In a test, assert() will be enabled.
-
-## Run benchmark
+### Run benchmark
 ```
 $ ./exe_bm
 ```
