@@ -4,6 +4,11 @@
 #include <memory>
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
+// compile options
+
+#define use_prime_table
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------
 
 #define elem_m sstd_CHashT::element<T_key,T_val> // a macro of table element structure
 #define itr_m sstd_CHashT::iterator<T_key,T_val> // a macro of iterator
@@ -25,6 +30,7 @@ namespace sstd_CHashT{
 	template <class T_key, class T_val> struct element; 
 	template <class T_key, class T_val> struct iterator;
 	
+	#ifdef use_prime_table
 	const uint64 tSizeL[64] = { // table size list. (Smallest prime list larger than power of 2.)
 		2ull,                   // 2^ 1 + 0   = 2ull
 		5ull,                   // 2^ 2 + 1   = 5ull
@@ -92,6 +98,74 @@ namespace sstd_CHashT{
 	//	18446744073709551629ull // 2^64 + 13  = 18446744073709551629ull // larger than the range of uint64
 		18446744073709551360ull	// 2^64 - 254 = 18446744073709551360ull // not prive (need to find out an appropriate prime)
 	};
+	#else
+	const uint64 tSizeL[64] = { // table size list. (Smallest prime list larger than power of 2.)
+		1ull,                    // 2^  1 - 1   = 1ull
+		3ull,                    // 2^  2 - 1   = 3ull
+		7ull,                    // 2^  3 - 1   = 7ull
+		15ull,                   // 2^  4 - 1   = 15ull
+		31ull,                   // 2^  5 - 1   = 31ull
+		63ull,                   // 2^  6 - 1   = 63ull
+		127ull,                  // 2^  7 - 1   = 127ull
+		255ull,                  // 2^  8 - 1   = 255ull
+		511ull,                  // 2^  9 - 1   = 511ull
+		1023ull,                 // 2^ 10 - 1   = 1023ull
+		2047ull,                 // 2^ 11 - 1   = 2047ull
+		4095ull,                 // 2^ 12 - 1   = 4095ull
+		8191ull,                 // 2^ 13 - 1   = 8191ull
+		16383ull,                // 2^ 14 - 1   = 16383ull
+		32767ull,                // 2^ 15 - 1   = 32767ull
+		65535ull,                // 2^ 16 - 1   = 65535ull
+		131071ull,               // 2^ 17 - 1   = 131071ull
+		262143ull,               // 2^ 18 - 1   = 262143ull
+		524287ull,               // 2^ 19 - 1   = 524287ull
+		1048575ull,              // 2^ 20 - 1   = 1048575ull
+		2097151ull,              // 2^ 21 - 1   = 2097151ull
+		4194303ull,              // 2^ 22 - 1   = 4194303ull
+		8388607ull,              // 2^ 23 - 1   = 8388607ull
+		16777215ull,             // 2^ 24 - 1   = 16777215ull
+		33554431ull,             // 2^ 25 - 1   = 33554431ull
+		67108863ull,             // 2^ 26 - 1   = 67108863ull
+		134217727ull,            // 2^ 27 - 1   = 134217727ull
+		268435455ull,            // 2^ 28 - 1   = 268435455ull
+		536870911ull,            // 2^ 29 - 1   = 536870911ull
+		1073741823ull,           // 2^ 30 - 1   = 1073741823ull
+		2147483647ull,           // 2^ 31 - 1   = 2147483647ull
+		4294967295ull,           // 2^ 32 - 1   = 4294967295ull
+		8589934591ull,           // 2^ 33 - 1   = 8589934591ull
+		17179869183ull,          // 2^ 34 - 1   = 17179869183ull
+		34359738367ull,          // 2^ 35 - 1   = 34359738367ull
+		68719476735ull,          // 2^ 36 - 1   = 68719476735ull
+		137438953471ull,         // 2^ 37 - 1   = 137438953471ull
+		274877906943ull,         // 2^ 38 - 1   = 274877906943ull
+		549755813887ull,         // 2^ 39 - 1   = 549755813887ull
+		1099511627775ull,        // 2^ 40 - 1   = 1099511627775ull
+		2199023255551ull,        // 2^ 41 - 1   = 2199023255551ull
+		4398046511103ull,        // 2^ 42 - 1   = 4398046511103ull
+		8796093022207ull,        // 2^ 43 - 1   = 8796093022207ull
+		17592186044415ull,       // 2^ 44 - 1   = 17592186044415ull
+		35184372088831ull,       // 2^ 45 - 1   = 35184372088831ull
+		70368744177663ull,       // 2^ 46 - 1   = 70368744177663ull
+		140737488355327ull,      // 2^ 47 - 1   = 140737488355327ull
+		281474976710655ull,      // 2^ 48 - 1   = 281474976710655ull
+		562949953421311ull,      // 2^ 49 - 1   = 562949953421311ull
+		1125899906842623ull,     // 2^ 50 - 1   = 1125899906842623ull
+		2251799813685247ull,     // 2^ 51 - 1   = 2251799813685247ull
+		4503599627370495ull,     // 2^ 52 - 1   = 4503599627370495ull
+		9007199254740991ull,     // 2^ 53 - 1   = 9007199254740991ull
+		18014398509481983ull,    // 2^ 54 - 1   = 18014398509481983ull
+		36028797018963967ull,    // 2^ 55 - 1   = 36028797018963967ull
+		72057594037927935ull,    // 2^ 56 - 1   = 72057594037927935ull
+		144115188075855871ull,   // 2^ 57 - 1   = 144115188075855871ull
+		288230376151711743ull,   // 2^ 58 - 1   = 288230376151711743ull
+		576460752303423487ull,   // 2^ 59 - 1   = 576460752303423487ull
+		1152921504606846975ull,  // 2^ 60 - 1   = 1152921504606846975ull
+		2305843009213693951ull,  // 2^ 61 - 1   = 2305843009213693951ull
+		4611686018427387903ull,  // 2^ 62 - 1   = 4611686018427387903ull
+		9223372036854775807ull,  // 2^ 63 - 1   = 9223372036854775807ull
+		18446744073709551615ull  // 2^ 64 - 1   = 18446744073709551615ull
+	};
+	#endif
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -463,9 +537,15 @@ template <class T_key, class T_val, class T_hash, class T_key_eq> inline void ss
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
 // in order to reduce the calling time of function, macro expansion will be used.
-#define key2tIdx(tIdx, key)												\
-	uint64 hVal = (uint64)(*pHashFn)(key); /* generate hashed value  */	\
-	tIdx = hVal % tSize;
+#ifdef use_prime_table
+	#define key2tIdx(tIdx, key)												\
+		uint64 hVal = (uint64)(*pHashFn)(key); /* generate hashed value  */	\
+		tIdx = hVal % tSize;
+#else
+	#define key2tIdx(tIdx, key)												\
+		uint64 hVal = (uint64)(*pHashFn)(key); /* generate hashed value  */	\
+		tIdx = hVal & tSize;
+#endif
 
 template <class T_key, class T_val, class T_hash, class T_key_eq>
 inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::find(const T_key& key_in){

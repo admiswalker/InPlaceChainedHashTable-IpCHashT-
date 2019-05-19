@@ -1,10 +1,10 @@
 ﻿#include <sstd/sstd.hpp>
 #include <gtest/gtest.h>
 
-//#define SSTD_CHashT_DEBUG
-//#include "./test_CHashT.hpp"
-#define SSTD_IpCHashT_DEBUG
-#include "./test_IpCHashT.hpp"
+#define SSTD_CHashT_DEBUG
+#include "./test_CHashT.hpp"
+//#define SSTD_IpCHashT_DEBUG
+//#include "./test_IpCHashT.hpp"
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 

@@ -408,6 +408,12 @@ void bench_plot_erase(const char* savePath, const uint64 initSize, const uint64 
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
+void bench_maxLoadFactor(){
+	
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------
+
 void RUN_ALL_BENCHS(){
 //	const uint64 limitSize = 500000000; // buy more memory
 //	const uint64 limitSize = 200000000; // limit of memory
@@ -415,7 +421,7 @@ void RUN_ALL_BENCHS(){
 	const uint64 limitSize = 5000000;  // 50 sec
 	const uint64 initSize_wRehash  = 0;
 	const uint64 initSize_preAlloc = limitSize;
-	
+	/*
 	// Warm running, because of the first bench usually returns bad result.
 	bench_plot_add("./bench_warmRunning.png", initSize_preAlloc, limitSize); // pre-allocate
 	
@@ -444,7 +450,7 @@ void RUN_ALL_BENCHS(){
 	bench_plot_find_erase_add("./bench_find_erase_add_pow10_4.png", 10000  ); // find with erasion
 	bench_plot_find_erase_add("./bench_find_erase_add_pow10_5.png", 100000 ); // find with erasion
 	bench_plot_find_erase_add("./bench_find_erase_add_pow10_6.png", 1000000); // find with erasion
-	
+	//*/
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
