@@ -408,7 +408,7 @@ void bench_plot_erase(const char* savePath, const uint64 initSize, const uint64 
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
-void run_all_benchs(){
+void RUN_ALL_BENCHS(){
 //	const uint64 limitSize = 500000000; // buy more memory
 //	const uint64 limitSize = 200000000; // limit of memory
 //	const uint64 limitSize = 50000000; // limit of current graph

@@ -1,11 +1,13 @@
 # comment
 
-
 *exe*
+*.pyc
+
+__pycache__/
+tmpDir/
 
 googletest-master/
 sparsehash-master/
 sstd/
-
 
 
