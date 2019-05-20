@@ -104,87 +104,6 @@ namespace sstd_IpCHashT{
 	//	18446744073709551629ull // 2^64 + 13  = 18446744073709551629ull // larger than the range of uint64
 		18446744073709551360ull	// 2^64 - 254 = 18446744073709551360ull // not prive (need to find out an appropriate prime)
 	};
-	#else
-	const uint64 tSizeL[64] = { // table size list. (Smallest prime list larger than power of 2.)
-		1ull,                    // 2^  1 - 1   = 1ull
-		3ull,                    // 2^  2 - 1   = 3ull
-		7ull,                    // 2^  3 - 1   = 7ull
-		15ull,                   // 2^  4 - 1   = 15ull
-		31ull,                   // 2^  5 - 1   = 31ull
-		63ull,                   // 2^  6 - 1   = 63ull
-		127ull,                  // 2^  7 - 1   = 127ull
-		255ull,                  // 2^  8 - 1   = 255ull
-		511ull,                  // 2^  9 - 1   = 511ull
-		1023ull,                 // 2^ 10 - 1   = 1023ull
-		2047ull,                 // 2^ 11 - 1   = 2047ull
-		4095ull,                 // 2^ 12 - 1   = 4095ull
-		8191ull,                 // 2^ 13 - 1   = 8191ull
-		16383ull,                // 2^ 14 - 1   = 16383ull
-		32767ull,                // 2^ 15 - 1   = 32767ull
-		65535ull,                // 2^ 16 - 1   = 65535ull
-		131071ull,               // 2^ 17 - 1   = 131071ull
-		262143ull,               // 2^ 18 - 1   = 262143ull
-		524287ull,               // 2^ 19 - 1   = 524287ull
-		1048575ull,              // 2^ 20 - 1   = 1048575ull
-		2097151ull,              // 2^ 21 - 1   = 2097151ull
-		4194303ull,              // 2^ 22 - 1   = 4194303ull
-		8388607ull,              // 2^ 23 - 1   = 8388607ull
-		16777215ull,             // 2^ 24 - 1   = 16777215ull
-		33554431ull,             // 2^ 25 - 1   = 33554431ull
-		67108863ull,             // 2^ 26 - 1   = 67108863ull
-		134217727ull,            // 2^ 27 - 1   = 134217727ull
-		268435455ull,            // 2^ 28 - 1   = 268435455ull
-		536870911ull,            // 2^ 29 - 1   = 536870911ull
-		1073741823ull,           // 2^ 30 - 1   = 1073741823ull
-		2147483647ull,           // 2^ 31 - 1   = 2147483647ull
-		4294967295ull,           // 2^ 32 - 1   = 4294967295ull
-		8589934591ull,           // 2^ 33 - 1   = 8589934591ull
-		17179869183ull,          // 2^ 34 - 1   = 17179869183ull
-		34359738367ull,          // 2^ 35 - 1   = 34359738367ull
-		68719476735ull,          // 2^ 36 - 1   = 68719476735ull
-		137438953471ull,         // 2^ 37 - 1   = 137438953471ull
-		274877906943ull,         // 2^ 38 - 1   = 274877906943ull
-		549755813887ull,         // 2^ 39 - 1   = 549755813887ull
-		1099511627775ull,        // 2^ 40 - 1   = 1099511627775ull
-		2199023255551ull,        // 2^ 41 - 1   = 2199023255551ull
-		4398046511103ull,        // 2^ 42 - 1   = 4398046511103ull
-		8796093022207ull,        // 2^ 43 - 1   = 8796093022207ull
-		17592186044415ull,       // 2^ 44 - 1   = 17592186044415ull
-		35184372088831ull,       // 2^ 45 - 1   = 35184372088831ull
-		70368744177663ull,       // 2^ 46 - 1   = 70368744177663ull
-		140737488355327ull,      // 2^ 47 - 1   = 140737488355327ull
-		281474976710655ull,      // 2^ 48 - 1   = 281474976710655ull
-		562949953421311ull,      // 2^ 49 - 1   = 562949953421311ull
-		1125899906842623ull,     // 2^ 50 - 1   = 1125899906842623ull
-		2251799813685247ull,     // 2^ 51 - 1   = 2251799813685247ull
-		4503599627370495ull,     // 2^ 52 - 1   = 4503599627370495ull
-		9007199254740991ull,     // 2^ 53 - 1   = 9007199254740991ull
-		18014398509481983ull,    // 2^ 54 - 1   = 18014398509481983ull
-		36028797018963967ull,    // 2^ 55 - 1   = 36028797018963967ull
-		72057594037927935ull,    // 2^ 56 - 1   = 72057594037927935ull
-		144115188075855871ull,   // 2^ 57 - 1   = 144115188075855871ull
-		288230376151711743ull,   // 2^ 58 - 1   = 288230376151711743ull
-		576460752303423487ull,   // 2^ 59 - 1   = 576460752303423487ull
-		1152921504606846975ull,  // 2^ 60 - 1   = 1152921504606846975ull
-		2305843009213693951ull,  // 2^ 61 - 1   = 2305843009213693951ull
-		4611686018427387903ull,  // 2^ 62 - 1   = 4611686018427387903ull
-		9223372036854775807ull,  // 2^ 63 - 1   = 9223372036854775807ull
-//		18446744073709551615ull  // 2^ 64 - 1   = 18446744073709551615ull
-		18446744073709486080ull  // 2^ 64 - 1 - 65535 = 18446744073709551615ull - 65535 = 18446744073709486080ull
-
-//		   18446744073709551615
-//		-)                65535
-//		-----------------------
-//		   18446744073709000000
-//		+)               551615
-//		-)                65535
-//		-----------------------
-//		   18446744073709000000
-//		+)               486080
-//		-----------------------
-//		   18446744073709486080
-		
-	};
 	#endif
 }
 
@@ -258,12 +177,12 @@ public:
 	#ifdef SSTD_IpCHashT_DEBUG
 	#define key2tableIdx_m(tIdx, key)										\
 		uint64 hVal = (uint64)(*pHashFn)(key); /* generate hashed value  */	\
-		tIdx = hVal & tSize;												\
+		tIdx = hVal & tSize_m1;												\
 		if(use_tIdx_dbg){ idx=tIdx_dbg; } /* over write tIdx for debug */
 	#else
 	#define key2tableIdx_m(tIdx, key)										\
 		uint64 hVal = (uint64)(*pHashFn)(key); /* generate hashed value  */	\
-		tIdx = hVal & tSize;
+		tIdx = hVal & tSize_m1;
 	#endif
 #endif
 
@@ -339,7 +258,11 @@ public:
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
 class sstd::IpCHashT{
 private:
+#ifdef use_prime_table
 	uint8  tSizeL_idx;      // table size list index
+#else
+	uint64 tSize_m1;        // tSize minus 1.
+#endif
 	uint64 tSize;           // table size. This is a hash value division size.
 	uint64 pSize;           // padding size of the table
 	uint64 ttSize;          // total table size. This is a seek limit size. ( ttSize == tSize + pSize ).
@@ -352,7 +275,12 @@ private:
 	T_shift maxShift;
 	T_shift seekLimit;
 	
+#ifdef use_prime_table
 	uint64 get_tSizeL_idx(const uint64& tableSize); // get table size list index
+#else
+	uint64 get_tSize(const uint64& tableSize); // get table size list index
+#endif
+	
 	void IpCHashT_constructor(const uint64& tableSize);
 	
 	void move_hashT2vecKV(std::vector<elem_KV_m>& vecKV, sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>& hashT);
@@ -363,7 +291,11 @@ public:
 	IpCHashT(const uint64& tableSize); // allocate twice size of tableSize.
 	~IpCHashT();
 	
+#ifdef use_prime_table
 	inline uint8& _tSizeL_idx(){ return tSizeL_idx; }
+#else
+	inline uint64& _tSize_m1(){ return tSize_m1; }
+#endif
 	inline uint64& _tSize(){ return tSize; }
 	inline uint64& _pSize(){ return pSize; }
 	inline uint64& _ttSize(){ return ttSize; }
@@ -425,6 +357,7 @@ public:
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
+#ifdef use_prime_table
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
 inline uint64 sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::get_tSizeL_idx(const uint64& tableSize){
 	
@@ -435,10 +368,25 @@ inline uint64 sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::get_tSize
 	idx++; // twice size of table will adjust the load factor 50%.
 	return idx;
 }
+#else
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
+inline uint64 sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::get_tSize(const uint64& tableSize){
+	
+	uint64 tSize=2;
+	while(tSize<tableSize){ tSize*=2; }
+	tSize*=2;
+	return tSize;
+}
+#endif
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
 inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT_constructor(const uint64& tableSize){
+#ifdef use_prime_table
 	tSizeL_idx = get_tSizeL_idx(tableSize);
 	tSize      = sstd_IpCHashT::tSizeL[tSizeL_idx];
+#else
+	tSize      = get_tSize(tableSize);
+	tSize_m1   = tSize - 1;
+#endif
 	
 	if(tSize<255){ pSize=tSize; }else{ pSize=254ull; } // when using T_shift=uint8, 0xFF-1==254 is the max-shift.
 #ifdef SSTD_IpCHashT_DEBUG
@@ -471,7 +419,12 @@ void swap_hashT(sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>& lhs, ss
 	// In here, scope of using is limited by "{}", this means that scope of using is same as a usual value.
 	using std::swap;
 	
+	#ifdef use_prime_table
 	swap(lhs._tSizeL_idx(), rhs._tSizeL_idx());
+	#else
+	swap(lhs._tSize_m1(),   rhs._tSize_m1()  );
+	#endif
+	
 	swap(lhs._tSize(),      rhs._tSize()     );
 	swap(lhs._pSize(),      rhs._pSize()     );
 	swap(lhs._ttSize(),     rhs._ttSize()    );
@@ -499,12 +452,19 @@ void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::failSafe_of_rehash
 	swap_hashT(hashT, hashT_new);
 	
 	while(vecKV.size()!=0){
+		
+		#ifdef use_prime_table
 		uint64 idx; key2tableIdx_wDivisor_m(idx, vecKV[vecKV.size()-1].key, hashT.tableSize());
-#ifdef use_insert_soft
+		#else
+		uint64 idx; key2tableIdx_wDivisor_m(idx, vecKV[vecKV.size()-1].key, hashT._tSize_m1());
+		#endif
+		
+		#ifdef use_insert_soft
 		auto itrRet = hashT._insertBase_soft(std::move(vecKV[vecKV.size()-1].key), std::move(vecKV[vecKV.size()-1].val), idx);
-#else
+		#else
 		auto itrRet = hashT._insertBase_hard(std::move(vecKV[vecKV.size()-1].key), std::move(vecKV[vecKV.size()-1].val), idx);
-#endif
+		#endif
+		
 		if(itrRet.index()==itr_needRehash_m){
 			move_hashT2vecKV(vecKV, hashT);
 			sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(hashT.tableSize()); // twice size of tSize will be allocated.
@@ -522,12 +482,19 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::rehash(){
 	using std::swap;
 	sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(tSize); // twice size of tSize will be allocated.
 	for(auto itr=this->begin(); itr!=this->end(); ){
+		
+		#ifdef use_prime_table
 		uint64 idx; key2tableIdx_wDivisor_m(idx, itr.first(), hashT_new.tableSize());
-#ifdef use_insert_soft
+		#else
+		uint64 idx; key2tableIdx_wDivisor_m(idx, itr.first(), hashT_new._tSize_m1());
+		#endif
+		
+		#ifdef use_insert_soft
 		auto itrRet = hashT_new._insertBase_soft(std::move(itr.first_RW()), std::move(itr.second_RW()), idx);
-#else
+		#else
 		auto itrRet = hashT_new._insertBase_hard(std::move(itr.first_RW()), std::move(itr.second_RW()), idx);
-#endif
+		#endif
+		
 		if(itrRet.index()==itr_needRehash_m){
 			failSafe_of_rehashing(hashT_new); continue; } // more rehashing is required while rehashing.
 		hashT_new._elems()++;
@@ -1217,6 +1184,9 @@ void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::erase(const T_key&
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
+
+#undef insert_hard_cc_m
+#undef insert_soft_cc_m
 
 #undef key2tableIdx_m
 #undef seek2emptyIndex_m
