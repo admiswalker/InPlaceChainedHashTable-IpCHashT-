@@ -235,6 +235,38 @@ void bench_find_failedAll(T_hashTable& hashT, const uint64 limitSize, std::vecto
 		if(hashT.size()+interval>limitSize){ break; }
 	}
 	printf("%lu / %lu = %lf\n", numFound, numFound+numNotFound, (double)numFound/(double)(numFound+numNotFound));
+	
+	// XXXXXXXXXXXXXXXXXXXXXX
+	// ここの実装は sstd::CHashT<T_key, T_val> にバグあり
+/*
+$ ./exe_bm 
+
++---------------------------------------------------+
+|                                                   |
+|     Welcome to Sub Standard Library (SSTD) !      |
+|                                                   |
+|     > This is an Implementation Plan for          |
+|     > In-placeChainedHashTable (IpCHashT)         |
+|     >   and   ChainedHashTable (  CHashT).        |
+|                                                   |
++---------------------------------------------------+
+
+■ measureTime_start---------------
+
+0 / 5000000 = 0.000000
+5000000 / 5000000 = 1.000000
+0 / 5000000 = 0.000000
+0 / 5000000 = 0.000000
+0 / 5000000 = 0.000000
+5000000 / 5000000 = 1.000000
+0 / 5000000 = 0.000000
+0 / 5000000 = 0.000000
+
+■ measureTime_stop----------------
+--------------------------------
+ Execution time:   156. 413 sec
+--------------------------------
+*/
 }
 void bench_plot_find_failedAll(const char* savePath, const uint64 initSize, const uint64 limitSize){
 	std::vector<double> vecX_u, vecX_c, vecX_i, vecX_d; // num of elements
@@ -409,7 +441,11 @@ void bench_plot_erase(const char* savePath, const uint64 initSize, const uint64 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
 void bench_maxLoadFactor(){
-	
+	// under construction
+	// XXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXX
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -421,7 +457,7 @@ void RUN_ALL_BENCHS(){
 	const uint64 limitSize = 5000000;  // 50 sec
 	const uint64 initSize_wRehash  = 0;
 	const uint64 initSize_preAlloc = limitSize;
-	/*
+	//*
 	// Warm running, because of the first bench usually returns bad result.
 	bench_plot_add("./bench_warmRunning.png", initSize_preAlloc, limitSize); // pre-allocate
 	

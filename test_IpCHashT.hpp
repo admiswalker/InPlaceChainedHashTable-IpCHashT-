@@ -18,8 +18,8 @@ uint64 countup_tableSize(const sstd::IpCHashT<uint64, uint64>& hashT){
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 // definition of the user hash function
 
-namespace usrDef{ class hashFn; }
-class usrDef::hashFn{
+namespace usrDef_in_IpCHash{ class hashFn; }
+class usrDef_in_IpCHash::hashFn{
 private:
 public:
 	hashFn(){}
@@ -28,7 +28,7 @@ public:
 };
 
 TEST(sstd_IpCHashT, use_usr_defined_hash_func){
-	sstd::IpCHashT<uint64, uint64, usrDef::hashFn> hashT(10);
+	sstd::IpCHashT<uint64, uint64, usrDef_in_IpCHash::hashFn> hashT(10);
 	
 	hashT.insert_hard( 1, 10);
 	auto itr = hashT.find(1); ASSERT_TRUE( itr!=hashT.end() ); ASSERT_TRUE( itr.first()==1 ); ASSERT_TRUE( itr.second()==10 );
@@ -1233,7 +1233,7 @@ TEST(sstd_IpCHashT, stressTest_hard){
 	}
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------------
-TEST(sstd_CHashT, OPE_bracket){
+TEST(sstd_IpCHashT, OPE_bracket){
 	// []
 	
 	{

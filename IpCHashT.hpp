@@ -7,10 +7,7 @@
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 // compile options
 
-// select soft or hard
-#define use_insert_soft
-//#define use_insert_hard
-
+#define use_insert_soft // select soft or hard
 //#define use_prime_table
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -443,11 +440,11 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT_co
 	tSizeL_idx = get_tSizeL_idx(tableSize);
 	tSize      = sstd_IpCHashT::tSizeL[tSizeL_idx];
 	
-	if(tSize<256){ pSize=tSize; }else{ pSize=256ull; }
+	if(tSize<255){ pSize=tSize; }else{ pSize=254ull; } // when using T_shift=uint8, 0xFF-1==254 is the max-shift.
 #ifdef SSTD_IpCHashT_DEBUG
 	if(use_pSize_dbg){ pSize=(uint64)pSize_dbg; } // over write pSize for debug
 #endif
-	ttSize     = tSize + pSize;
+	ttSize     = tSize + pSize; // while "#define use_prime_table" is disabled, ttSize must be satisfied ttSize>=tSize+1. Because (hashVal & tSize) will [0, tSize], not [0, tSize). (when using prime table, hashVal % tSize be satisfied [0, tSize).)
 	
 	pT         = new struct elem_m[ttSize];
 	pHashFn    = new T_hash();
@@ -503,7 +500,11 @@ void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::failSafe_of_rehash
 	
 	while(vecKV.size()!=0){
 		uint64 idx; key2tableIdx_wDivisor_m(idx, vecKV[vecKV.size()-1].key, hashT.tableSize());
+#ifdef use_insert_soft
 		auto itrRet = hashT._insertBase_soft(std::move(vecKV[vecKV.size()-1].key), std::move(vecKV[vecKV.size()-1].val), idx);
+#else
+		auto itrRet = hashT._insertBase_hard(std::move(vecKV[vecKV.size()-1].key), std::move(vecKV[vecKV.size()-1].val), idx);
+#endif
 		if(itrRet.index()==itr_needRehash_m){
 			move_hashT2vecKV(vecKV, hashT);
 			sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(hashT.tableSize()); // twice size of tSize will be allocated.
@@ -522,7 +523,11 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::rehash(){
 	sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(tSize); // twice size of tSize will be allocated.
 	for(auto itr=this->begin(); itr!=this->end(); ){
 		uint64 idx; key2tableIdx_wDivisor_m(idx, itr.first(), hashT_new.tableSize());
+#ifdef use_insert_soft
 		auto itrRet = hashT_new._insertBase_soft(std::move(itr.first_RW()), std::move(itr.second_RW()), idx);
+#else
+		auto itrRet = hashT_new._insertBase_hard(std::move(itr.first_RW()), std::move(itr.second_RW()), idx);
+#endif
 		if(itrRet.index()==itr_needRehash_m){
 			failSafe_of_rehashing(hashT_new); continue; } // more rehashing is required while rehashing.
 		hashT_new._elems()++;
@@ -1099,6 +1104,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::insert_har
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
 #ifdef use_insert_soft
+
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
 struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::insert(const T_key& key_in, const T_val& val_in){ // copy key and value.
 	uint64 idx; key2tableIdx_m(idx, key_in);
@@ -1108,11 +1114,9 @@ template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shi
 struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::insert(const T_key&  key_in, const T_val&  val_in, uint64 idx){ // copy key and value.
 	insert_soft_cc_m();
 }
-#endif
 
-//---
+#else
 
-#ifdef use_insert_hard
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
 struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::insert(const T_key& key_in, const T_val& val_in){ // copy key and value.
 	uint64 idx; key2tableIdx_m(idx, key_in);
@@ -1122,6 +1126,7 @@ template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shi
 struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::insert(const T_key&  key_in, const T_val&  val_in, uint64 idx){ // copy key and value.
 	insert_hard_cc_m();
 }
+
 #endif
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -1230,10 +1235,6 @@ void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::erase(const T_key&
 
 #ifdef use_insert_soft
 	#undef use_insert_soft
-#endif
-
-#ifdef use_insert_hard
-	#undef use_insert_hard
 #endif
 
 #ifdef use_prime_table

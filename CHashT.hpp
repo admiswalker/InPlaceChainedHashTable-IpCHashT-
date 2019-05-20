@@ -427,9 +427,20 @@ inline void sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::CHashT_constructor(con
 	
 	tSizeL_idx = get_tSizeL_idx(tableSize);
 	tSize = sstd_CHashT::tSizeL[tSizeL_idx];
+	
+	#ifdef use_prime_table
 	pT      = new struct elem_m[tSize];
+	#else
+	pT      = new struct elem_m[tSize + 1];
+	#endif
+	
 	pBegin = &pT[0];
+	
+	#ifdef use_prime_table
 	pEnd   = &pT[0] + tSize; // never "&pT[0] + tSize*sizeof(struct elem_m)", because " * sizeof(struct elem_m)" will be automatically calculated by compiler.
+	#else
+	pEnd   = &pT[0] + tSize + 1; // never "&pT[0] + tSize*sizeof(struct elem_m)", because " * sizeof(struct elem_m)" will be automatically calculated by compiler.
+	#endif
 	
 	pHashFn = new T_hash();
 	
@@ -679,4 +690,8 @@ template <class T_key, class T_val, class T_hash, class T_key_eq> inline T_val& 
 #endif
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
+
+#ifdef use_prime_table
+	#undef use_prime_table
+#endif
 

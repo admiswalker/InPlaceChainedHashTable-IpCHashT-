@@ -4,8 +4,8 @@
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 // definition of the user hash function
 
-namespace usrDef{ class hashFn; }
-class usrDef::hashFn{
+namespace usrDef_in_CHashT{ class hashFn; }
+class usrDef_in_CHashT::hashFn{
 private:
 public:
 	hashFn(){}
@@ -14,7 +14,7 @@ public:
 };
 
 TEST(sstd_CHashT, use_usr_defined_hash_func){
-	sstd::CHashT<uint64, uint64, usrDef::hashFn> hashT(100);
+	sstd::CHashT<uint64, uint64, usrDef_in_CHashT::hashFn> hashT(100);
 	auto
 	itr = hashT.add( 1, 10); ASSERT_TRUE( itr==false );
 	itr = hashT.find(1); ASSERT_TRUE( itr==true ); ASSERT_TRUE( itr.key()==1 ); ASSERT_TRUE( itr.val()==10 );
@@ -246,13 +246,13 @@ TEST(sstd_CHashT, rehash){
 			hashT.add(r, r);
 		}
 		ASSERT_TRUE( hashT.size() ==1031 );
-		ASSERT_TRUE( hashT.tableSize()==1031 );
+//		ASSERT_TRUE( hashT.tableSize()==1031 ); // this test is for prime table.
 	}
 	{
 		uint64 r = mt();
 		hashT.add(r, r); // rehash will be occurd
 		ASSERT_TRUE( hashT.size() ==1032 );
-		ASSERT_TRUE( hashT.tableSize()==2053 );
+//		ASSERT_TRUE( hashT.tableSize()==2053 ); // this test is for prime table.
 	}
 }
 TEST(sstd_CHashT, stressTest){
