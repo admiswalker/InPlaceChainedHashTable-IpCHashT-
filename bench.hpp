@@ -440,7 +440,51 @@ void bench_plot_erase(const char* savePath, const uint64 initSize, const uint64 
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
-void bench_maxLoadFactor(){
+template<typename T_hashTable>
+void bench_maxLoadFactor(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_tSize, std::vector<double>& vecY_lf){
+	
+	std::random_device seed_gen;
+	std::mt19937_64 rand(seed_gen()); // pseudo random number generator
+
+	double lf_prev=0;
+	while(hashT.size()<limitSize){
+		uint64 r = rand();
+		hashT[r] = r;
+		double lf = hashT.load_factor();
+		if(lf < lf_prev){
+			vecX_tSize <<= hashT.bucket_count()-1;
+			vecY_lf    <<= lf_prev;
+		}
+		lf_prev = lf;
+	}
+}
+void bench_plot_maxLoadFactor(const char* savePath, const uint64 limitSize){
+
+	std::vector<double> vecX_u, vecX_c, vecX_i, vecX_d; // num of elements
+	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d; // quely_per_ms
+	{         sstd::IpCHashT<uint64,uint64> hashT(0);                            bench_maxLoadFactor(hashT, limitSize, vecX_i, vecY_i); }
+	{ google::dense_hash_map<uint64,uint64> hashT(0); hashT.set_empty_key(0ull); bench_maxLoadFactor(hashT, limitSize, vecX_d, vecY_d); } // this meen that 'NULL' will not be able to insert as a key-value.
+	
+	// plot2fig
+	const char* tmpDir   = "./tmpDir";
+	const char* fileName = "plot_lf";
+	const char* funcName = "vvec2graph";
+	
+	const char* xlabel   = "Table size [count]";
+	const char* ylabel   = "Elapsed time [sec]";
+//	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>"};
+//	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d}; // num of elements
+//	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d}; // quely_per_ms
+	std::vector<std::string> vecLabel={"sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>"};
+	std::vector<std::vector<double>> vvecX={vecX_i, vecX_d}; // num of elements
+	std::vector<std::vector<double>> vvecY={vecY_i, vecY_d}; // quely_per_ms
+	
+	sstd::printn(vvecX);
+	sstd::printn(vvecY);
+	
+	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const char*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
+	vvec2graph(savePath, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
+	
 	// under construction
 	// XXXXXXXXXXXXXXXXXXXXX
 	// XXXXXXXXXXXXXXXXXXXXX
@@ -457,7 +501,7 @@ void RUN_ALL_BENCHS(){
 	const uint64 limitSize = 5000000;  // 50 sec
 	const uint64 initSize_wRehash  = 0;
 	const uint64 initSize_preAlloc = limitSize;
-	//*
+	/*
 	// Warm running, because of the first bench usually returns bad result.
 	bench_plot_add("./bench_warmRunning.png", initSize_preAlloc, limitSize); // pre-allocate
 	
@@ -487,6 +531,9 @@ void RUN_ALL_BENCHS(){
 	bench_plot_find_erase_add("./bench_find_erase_add_pow10_5.png", 100000 ); // find with erasion
 	bench_plot_find_erase_add("./bench_find_erase_add_pow10_6.png", 1000000); // find with erasion
 	//*/
+	// max-load factor
+	bench_plot_maxLoadFactor("./bench_maxLoadFactor_pow10_5.png", 100000);
+	bench_plot_maxLoadFactor("./bench_maxLoadFactor_pow10_8.png", 100000000);
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------

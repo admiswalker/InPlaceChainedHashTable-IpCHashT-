@@ -313,8 +313,10 @@ public:
 		return itr_m(maxShift, ttSize, pT, itr_end_m);
 	}
 	inline struct itr_m end() const { return itr_m(maxShift, ttSize, pT, itr_end_m); }
-	inline const uint64&      size(){ return elems; }
-	inline const uint64& tableSize(){ return tSize; }
+	inline const uint64      size(){ return elems; }
+	inline const uint64    tableSize(){ return tSize; }
+	inline const uint64 bucket_count(){ return tSize; }
+	inline const double load_factor() const { return (double)elems/(double)tSize; }
 	
 	void rehash();
 	
@@ -388,7 +390,9 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT_co
 	tSize_m1   = tSize - 1;
 #endif
 	
-	if(tSize<255){ pSize=tSize; }else{ pSize=254ull; } // when using T_shift=uint8, 0xFF-1==254 is the max-shift.
+	if(tSize<254){ pSize=tSize/6;
+	}else{ pSize=254ull; } // when using T_shift=uint8, 0xFF-1==254 is the max-shift.
+//	if(tSize<255){ pSize=tSize; }else{ pSize=254ull; } // when using T_shift=uint8, 0xFF-1==254 is the max-shift.
 #ifdef SSTD_IpCHashT_DEBUG
 	if(use_pSize_dbg){ pSize=(uint64)pSize_dbg; } // over write pSize for debug
 #endif
