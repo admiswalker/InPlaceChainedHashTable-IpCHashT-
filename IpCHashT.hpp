@@ -316,7 +316,7 @@ public:
 	inline const uint64      size(){ return elems; }
 	inline const uint64    tableSize(){ return tSize; }
 	inline const uint64 bucket_count(){ return tSize; }
-	inline const double load_factor() const { return (double)elems/(double)tSize; }
+	inline const double load_factor() const { return (double)elems/(double)ttSize; }
 	
 	void rehash();
 	
@@ -389,10 +389,27 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT_co
 	tSize      = get_tSize(tableSize);
 	tSize_m1   = tSize - 1;
 #endif
+
+	// pSize = (1/a) * tSize + b
+	// 
+	//         pSize
+	//           |
+	//           |
+	//      254  -          -----------------------
+	//           |        *
+	//           |     *   |
+	//           |  *      
+	// b (bias)  -         |
+	//           |         
+	//           +---------|-----------------> tSize
+	//                   254*a
+	//
+	// Fig. pSize vs tSize
 	
-	if(tSize<254){ pSize=tSize/6;
-	}else{ pSize=254ull; } // when using T_shift=uint8, 0xFF-1==254 is the max-shift.
-//	if(tSize<255){ pSize=tSize; }else{ pSize=254ull; } // when using T_shift=uint8, 0xFF-1==254 is the max-shift.
+	const double a = 18; // hyper parametor for T_shift==uint8.
+	const uint64 b = 35; // hyper parametor for T_shift==uint8.
+	if(tSize<254*a){ pSize=(uint64)((double)tSize/a + b);
+	}     else     { pSize=254ull; } // when using T_shift=uint8, 0xFF-1==254 is the max-shift.
 #ifdef SSTD_IpCHashT_DEBUG
 	if(use_pSize_dbg){ pSize=(uint64)pSize_dbg; } // over write pSize for debug
 #endif
