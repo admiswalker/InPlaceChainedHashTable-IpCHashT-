@@ -28,7 +28,7 @@ def vvec2graph(savePath, xlabel, ylabel, vecLabel, vvecX, vvecY):
     vColor=['black', 'blue', 'red', 'green']
     vLineStyle = ['solid', 'dashed', 'dashdot', 'dotted'] # solid, dashed, dashdot, dotted
     for i in range(len(vecLabel)):
-        ax1.plot(vvecX[i], vvecY[i], linewidth=1, color=vColor[i], linestyle=vLineStyle[i], label=vecLabel[i])
+        ax1.plot(vvecX[i], vvecY[i], linewidth=2, color=vColor[i], linestyle=vLineStyle[i], label=vecLabel[i])
     ax1.legend(loc='upper right')
     #    ax1.plot(vecX[i], vecY[i], color='k', linewidth=1)
     plt.savefig(savePath, bbox_inches='tight')

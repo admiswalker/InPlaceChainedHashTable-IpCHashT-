@@ -462,6 +462,8 @@ void bench_plot_maxLoadFactor(const char* savePath, const uint64 limitSize){
 
 	std::vector<double> vecX_u, vecX_c, vecX_i, vecX_d; // num of elements
 	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d; // quely_per_ms
+	{     std::unordered_map<uint64,uint64> hashT(0);                            bench_maxLoadFactor(hashT, limitSize, vecX_u, vecY_u); }
+	{           sstd::CHashT<uint64,uint64> hashT(0);                            bench_maxLoadFactor(hashT, limitSize, vecX_c, vecY_c); }
 	{         sstd::IpCHashT<uint64,uint64> hashT(0);                            bench_maxLoadFactor(hashT, limitSize, vecX_i, vecY_i); }
 	{ google::dense_hash_map<uint64,uint64> hashT(0); hashT.set_empty_key(0ull); bench_maxLoadFactor(hashT, limitSize, vecX_d, vecY_d); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
@@ -472,21 +474,12 @@ void bench_plot_maxLoadFactor(const char* savePath, const uint64 limitSize){
 	
 	const char* xlabel   = "Table size [count]\n(Maximum load factor of std::IpHashT is limitted by its maximum length of shift_T. Maximum load factor of google::dense_hash_map is artificially limited by 50 %.)";
 	const char* ylabel   = "maximum load factor [%]";
-//	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>"};
-//	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d}; // num of elements
-//	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d}; // quely_per_ms
-	std::vector<std::string> vecLabel={"sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>"};
-	std::vector<std::vector<double>> vvecX={vecX_i, vecX_d}; // num of elements
-	std::vector<std::vector<double>> vvecY={vecY_i, vecY_d}; // quely_per_ms
+	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>"};
+	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d}; // table size
+	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d}; // maximum load factor
 	
 	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const char*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
 	vvec2graph(savePath, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
-	
-	// under construction
-	// XXXXXXXXXXXXXXXXXXXXX
-	// XXXXXXXXXXXXXXXXXXXXX
-	// XXXXXXXXXXXXXXXXXXXXX
-	// XXXXXXXXXXXXXXXXXXXXX
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -498,7 +491,7 @@ void RUN_ALL_BENCHS(){
 	const uint64 limitSize = 5000000;  // 50 sec
 	const uint64 initSize_wRehash  = 0;
 	const uint64 initSize_preAlloc = limitSize;
-	
+	/*
 	// Warm running, because of the first bench usually returns bad result.
 	const char* pWarmRun = "./bench_warmRunning.png";
 	bench_plot_add(pWarmRun, initSize_preAlloc, limitSize); // pre-allocate
@@ -512,7 +505,6 @@ void RUN_ALL_BENCHS(){
 	// add: elapsed time [sec]
 	bench_plot_add_et("./bench_add_et_wRehash.png",  initSize_wRehash,  limitSize); // with rehash
 	bench_plot_add_et("./bench_add_et_preAlloc.png", initSize_preAlloc, limitSize); // pre-allocate
-	//*/
 	
 	// find: find speed [quely/sec]
 	bench_plot_find("./bench_find_wRehash.png",  initSize_wRehash,  limitSize); // with rehash
@@ -529,13 +521,13 @@ void RUN_ALL_BENCHS(){
 	bench_plot_find_erase_add("./bench_find_erase_add_pow10_4.png", 10000  ); // find with erasion
 	bench_plot_find_erase_add("./bench_find_erase_add_pow10_5.png", 100000 ); // find with erasion
 	bench_plot_find_erase_add("./bench_find_erase_add_pow10_6.png", 1000000); // find with erasion
-	
+	//*/
 	// max-load factor
-	bench_plot_maxLoadFactor("./bench_maxLoadFactor_pow10_5.png", 100000   );
+//	bench_plot_maxLoadFactor("./bench_maxLoadFactor_pow10_5.png", 100000   );
 	bench_plot_maxLoadFactor("./bench_maxLoadFactor_pow10_6.png", 1000000  );
-	bench_plot_maxLoadFactor("./bench_maxLoadFactor_pow10_8.png", 100000000);
+//	bench_plot_maxLoadFactor("./bench_maxLoadFactor_pow10_8.png", 100000000);
 	
-	sstd::rm(pWarmRun);
+//	sstd::rm(pWarmRun);
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------

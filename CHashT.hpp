@@ -398,8 +398,10 @@ public:
 	// rehash();
 	// reserve();
 	
-	inline const uint64& size(){ return elems; }
-	inline const uint64& tableSize(){ return tSize; }
+	inline const uint64 size(){ return elems; }
+	inline const uint64 tableSize(){ return tSize; }
+	inline const uint64 bucket_count(){ return tSize; }
+	inline const double load_factor(){ return (double)elems/(double)tSize; }
 	
 	void rehash();
 	
