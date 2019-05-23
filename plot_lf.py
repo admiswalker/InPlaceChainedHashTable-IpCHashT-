@@ -25,11 +25,12 @@ def vvec2graph(savePath, xlabel, ylabel, vecLabel, vvecX, vvecY):
     ax1.yaxis.set_major_locator(tick.MultipleLocator(0.1  ))
     ax1.yaxis.set_minor_locator(tick.MultipleLocator(0.025))
     
-    vColor=['black', 'blue', 'red', 'green']
-    vLineStyle = ['solid', 'dashed', 'dashdot', 'dotted'] # solid, dashed, dashdot, dotted
+    vColor=['black', 'blue', 'red', 'green', 'sandybrown']
+    vLineStyle = ['solid', 'dashed', 'dashdot', 'dotted', 'dotted'] # solid, dashed, dashdot, dotted
     for i in range(len(vecLabel)):
         ax1.plot(vvecX[i], vvecY[i], linewidth=2, color=vColor[i], linestyle=vLineStyle[i], label=vecLabel[i])
-    ax1.legend(loc='upper right')
+    #ax1.legend(loc='upper right')
+    ax1.legend(loc='lower right', borderaxespad=7)
     #    ax1.plot(vecX[i], vecY[i], color='k', linewidth=1)
     plt.savefig(savePath, bbox_inches='tight')
     
