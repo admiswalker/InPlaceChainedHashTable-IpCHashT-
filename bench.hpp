@@ -68,7 +68,7 @@ template<typename T_hashTable>
 void bench_add_et(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_s){
 	std::random_device seed_gen;
 	std::mt19937_64 rand(seed_gen()); // pseudo random number generator
-
+	
 	{
 		// warm running
 		
@@ -382,6 +382,99 @@ void bench_plot_find_erase_add(const char* savePath, const uint64 initSize){
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
+// find-findFailed-erase-add cycle
+
+template<typename T_hashTable>
+void bench_find_findFailedAll_erase_add(T_hashTable& hashT, const uint64 initSize, std::vector<double>& vecX_num, std::vector<double>& vecY_quely_per_ms){
+	
+	std::random_device seed_gen;
+	
+	std::vector<uint64> vecKeyVal(initSize); vecKeyVal.clear();
+	
+	// add elements to the num of limitSize
+	std::mt19937_64 rand(seed_gen()); // pseudo random number generator
+	while(hashT.size()<initSize){
+		uint64 r = rand();
+		hashT[r] = r;
+		vecKeyVal <<= r;
+	}
+	
+	// shuffle "vecKeyVal"
+	std::mt19937 engine(seed_gen()); // for std::shuffle()
+	std::shuffle(vecKeyVal.begin(), vecKeyVal.end(), engine);
+	
+	uint8 order = (uint8)std::log10((double)hashT.size());
+	uint64 interval = (uint64)std::pow(10, order); if(interval!=1){interval/=10;}
+	
+	double change_per_cycle = 0.05; // [%]
+	double nonChangedRate   = 1.00; // [%]
+	double endRate          = 0.0001; // [%]
+	uint64 changeNum_per_cycle = (double)hashT.size() * change_per_cycle; // [count]
+	
+	// rand for find-failed-all
+	std::mt19937_64 randFFA(seed_gen()); // pseudo random number generator
+	while(nonChangedRate > endRate){
+		
+		time_m timem; sstd::measureTime_start(timem);
+		// find (with all elements found)
+		for(uint i=0; i<interval; i++){
+			uint64 keyVal = vecKeyVal[i];
+			if(hashT[keyVal] != keyVal){ sstd::pdbg("ERROR: key val is not same."); exit(0); }
+		}
+		// find-failed-all (with all elements found)
+		for(uint i=0; i<interval; i++){
+			uint64 keyVal = randFFA();
+			auto itr = hashT.find(keyVal);
+//			if(itr != hashT.end()){ sstd::pdbg("ERROR: key val is same."); exit(0); } // there is a bug in sstd::CHashT
+		}
+		// erase change_per_cycle [%]
+		for(uint i=0; i<changeNum_per_cycle; i++){
+			hashT.erase( vecKeyVal[vecKeyVal.size()-1] );
+			vecKeyVal.pop_back();
+		}
+		// add change_per_cycle [%]
+		for(uint i=0; i<changeNum_per_cycle; i++){
+			uint64 r = rand();
+			hashT[r] = r;
+			vecKeyVal <<= r;
+		}
+		double nsec = sstd::measureTime_stop_ns(timem);
+		
+		vecY_quely_per_ms <<= ((double)interval * 1000.0) / (nsec);
+		vecX_num          <<= nonChangedRate;
+		nonChangedRate *= (1.00 - change_per_cycle);
+		
+		// shuffle vecKeyVal
+		std::shuffle(vecKeyVal.begin(), vecKeyVal.end(), engine);
+	}
+}
+void bench_plot_find_findFailedAll_erase_add(const char* savePath, const uint64 initSize){
+	std::vector<double> vecX_u, vecX_c, vecX_i, vecX_d, vecX_f; // num of elements
+	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // quely_per_ms
+	{     std::unordered_map<uint64,uint64> hashT(initSize); bench_find_findFailedAll_erase_add(hashT, initSize, vecX_u, vecY_u); }
+	{           sstd::CHashT<uint64,uint64> hashT(initSize); bench_find_findFailedAll_erase_add(hashT, initSize, vecX_c, vecY_c); }
+	{         sstd::IpCHashT<uint64,uint64> hashT(initSize); bench_find_findFailedAll_erase_add(hashT, initSize, vecX_i, vecY_i); }
+	{ google::dense_hash_map<uint64,uint64> hashT(initSize); hashT.set_empty_key(0ull); hashT.set_deleted_key(1ull); // this meen that 'NULL' and '1' will not be able to insert as a key-value.
+		                                                     bench_find_findFailedAll_erase_add(hashT, initSize, vecX_d, vecY_d); }
+	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(initSize);
+		                                                     bench_find_findFailedAll_erase_add(hashT, initSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
+	
+	// plot2fig
+	const char* tmpDir   = "./tmpDir";
+	const char* fileName = "plot_wErase";
+	const char* funcName = "vvec2graph";
+	
+	const char* xlabel   = "Non-changed rate [\%]";
+	const char* ylabel   = "A speed of one find-erase-add cycle [query/ms]";
+	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
+	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
+	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_ms
+	
+	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const char*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
+	vvec2graph(savePath, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------
 // erase
 
 template<typename T_hashTable>
@@ -506,7 +599,7 @@ void RUN_ALL_BENCHS(){
 	// Warm running, because of the first bench usually returns bad result.
 	const char* pWarmRun = "./bench_warmRunning.png";
 	bench_plot_add(pWarmRun, initSize_preAlloc, limitSize); // pre-allocate
-	
+	/*
 	// add: Additional speed [query/sec]
 	bench_plot_add("./bench_add_wRehash.png",  initSize_wRehash,  limitSize); // with rehash
 	bench_plot_add("./bench_add_preAlloc.png", initSize_preAlloc, limitSize); // pre-allocate
@@ -534,11 +627,13 @@ void RUN_ALL_BENCHS(){
 	bench_plot_find_erase_add("./bench_find_erase_add_pow10_6.png", 1000000); // find with erasion
 	
 	// max-load factor
-//	bench_plot_maxLoadFactor("./bench_maxLoadFactor_pow10_5.png", 100000   );
+	bench_plot_maxLoadFactor("./bench_maxLoadFactor_pow10_5.png", 100000   );
 	bench_plot_maxLoadFactor("./bench_maxLoadFactor_pow10_6.png", 1000000  );
-//	bench_plot_maxLoadFactor("./bench_maxLoadFactor_pow10_8.png", 100000000);
-	
+	bench_plot_maxLoadFactor("./bench_maxLoadFactor_pow10_8.png", 100000000);
+	//*/
 //	sstd::rm(pWarmRun);
+	
+	bench_plot_find_findFailedAll_erase_add("./bench_find_fainFailedAll_erase_add_pow10_6.png", 1000000); // find with erasion
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------

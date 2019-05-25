@@ -47,10 +47,12 @@ def vvec2graph(savePath, xlabel, ylabel, vecLabel, vvecX, vvecY):
     ax1.tick_params(pad=5, which='major', direction='in', bottom=True, top=True, left=True, right=True, length=4) # 軸の余白 # which: major tick と minor tick に対して変更を適用 # tick を内側方向に # tick を bottom, top, left, right に付加 # tick width # tick length
     ax1.tick_params(pad=5, which='minor', direction='in', bottom=True, top=True, left=True, right=True, length=2) # 軸の余白 # which: major tick と minor tick に対して変更を適用 # tick を内側方向に # tick を bottom, top, left, right に付加 # tick width # tick length
     
+    #cmap = plt.get_cmap("tab10")
     vColor=['black', 'blue', 'red', 'green', 'sandybrown']
     vLineStyle = ['solid', 'dashed', 'dashdot', 'dotted', 'dotted'] # solid, dashed, dashdot, dotted
     for i in range(len(vecLabel)):
         ax1.plot(vvecX[i], vvecY[i], linewidth=1, color=vColor[i], linestyle=vLineStyle[i], label=vecLabel[i])
+        #ax1.plot(vvecX[i], vvecY[i], linewidth=1, color=cmap(i), label=vecLabel[i])
     ax1.legend(loc='upper left')
     plt.savefig(savePath, bbox_inches='tight')
 
