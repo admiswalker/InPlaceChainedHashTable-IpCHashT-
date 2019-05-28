@@ -408,15 +408,11 @@ public:
 	struct itr_m_old add  (const T_key&  key_in,       T_val&& val_in); // swap value.         (Callable by "sstd::CHashT<T_key, T_val> hashT; hashT.add(          key , std::move(val));".)
 	struct itr_m_old add  (      T_key&& key_in,       T_val&& val_in); // swap key and value. (Callable by "sstd::CHashT<T_key, T_val> hashT; hashT.add(std::move(key), std::move(val));".)
 	
-	void         add_f(const T_key&  key_in, const T_val&  val_in); // force to overwrite
-	void         add_f(      T_key&& key_in, const T_val&  val_in);
-	void         add_f(const T_key&  key_in,       T_val&& val_in);
-	void         add_f(      T_key&& key_in,       T_val&& val_in);
-	
 	struct itr_m_old add  (struct itr_m_old& itr, const T_key&  key_in); // add from itr value of find() for operator[]
 	struct itr_m_old add  (struct itr_m_old& itr,       T_key&& key_in); // add from itr value of find() for operator[]
 	
-	struct itr_m_old find (const T_key& key_in);
+	struct itr_m find (const T_key& key_in);
+	struct itr_m find (const uint64 idx_in);
 	
 	bool         erase(struct itr_m_old&   itr); // erase from itr value of add() or find()
 	bool         erase(const T_key& key_in); // erase from key value
@@ -515,13 +511,22 @@ inline void sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::rehash(){
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
+//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
 #define add_preproc_m()													\
 																		\
 	/* checking the needs of rehash. */									\
 	if(elems>=tSize){ rehash(); } /* elems needs to be measured before find(), because of the address that the itr suggests will be changed. */ \
 																		\
 	auto itr = find(key_in);											\
-	if(itr!=false){ return itr_m_old(pBegin, pEnd, true, itr._pHead(), itr._pElem(), 0ull); } /* returning itr will be true. */ /* retruning struct which incorporates a pointer to the table index. */
+	if(itr.state_R()!=itr_end_m){ return itr; } /* key is already on the table */
 
 #define add_m(key_in, val_in, CAST_KEY, CAST_VAL)						\
 																		\
@@ -543,14 +548,14 @@ inline void sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::rehash(){
 		return itr_m_old(pBegin, pEnd, false, itr._pHead(), itr._pPrev()->pNext, 0ull); /* returning itr will be false. */ \
 	}
 
-template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m_old sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::add(const T_key&  key_in, const T_val&  val_in){ add_preproc_m(); add_m(key_in, val_in, T_key,     T_val    ); }
-template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m_old sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::add(      T_key&& key_in, const T_val&  val_in){ add_preproc_m(); add_m(key_in, val_in, std::move, T_val    ); }
-template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m_old sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::add(const T_key&  key_in,       T_val&& val_in){ add_preproc_m(); add_m(key_in, val_in, T_key,     std::move); }
-template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m_old sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::add(      T_key&& key_in,       T_val&& val_in){ add_preproc_m(); add_m(key_in, val_in, std::move, std::move); }
+template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::add(const T_key&  key_in, const T_val&  val_in){ add_preproc_m(); add_m(key_in, val_in, T_key,     T_val    ); }
+template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::add(      T_key&& key_in, const T_val&  val_in){ add_preproc_m(); add_m(key_in, val_in, std::move, T_val    ); }
+template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::add(const T_key&  key_in,       T_val&& val_in){ add_preproc_m(); add_m(key_in, val_in, T_key,     std::move); }
+template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::add(      T_key&& key_in,       T_val&& val_in){ add_preproc_m(); add_m(key_in, val_in, std::move, std::move); }
 
 //---
 
-#define add_byitr_m_old(key_in, CAST_KEY)									\
+#define add_byitr_m_old(key_in, CAST_KEY)								\
 																		\
 	/* checking the needs of rehash. */									\
 	if(elems>=tSize){													\
@@ -565,17 +570,6 @@ template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct 
 
 //---
 
-#define add_f_m(CAST_KEY, CAST_VAL)							\
-	auto ret = add((CAST_KEY)(key_in), (CAST_VAL)(val_in));	\
-	if(ret){ ret.val() = (CAST_VAL)(val_in); }
-template <class T_key, class T_val, class T_hash, class T_key_eq> inline void sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::add_f(const T_key&  key_in, const T_val&  val_in){ add_f_m(T_key, T_val); }
-template <class T_key, class T_val, class T_hash, class T_key_eq> inline void sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::add_f(      T_key&& key_in, const T_val&  val_in){ add_f_m(std::move, T_val); }
-template <class T_key, class T_val, class T_hash, class T_key_eq> inline void sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::add_f(const T_key&  key_in,       T_val&& val_in){ add_f_m(T_key, std::move); }
-template <class T_key, class T_val, class T_hash, class T_key_eq> inline void sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::add_f(      T_key&& key_in,       T_val&& val_in){ add_f_m(std::move, std::move); }
-
-//---
-
-#undef add_f_m
 #undef add_byitr_m_old
 #undef add_m
 #undef add_preproc_m
@@ -583,67 +577,65 @@ template <class T_key, class T_val, class T_hash, class T_key_eq> inline void ss
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
 // in order to reduce the calling time of function, macro expansion will be used.
+#ifdef SSTD_CHashT_DEBUG
+if(use_tIdx_dbg){ idx=tIdx_dbg; } // over write idx for debug
+#endif
+	
 #ifdef use_prime_table
-	#define key2tIdx(tIdx, key)												\
+	#ifdef SSTD_CHashT_DEBUG
+	#define key2tIdx_m(tIdx, key)											\
+		uint64 hVal = (uint64)(*pHashFn)(key); /* generate hashed value  */	\
+		tIdx = hVal % tSize;											    \
+		if(use_tIdx_dbg){ idx=tIdx_dbg; } /* over write idx for debug */
+	#else
+	#define key2tIdx_m(tIdx, key)											\
 		uint64 hVal = (uint64)(*pHashFn)(key); /* generate hashed value  */	\
 		tIdx = hVal % tSize;
+	#endif
 #else
-	#define key2tIdx(tIdx, key)												\
+	#ifdef SSTD_CHashT_DEBUG
+	#define key2tIdx_m(tIdx, key)											\
 		uint64 hVal = (uint64)(*pHashFn)(key); /* generate hashed value  */	\
 		tIdx = hVal & tSize;
+	#else
+	#define key2tIdx_m(tIdx, key)											\
+		uint64 hVal = (uint64)(*pHashFn)(key); /* generate hashed value  */	\
+		tIdx = hVal & tSize;											    \
+		if(use_tIdx_dbg){ idx=tIdx_dbg; } /* over write idx for debug */
+	#endif
 #endif
 
+#define findBase_m()													\
+																		\
+	if(!pT[idx].isUsed){ return itr_m(pT, idx, 0ull, 0ull, itr_end_m); } /* key is not found. */ \
+																		\
+	struct elem_m* pP = 0ull;     /* previous element pointer */		\
+	struct elem_m* pE = &pT[idx]; /* current element pointer */			\
+	while(pE!=0ull){													\
+		if(T_key_eq()(pE->key, key_in)){ return itr_m(pT, idx, pP, pE, 0); } /* key is found. */ \
+		pE = pE->pNext;													\
+	}																	\
+	return itr_m(pT, idx, 0ull, 0ull, itr_end_m); /* key is not found. */
+
+template <class T_key, class T_val, class T_hash, class T_key_eq>
+inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::find(const uint64 idx_in){
+	findBase_m();
+}
 template <class T_key, class T_val, class T_hash, class T_key_eq>
 inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::find(const T_key& key_in){
-	
-	//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	
-	uint64 idx; key2tIdx(idx, key_in); // get table index
-	
-	#ifdef SSTD_CHashT_DEBUG
-	if(use_tIdx_dbg){ idx=tIdx_dbg; } // over write idx for debug
-	#endif
-	/*
-	if(!pT[idx].isUsed){ return itr_m(pT, idx, 0ull, 0ull, itr_end_m); } // key is not found.
-	
-	// case1: key is on a table
-	if(T_key_eq()(pT[idx].key, key_in)){ return itr_m(pT, idx, 0ull, &pT[idx], 0); } // key is found.
-	
-	// case2: key is on a singly linked list
-	struct elem_m* pP = &pT[idx];      // previous element pointer
-	struct elem_m* pE = pT[idx].pNext; // current element pointer
-	while(pE!=0){
-		if(T_key_eq()(pE->key, key_in)){ return itr_m(pT, idx, pP, pE, 0); } // key is found.
-		pP = pE;
-		pE = pE->pNext;
-	}
-	//*/
-	
-	if(!pT[idx].isUsed){ return itr_m(pT, idx, 0ull, 0ull, itr_end_m); } // key is not found.
-	
-	struct elem_m* pP = 0ull;     // previous element pointer
-	struct elem_m* pE = &pT[idx]; // current element pointer
-	while(pE!=0ull){
-		if(T_key_eq()(pE->key, key_in)){ return itr_m(pT, idx, pP, pE, 0); } // key is found.
-		pE = pE->pNext;
-	}
-	return itr_m(pT, idx, 0ull, 0ull, itr_end_m); // key is not found.
+	uint64 idx; key2tIdx_m(idx, key_in);
+	findBase_m();
 }
 
-#undef key2tIdx
+#undef findBase_m
+#undef key2tIdx_m
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
 template <class T_key, class T_val, class T_hash, class T_key_eq>
-inline bool sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::erase(struct itr_m_old& itr){
-	if(itr==false){ return false; } // key is not found
+inline bool sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::erase(struct itr_m& itr){
+	
+	if(itr.state_R()==itr_end_m){ return false; } // key is not found
 	
 	elems--;
 	if(itr._pHead()==itr._pElem() && itr._pElem()->pNext==0ull){
