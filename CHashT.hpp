@@ -12,7 +12,6 @@
 
 #define elem_m sstd_CHashT::element<T_key,T_val> // a macro of table element structure
 #define itr_m sstd_CHashT::iterator<T_key,T_val> // a macro of iterator
-//#define itr_m_old sstd_CHashT::iterator<T_key,T_val> // a macro of iterator
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -289,18 +288,27 @@ private:
 	uint64 idx;        // table index
 	struct elem_m* pP; // previous element pointer
 	struct elem_m* pE; // current element pointer
+	struct elem_m* pN; // next element pointer
 	uint8 state;
 	
 public:
-	inline iterator(){ pT=0ull; idx=0ull; pP=0ull; pE=0ull; state=0; }
-	inline iterator(struct elem_m* pT_in, struct elem_m* tIdx_in, struct elem_m* pP_in, struct elem_m* pE_in, const uint8 state_in){
+	inline iterator(){ pT=0ull; idx=0ull; pP=0ull; pE=0ull; pN=0ull; state=0; }
+	inline iterator(struct elem_m* pT_in, struct elem_m* tIdx_in, struct elem_m* pP_in, struct elem_m* pE_in, struct elem_m* pN_in, const uint8 state_in){
 		pT    = pT_in;
 		idx   = tIdx_in;
 		pP    = pP_in;
 		pE    = pE_in;
+		pN    = pN_in;
 		state = state_in;
 	}
 	inline ~iterator(){}
+
+	const T_key& first(){ return pE->key; }
+	const T_val& second(){ return pE->val; }
+	
+	uint64 index(){ return idx; }
+	struct elem_m& _prev(){ return *pP; }
+	struct elem_m& _elem(){ return *pE; }
 	
 	const uint8 state_R(){ return state; }
 };
@@ -353,48 +361,19 @@ public:
 	}
 	inline const struct itr_m_old end(){ return itr_m_old(0ull, 0ull, false, 0ull, 0ull, 0ull); }
 	//*/
-	inline const struct itr_m_old end(){ return itr_m(pT, 0ull, 0ull, itr_end_m); }
-//	inline const bool operator!=(const struct itr_m& rhs){ return this->idx != rhs.index(); }
+	inline const struct itr_m end(){ return itr_m(pT, 0ull, 0ull, 0ull, 0ull, itr_end_m); }
 	inline const bool operator!=(const struct itr_m& rhs){ return this->state != rhs.state_R(); }
 	
 	T_val& operator[](const T_key&  rhs);
 	T_val& operator[](      T_key&& rhs);
 	
-	// at();
-	// begin();
-	// begin(size_type);
 	// bucket();
 	// bucket_count();
 	// bucket_size();
-	// cbgin();
-	// cbgin(size_type)();
-	// cend();
-	// cend(size_type)();
 	// clear();
-	// count();
-	// emplace();
-	// emplace_hint();
-	// empty();
-	// end();
-	// end(size_type)();
-	// equal_range();
-	// erase();
-	// find();
-	// get_allocator();
-	// hash_function();
-	// insert();
-	// insert_or_assign();
-	// key_eq();
 	// load_factor();
-	// max_bucket_count();
-	// max_load_factor();
-	// max_size()
 	// rehash();
 	// reserve();
-	// size();
-	// swap();
-	// swap (non-member function)();
-	// try_emplace();
 	
 	// operator[];
 	// operator =();
@@ -403,29 +382,19 @@ public:
 	
 	// ---------------------------
 	
-	struct itr_m_old add  (const T_key&  key_in, const T_val&  val_in); // copy key and value.
-	struct itr_m_old add  (      T_key&& key_in, const T_val&  val_in); // swap key.           (Callable by "sstd::CHashT<T_key, T_val> hashT; hashT.add(std::move(key),           val );".)
-	struct itr_m_old add  (const T_key&  key_in,       T_val&& val_in); // swap value.         (Callable by "sstd::CHashT<T_key, T_val> hashT; hashT.add(          key , std::move(val));".)
-	struct itr_m_old add  (      T_key&& key_in,       T_val&& val_in); // swap key and value. (Callable by "sstd::CHashT<T_key, T_val> hashT; hashT.add(std::move(key), std::move(val));".)
+	struct itr_m insert  (const T_key&  key_in, const T_val&  val_in); // copy key and value.
+	struct itr_m insert  (      T_key&& key_in, const T_val&  val_in); // swap key.           (Callable by "sstd::CHashT<T_key, T_val> hashT; hashT.insert(std::move(key),           val );".)
+	struct itr_m insert  (const T_key&  key_in,       T_val&& val_in); // swap value.         (Callable by "sstd::CHashT<T_key, T_val> hashT; hashT.insert(          key , std::move(val));".)
+	struct itr_m insert  (      T_key&& key_in,       T_val&& val_in); // swap key and value. (Callable by "sstd::CHashT<T_key, T_val> hashT; hashT.insert(std::move(key), std::move(val));".)
 	
-	struct itr_m_old add  (struct itr_m_old& itr, const T_key&  key_in); // add from itr value of find() for operator[]
-	struct itr_m_old add  (struct itr_m_old& itr,       T_key&& key_in); // add from itr value of find() for operator[]
+	struct itr_m insert  (struct itr_m& itr, const T_key&  key_in); // insert from itr value of find() for operator[]
+	struct itr_m insert  (struct itr_m& itr,       T_key&& key_in); // insert from itr value of find() for operator[]
 	
 	struct itr_m find (const T_key& key_in);
 	struct itr_m find (const uint64 idx_in);
 	
-	bool         erase(struct itr_m_old&   itr); // erase from itr value of add() or find()
+	bool         erase(struct itr_m_old&   itr); // erase from itr value of insert() or find()
 	bool         erase(const T_key& key_in); // erase from key value
-	
-	// append <-> remove
-	//    add <-> reduce
-	//   push <-> pull
-	// insert <-> delete
-	
-	// clear();
-	// double load_factor();
-	// rehash();
-	// reserve();
 	
 	inline const uint64 size(){ return elems; }
 	inline const uint64 tableSize(){ return tSize; }
@@ -475,7 +444,6 @@ inline void sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::CHashT_constructor(con
 	
 	pHashFn = new T_hash();
 	
-//	cItr_end = itr_m_old(pT, tSize); // for end()
 	elems = 0ull;
 }
 template <class T_key, class T_val, class T_hash, class T_key_eq> inline sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::CHashT(                       ){ CHashT_constructor(   512   ); } // in order to store 512 elements, 1024 table length will be allocated.
@@ -498,7 +466,7 @@ inline void sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::rehash(){
 	using std::swap;
 	
 	for(auto itr=this->begin(); itr!=this->end(); ++itr){
-		hashT_new.add(std::move(itr._key_nonConst()), std::move(itr.val()));
+		hashT_new.insert(std::move(itr._key_nonConst()), std::move(itr.val()));
 	}
 	this->tSizeL_idx = hashT_new._tSizeL_idx(); // this->_tSizeL_idx() = hashT_new._tSizeL_idx();
 	this->tSize      = hashT_new._tSize();
@@ -520,7 +488,7 @@ inline void sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::rehash(){
 //XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 //XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-#define add_preproc_m()													\
+#define insert_preproc_m()												\
 																		\
 	/* checking the needs of rehash. */									\
 	if(elems>=tSize){ rehash(); } /* elems needs to be measured before find(), because of the address that the itr suggests will be changed. */ \
@@ -528,34 +496,34 @@ inline void sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::rehash(){
 	auto itr = find(key_in);											\
 	if(itr.state_R()!=itr_end_m){ return itr; } /* key is already on the table */
 
-#define add_m(key_in, val_in, CAST_KEY, CAST_VAL)						\
+#define insert_m(key_in, val_in, CAST_KEY, CAST_VAL)					\
 																		\
 	elems++;															\
-	if(itr._pElem()!=0ull){												\
-		/* adding on the table */										\
+	if(itr._elem()!=0ull){												\
+		/* inserting on the table */									\
 																		\
-		itr._pElem()->isUsed = true;									\
-		itr._pElem()->key    = (CAST_KEY)(key_in);						\
-		itr._pElem()->val    = (CAST_VAL)(val_in);						\
-		return itr_m_old(pBegin, pEnd, false, itr._pHead(), itr._pElem(), 0ull); /* returning itr will be false. */ \
+		itr._elem().isUsed = true;										\
+		itr._elem().key    = (CAST_KEY)(key_in);						\
+		itr._elem().val    = (CAST_VAL)(val_in);						\
+		return itr_m(pT, itr.index(), pP, &itr._elem(), 0ull, 0);		\
 	}else{																\
-		/* adding on the singly linked list */							\
+		/* inserting on the singly linked list */						\
 																		\
-		itr._pPrev()->pNext = new struct elem_m();						\
-		itr._pPrev()->pNext->isUsed = true;								\
-		itr._pPrev()->pNext->key    = (CAST_KEY)(key_in);				\
-		itr._pPrev()->pNext->val    = (CAST_VAL)(val_in);				\
-		return itr_m_old(pBegin, pEnd, false, itr._pHead(), itr._pPrev()->pNext, 0ull); /* returning itr will be false. */ \
+		itr._prev().pNext = new struct elem_m();						\
+		itr._prev().pNext->isUsed = true;								\
+		itr._prev().pNext->key    = (CAST_KEY)(key_in);					\
+		itr._prev().pNext->val    = (CAST_VAL)(val_in);					\
+		return itr_m(pT, itr.index(), pP, &itr._elem(), &itr._prev(), 0); \
 	}
 
-template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::add(const T_key&  key_in, const T_val&  val_in){ add_preproc_m(); add_m(key_in, val_in, T_key,     T_val    ); }
-template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::add(      T_key&& key_in, const T_val&  val_in){ add_preproc_m(); add_m(key_in, val_in, std::move, T_val    ); }
-template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::add(const T_key&  key_in,       T_val&& val_in){ add_preproc_m(); add_m(key_in, val_in, T_key,     std::move); }
-template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::add(      T_key&& key_in,       T_val&& val_in){ add_preproc_m(); add_m(key_in, val_in, std::move, std::move); }
+template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::insert(const T_key&  key_in, const T_val&  val_in){ insert_preproc_m(); insert_m(key_in, val_in, T_key,     T_val    ); }
+template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::insert(      T_key&& key_in, const T_val&  val_in){ insert_preproc_m(); insert_m(key_in, val_in, std::move, T_val    ); }
+template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::insert(const T_key&  key_in,       T_val&& val_in){ insert_preproc_m(); insert_m(key_in, val_in, T_key,     std::move); }
+template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::insert(      T_key&& key_in,       T_val&& val_in){ insert_preproc_m(); insert_m(key_in, val_in, std::move, std::move); }
 
 //---
 
-#define add_byitr_m_old(key_in, CAST_KEY)								\
+#define insert_by_itr_m(key_in, CAST_KEY)								\
 																		\
 	/* checking the needs of rehash. */									\
 	if(elems>=tSize){													\
@@ -563,16 +531,16 @@ template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct 
 		itr = find(key_in); /* because of the address that the itr suggests was changed by rehash(), we needs to find again. */ \
 	}																	\
 																		\
-	T_val val_in = T_val(); /* generation of empty buf for add() */
+	T_val val_in = T_val(); /* generation of empty buf for insert() */
 
-template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m_old sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::add(struct itr_m_old& itr, const T_key&  key_in){ add_byitr_m_old(key_in, T_key    ); add_m(key_in, val_in, T_key,     T_val    ); }
-template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m_old sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::add(struct itr_m_old& itr,       T_key&& key_in){ add_byitr_m_old(key_in, std::move); add_m(key_in, val_in, std::move, std::move); }
+template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::insert(struct itr_m& itr, const T_key&  key_in){ insert_by_itr_m(key_in, T_key    ); insert_m(key_in, val_in, T_key,     T_val    ); }
+template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::insert(struct itr_m& itr,       T_key&& key_in){ insert_by_itr_m(key_in, std::move); insert_m(key_in, val_in, std::move, std::move); }
 
 //---
 
-#undef add_byitr_m_old
-#undef add_m
-#undef add_preproc_m
+#undef insert_by_itr_m
+#undef insert_m
+#undef insert_preproc_m
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -607,15 +575,16 @@ if(use_tIdx_dbg){ idx=tIdx_dbg; } // over write idx for debug
 
 #define findBase_m()													\
 																		\
-	if(!pT[idx].isUsed){ return itr_m(pT, idx, 0ull, 0ull, itr_end_m); } /* key is not found. */ \
+	if(!pT[idx].isUsed){ return itr_m(pT, idx, 0ull, 0ull, 0ull, itr_end_m); } /* key is not found. */ \
 																		\
 	struct elem_m* pP = 0ull;     /* previous element pointer */		\
 	struct elem_m* pE = &pT[idx]; /* current element pointer */			\
 	while(pE!=0ull){													\
-		if(T_key_eq()(pE->key, key_in)){ return itr_m(pT, idx, pP, pE, 0); } /* key is found. */ \
+		if(T_key_eq()(pE->key, key_in)){ return itr_m(pT, idx, pP, pE, pE->pNext, 0); } /* key is found. */ \
+		pP = pE;														\
 		pE = pE->pNext;													\
 	}																	\
-	return itr_m(pT, idx, 0ull, 0ull, itr_end_m); /* key is not found. */
+	return itr_m(pT, idx, 0ull, 0ull, 0ull, itr_end_m); /* key is not found. */
 
 template <class T_key, class T_val, class T_hash, class T_key_eq>
 inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::find(const uint64 idx_in){
@@ -673,9 +642,9 @@ inline bool sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::erase(struct itr_m& it
 		// > sstd::CHashT<uint64, uint64> hashT(30);
 		// > hashT.use_tIdx_dbg=true;
 		// > hashT.tIdx_dbg=0;
-		// > hashT.add(1, 10);
-		// > hashT.add(2, 20);
-		// > hashT.add(3, 30);
+		// > hashT.insert(1, 10);
+		// > hashT.insert(2, 20);
+		// > hashT.insert(3, 30);
 		// > for(auto itr=hashT.begin(); itr!=hashT.end(); ++itr){
 		// >     hashT.erase(itr);
 		// > }
@@ -713,16 +682,16 @@ inline bool sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::erase(const T_key& key
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
-#define add_OPE_bracket_m(CAST_KEY)										\
+#define insert_OPE_bracket_m(CAST_KEY)									\
 	auto itrF = find(key_in);											\
 	if(itrF==true){ return itrF._pElem()->val; }						\
 																		\
-	auto itrA = add(itrF, (CAST_KEY)(key_in));							\
+ö	auto itrA = insert(itrF, (CAST_KEY)(key_in));						\
 	return itrA._pElem()->val;
 
-template <class T_key, class T_val, class T_hash, class T_key_eq> inline T_val& sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::operator[](const T_key&  key_in){ add_OPE_bracket_m(T_key    ); }
-template <class T_key, class T_val, class T_hash, class T_key_eq> inline T_val& sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::operator[](      T_key&& key_in){ add_OPE_bracket_m(std::move); }
-#undef add_OPE_bracket_m
+template <class T_key, class T_val, class T_hash, class T_key_eq> inline T_val& sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::operator[](const T_key&  key_in){ insert_OPE_bracket_m(T_key    ); }
+template <class T_key, class T_val, class T_hash, class T_key_eq> inline T_val& sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::operator[](      T_key&& key_in){ insert_OPE_bracket_m(std::move); }
+#undef insert_OPE_bracket_m
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
