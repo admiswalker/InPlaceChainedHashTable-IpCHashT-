@@ -302,13 +302,15 @@ public:
 		state = state_in;
 	}
 	inline ~iterator(){}
-
-	const T_key& first(){ return pE->key; }
+	
+	const T_key&  first(){ return pE->key; }
 	const T_val& second(){ return pE->val; }
 	
 	uint64 index(){ return idx; }
-	struct elem_m& _prev(){ return *pP; }
-	struct elem_m& _elem(){ return *pE; }
+	struct elem_m* _pHead(){ return &pT[idx]; }
+	struct elem_m* _pPrev(){ return pP;       }
+	struct elem_m* _pElem(){ return pE;       }
+	struct elem_m* _pNext(){ return pN;       }
 	
 	const uint8 state_R(){ return state; }
 };
@@ -382,19 +384,19 @@ public:
 	
 	// ---------------------------
 	
-	struct itr_m insert  (const T_key&  key_in, const T_val&  val_in); // copy key and value.
-	struct itr_m insert  (      T_key&& key_in, const T_val&  val_in); // swap key.           (Callable by "sstd::CHashT<T_key, T_val> hashT; hashT.insert(std::move(key),           val );".)
-	struct itr_m insert  (const T_key&  key_in,       T_val&& val_in); // swap value.         (Callable by "sstd::CHashT<T_key, T_val> hashT; hashT.insert(          key , std::move(val));".)
-	struct itr_m insert  (      T_key&& key_in,       T_val&& val_in); // swap key and value. (Callable by "sstd::CHashT<T_key, T_val> hashT; hashT.insert(std::move(key), std::move(val));".)
+	struct itr_m insert(const T_key&  key_in, const T_val&  val_in); // copy key and value.
+	struct itr_m insert(      T_key&& key_in, const T_val&  val_in); // swap key.           (Callable by "sstd::CHashT<T_key, T_val> hashT; hashT.insert(std::move(key),           val );".)
+	struct itr_m insert(const T_key&  key_in,       T_val&& val_in); // swap value.         (Callable by "sstd::CHashT<T_key, T_val> hashT; hashT.insert(          key , std::move(val));".)
+	struct itr_m insert(      T_key&& key_in,       T_val&& val_in); // swap key and value. (Callable by "sstd::CHashT<T_key, T_val> hashT; hashT.insert(std::move(key), std::move(val));".)
 	
-	struct itr_m insert  (struct itr_m& itr, const T_key&  key_in); // insert from itr value of find() for operator[]
-	struct itr_m insert  (struct itr_m& itr,       T_key&& key_in); // insert from itr value of find() for operator[]
+	struct itr_m insert(struct itr_m& itr, const T_key&  key_in); // insert from itr value of find() for operator[]
+	struct itr_m insert(struct itr_m& itr,       T_key&& key_in); // insert from itr value of find() for operator[]
 	
-	struct itr_m find (const T_key& key_in);
-	struct itr_m find (const uint64 idx_in);
+	struct itr_m find  (const T_key& key_in, const uint64 idx);
+	struct itr_m find  (const T_key& key_in);
 	
-	bool         erase(struct itr_m_old&   itr); // erase from itr value of insert() or find()
-	bool         erase(const T_key& key_in); // erase from key value
+	bool         erase (struct itr_m&   itr); // erase from itr value of insert() or find()
+	bool         erase (const T_key& key_in); // erase from key value
 	
 	inline const uint64 size(){ return elems; }
 	inline const uint64 tableSize(){ return tSize; }
@@ -479,15 +481,6 @@ inline void sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::rehash(){
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
-//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-
 #define insert_preproc_m()												\
 																		\
 	/* checking the needs of rehash. */									\
@@ -499,21 +492,21 @@ inline void sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::rehash(){
 #define insert_m(key_in, val_in, CAST_KEY, CAST_VAL)					\
 																		\
 	elems++;															\
-	if(itr._elem()!=0ull){												\
+	if(itr._pElem()!=0ull){												\
 		/* inserting on the table */									\
 																		\
-		itr._elem().isUsed = true;										\
-		itr._elem().key    = (CAST_KEY)(key_in);						\
+		itr._pElem()->isUsed = true;									\
+		itr._pElem()->key    = (CAST_KEY)(key_in);						\
 		itr._elem().val    = (CAST_VAL)(val_in);						\
-		return itr_m(pT, itr.index(), pP, &itr._elem(), 0ull, 0);		\
+		return itr_m(pT, itr.index(), 0ull, itr._pElem(), 0ull, 0);		\
 	}else{																\
 		/* inserting on the singly linked list */						\
 																		\
-		itr._prev().pNext = new struct elem_m();						\
-		itr._prev().pNext->isUsed = true;								\
-		itr._prev().pNext->key    = (CAST_KEY)(key_in);					\
-		itr._prev().pNext->val    = (CAST_VAL)(val_in);					\
-		return itr_m(pT, itr.index(), pP, &itr._elem(), &itr._prev(), 0); \
+		itr._pPrev()->pNext = new struct elem_m();						\
+		itr._pPrev()->pNext->isUsed = true;								\
+		itr._pPrev()->pNext->key    = (CAST_KEY)(key_in);				\
+		itr._pPrev()->pNext->val    = (CAST_VAL)(val_in);				\
+		return itr_m(pT, itr.index(), itr._pPrev(), itr._pElem(), 0ull, 0); \
 	}
 
 template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::insert(const T_key&  key_in, const T_val&  val_in){ insert_preproc_m(); insert_m(key_in, val_in, T_key,     T_val    ); }
@@ -545,10 +538,6 @@ template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
 // in order to reduce the calling time of function, macro expansion will be used.
-#ifdef SSTD_CHashT_DEBUG
-if(use_tIdx_dbg){ idx=tIdx_dbg; } // over write idx for debug
-#endif
-	
 #ifdef use_prime_table
 	#ifdef SSTD_CHashT_DEBUG
 	#define key2tIdx_m(tIdx, key)											\
@@ -584,10 +573,10 @@ if(use_tIdx_dbg){ idx=tIdx_dbg; } // over write idx for debug
 		pP = pE;														\
 		pE = pE->pNext;													\
 	}																	\
-	return itr_m(pT, idx, 0ull, 0ull, 0ull, itr_end_m); /* key is not found. */
+	return itr_m(pT, idx, pP, 0ull, 0ull, itr_end_m); /* key is not found. */
 
 template <class T_key, class T_val, class T_hash, class T_key_eq>
-inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::find(const uint64 idx_in){
+inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::find(const T_key& key_in, const uint64 idx){
 	findBase_m();
 }
 template <class T_key, class T_val, class T_hash, class T_key_eq>
@@ -603,58 +592,49 @@ inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::find(const T_k
 
 template <class T_key, class T_val, class T_hash, class T_key_eq>
 inline bool sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::erase(struct itr_m& itr){
+	// "using std::swap;" is defined, in order to preferentially call overloaded function of swap<T>() for type T. (Ref: https://cpprefjp.github.io/reference/utility/swap.html)
+	// in here, scope of using is limited by "{}", this means that scope of using is same as a usual value.
+	using std::swap;
 	
 	if(itr.state_R()==itr_end_m){ return false; } // key is not found
 	
 	elems--;
-	if(itr._pHead()==itr._pElem() && itr._pElem()->pNext==0ull){
-		// case 1. erase an element on the table without singly linked list.
+	if(itr._pPrev()==0ull && itr._pNext()==0ull){
+		// case 1. erase an element on the table without element on the singly linked list.
 		
+		T_key keyBuf;// in order to call destructor
+		T_val valBuf;// in order to call destructor
 		itr._pElem()->isUsed = false;
-	}else if(itr._pHead()==itr._pElem()){
-		// case 2. erase an element on the table with singly linked list.
+		swap(itr._pElem()->key, keyBuf);
+		swap(itr._pElem()->val, valBuf);
+	}else if(itr._pPrev()==0ull && itr._pNext()!=0ull){
+		// case 2. erase an element on the table with element(s) on the singly linked list.
 		
-		// <- on the table -> | <- on the singly linked list ...................... -> |
+		// <- on the table ...... -> | <- on the singly linked list ......................... -> |
 		//
-		//  <1>                      <2>                        <3>
-		//  itr._pElem()        +->  itr._pElem()->pNext    +-> itr._pElem()->pNext->pNext
-		// [ isUsed          ]  |   [ isUsed            ]   |   [ isUsed                  ]
-		// [ key      <1-1>  ]  |   [ key        <2-1>  ]   |   ...
-		// [ val      <1-2>  ]  |   [ val        <2-2>  ]   |
-		// [ pNext    <1-3>  ] -+   [ pNext      <2-3>  ] --+
-		
-		// "using std::swap;" is defined, in order to preferentially call overloaded function of swap<T>() for type T. (Ref: https://cpprefjp.github.io/reference/utility/swap.html)
-		// in here, scope of using is limited by "{}", this means that scope of using is same as a usual value.
-		using std::swap;
-		
-		swap(itr._pElem()->key, itr._pElem()->pNext->key); // <1-1>, <2-1>
-		swap(itr._pElem()->val, itr._pElem()->pNext->val); // <1-2>, <2-2>
-		struct elem_m* pENN_buf = itr._pElem()->pNext->pNext; // <2-3>
-		itr._pElem()->pNext->pNext = 0ull; // <2-3> // deleting "itr._pElem->pNext" without filling "itr._pElem->pNext->pNext" with zero will cause the recursive release of the memory.
-		delete itr._pElem()->pNext; // <2>
+		//  <1>                           <2>                         <3>
+		//  itr._pElem()             +->  itr._pElem()->pNext    +->  itr._pElem()->pNext->pNext
+		//  == &pT[idx]              |    == itr._pNext()        |    == itr._pNext()->pNext
+		// [ isUsed               ]  |   [ isUsed            ]   |   [ isUsed                   ]
+		// [ key           <1-1>  ]  |   [ key        <2-1>  ]   |   ...
+		// [ val           <1-2>  ]  |   [ val        <2-2>  ]   |
+		// [ pNext         <1-3>  ] -+   [ pNext      <2-3>  ] --+
+
+		// table
+		swap(itr._pElem()->key, itr._pNext()->key); // <1-1>, <2-1>
+		swap(itr._pElem()->val, itr._pNext()->val); // <1-2>, <2-2>
+		struct elem_m* pENN_buf = itr._pNext()->pNext; // <2-3>
+		itr._pNext()->pNext = 0ull; // <2-3> // deleting "itr._pElem()->pNext" without filling "itr._pElem()->pNext->pNext" with zero will cause the recursive release of the memory.
+		delete itr._pNext(); // <2>
 		itr._pElem()->pNext = pENN_buf; // <1-3> = &<3>
 		
-		// Because of erasing an element in avobe method will increment itr,
-		// decrementing itr is required to implimenting "for(auto itr=hashT.begin(); itr!=hashT.end(); ++itr){ hashT.erase(itr); }".
-		// When you test this, below code will reproduce phenomenon.
-		// > #define SSTD_CHashT_DEBUG
-		// > #include "./CHashT_test.hpp"
-		// > sstd::CHashT<uint64, uint64> hashT(30);
-		// > hashT.use_tIdx_dbg=true;
-		// > hashT.tIdx_dbg=0;
-		// > hashT.insert(1, 10);
-		// > hashT.insert(2, 20);
-		// > hashT.insert(3, 30);
-		// > for(auto itr=hashT.begin(); itr!=hashT.end(); ++itr){
-		// >     hashT.erase(itr);
-		// > }
-		// > ASSERT_TRUE( hashT.size()==0ull );
-		itr._pHead()--;
-		itr._pElem()=0ull; // "itr.pElem=0ull" is for operator++ will not access.
+		// itr
+		itr._pNext()=itr._pElem(); // for operator++.
+		itr._pElem()=0ull;         // for operator++ will not access.
 	}else{
 		// case 3. erase element on the singly linked list. ("case 3" is a interchangeable process by "case 2", while ignoring the over head.)
 		
-		itr._pPrev()->pNext = itr._pElem()->pNext;
+		itr._pPrev()->pNext = itr._pNext();
 		itr._pElem()->pNext = 0ull; // deleting "itr._pElem" without filling "itr._pElem->pNext" with zero will cause the recursive release of the memory.
 		delete itr._pElem();
 		
@@ -666,7 +646,6 @@ inline bool sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::erase(struct itr_m& it
 		//   [ pHead  ]
 		//   [ pElem  ]
 		//   [ pPrev  ]
-//		itr._pHead() = ;
 	}
 	
 	return true;
@@ -686,7 +665,7 @@ inline bool sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::erase(const T_key& key
 	auto itrF = find(key_in);											\
 	if(itrF==true){ return itrF._pElem()->val; }						\
 																		\
-ö	auto itrA = insert(itrF, (CAST_KEY)(key_in));						\
+	auto itrA = insert(itrF, (CAST_KEY)(key_in));						\
 	return itrA._pElem()->val;
 
 template <class T_key, class T_val, class T_hash, class T_key_eq> inline T_val& sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::operator[](const T_key&  key_in){ insert_OPE_bracket_m(T_key    ); }

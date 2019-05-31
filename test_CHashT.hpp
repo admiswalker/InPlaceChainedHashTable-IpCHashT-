@@ -12,16 +12,16 @@ public:
 	~hashFn(){}
 	size_t operator()(const uint64& key){ return key; }
 };
-
+/*
 TEST(sstd_CHashT, use_usr_defined_hash_func){
 	sstd::CHashT<uint64, uint64, usrDef_in_CHashT::hashFn> hashT(100);
 	auto
 	itr = hashT.add( 1, 10); ASSERT_TRUE( itr==false );
 	itr = hashT.find(1); ASSERT_TRUE( itr==true ); ASSERT_TRUE( itr.key()==1 ); ASSERT_TRUE( itr.val()==10 );
 }
-
+//*/
 //-----------------------------------------------------------------------------------------------------------------------------------------------
-
+/*
 TEST(sstd_CHashT, add){
 	sstd::CHashT<uint64, uint64> hashT(100);
 	
@@ -43,6 +43,8 @@ TEST(sstd_CHashT, add){
 	itr = hashT.add( 2, 99); ASSERT_TRUE( itr==true ); ASSERT_TRUE( itr.key()==2 ); ASSERT_TRUE( itr.val()==20 );
 	itr = hashT.add( 3, 99); ASSERT_TRUE( itr==true ); ASSERT_TRUE( itr.key()==3 ); ASSERT_TRUE( itr.val()==30 );
 }
+//*/
+/*
 TEST(sstd_CHashT, add_f){
 	sstd::CHashT<uint64, uint64> hashT(100);
 	
@@ -53,6 +55,8 @@ TEST(sstd_CHashT, add_f){
 	hashT.add_f( 1, 20);
 	itr = hashT.find(1); ASSERT_TRUE( itr==true ); ASSERT_TRUE( itr.key()==1 ); ASSERT_TRUE( itr.val()==20 );
 }
+//*/
+/*
 TEST(sstd_CHashT, find){
 	// case 1. when key is on the table
 	{
@@ -85,6 +89,8 @@ TEST(sstd_CHashT, find){
 		itr = hashT.find(6); ASSERT_TRUE( itr==false );
 	}
 }
+//*/
+/*
 TEST(sstd_CHashT, sstd_CHashT_element4reference_T_key_T_val){
 	sstd::CHashT<uint64, uint64> hashT(100);
 	auto itr = sstd_CHashT::iterator<uint64, uint64>();
@@ -109,6 +115,8 @@ TEST(sstd_CHashT, sstd_CHashT_element4reference_T_key_T_val){
 	itr.val()=60; // overwrite the value when itr is available. (itr is enabled when find() success.)
 	itr = hashT.find(4); ASSERT_TRUE( itr.key()==4 ); ASSERT_TRUE( itr.val()==60 );
 }
+//*/
+/*
 TEST(sstd_CHashT, iterator){
 	sstd::CHashT<uint64, uint64> hashT(30);
 	hashT.use_tIdx_dbg = true;
@@ -153,7 +161,10 @@ TEST(sstd_CHashT, iterator){
 	}
 	ASSERT_TRUE( hashT.size()==0ull );
 	
-}TEST(sstd_CHashT, erase){
+}
+//*/
+/*
+TEST(sstd_CHashT, erase){
 	
 	// case 1. erase an element on the table without singly linked list.
 	{
@@ -221,6 +232,8 @@ TEST(sstd_CHashT, iterator){
 		itr = hashT.find(4); ASSERT_TRUE( itr==false );
 	}
 }
+//*/
+/*
 TEST(sstd_CHashT, erase_byItr){
 	// find key-val pair, get value and erase the pair
 	
@@ -232,6 +245,8 @@ TEST(sstd_CHashT, erase_byItr){
 	hashT.erase(itr);        ASSERT_TRUE( itr==true );
 	itr = hashT.find(1);     ASSERT_TRUE( itr==false );
 }
+//*/
+/*
 TEST(sstd_CHashT, rehash){
 	uint64 seed=12345ull;     // using a constant value in order to provide reproducibility.
 	std::mt19937_64 mt(seed); // pseudo random number generator
@@ -255,6 +270,8 @@ TEST(sstd_CHashT, rehash){
 //		ASSERT_TRUE( hashT.tableSize()==2053 ); // this test is for prime table.
 	}
 }
+//*/
+/*
 TEST(sstd_CHashT, stressTest){
 	// this is a stress test of chained hash table
 	
@@ -302,6 +319,8 @@ TEST(sstd_CHashT, stressTest){
 		ASSERT_TRUE( hashT.size()==0 );
 	}
 }
+//*/
+/*
 TEST(sstd_CHashT, OPE_bracket){
 	// []
 	
@@ -320,7 +339,7 @@ TEST(sstd_CHashT, OPE_bracket){
 		ret++; // avoiding "warning: unused variable ‘ret’"
 	}
 }
-
+//*/
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
 // 未実装項目一覧
