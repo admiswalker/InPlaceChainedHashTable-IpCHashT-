@@ -292,8 +292,8 @@ private:
 	uint8 state;
 	
 public:
-	inline iterator(){ pT=0ull; idx=0ull; pP=0ull; pE=0ull; pN=0ull; state=0; }
-	inline iterator(struct elem_m* pT_in, struct elem_m* tIdx_in, struct elem_m* pP_in, struct elem_m* pE_in, struct elem_m* pN_in, const uint8 state_in){
+	inline iterator(){ pT=NULL; idx=0ull; pP=NULL; pE=NULL; pN=NULL; state=0; }
+	inline iterator(struct elem_m* pT_in, const uint64 tIdx_in, struct elem_m* pP_in, struct elem_m* pE_in, struct elem_m* pN_in, const uint8 state_in){
 		pT    = pT_in;
 		idx   = tIdx_in;
 		pP    = pP_in;
@@ -307,10 +307,10 @@ public:
 	const T_val& second(){ return pE->val; }
 	
 	uint64 index(){ return idx; }
-	struct elem_m* _pHead(){ return &pT[idx]; }
-	struct elem_m* _pPrev(){ return pP;       }
-	struct elem_m* _pElem(){ return pE;       }
-	struct elem_m* _pNext(){ return pN;       }
+	struct elem_m*  _pHead(){ return &pT[idx]; }
+	struct elem_m*& _pPrev(){ return pP;       }
+	struct elem_m*& _pElem(){ return pE;       }
+	struct elem_m*& _pNext(){ return pN;       }
 	
 	const uint8 state_R(){ return state; }
 };
@@ -363,7 +363,7 @@ public:
 	}
 	inline const struct itr_m_old end(){ return itr_m_old(0ull, 0ull, false, 0ull, 0ull, 0ull); }
 	//*/
-	inline const struct itr_m end(){ return itr_m(pT, 0ull, 0ull, 0ull, 0ull, itr_end_m); }
+	inline const struct itr_m end(){ return itr_m(pT, 0ull, NULL, NULL, NULL, itr_end_m); }
 	inline const bool operator!=(const struct itr_m& rhs){ return this->state != rhs.state_R(); }
 	
 	T_val& operator[](const T_key&  rhs);
@@ -492,21 +492,22 @@ inline void sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::rehash(){
 #define insert_m(key_in, val_in, CAST_KEY, CAST_VAL)					\
 																		\
 	elems++;															\
-	if(itr._pElem()!=0ull){												\
+	if(itr._pElem()!=NULL){												\
 		/* inserting on the table */									\
 																		\
 		itr._pElem()->isUsed = true;									\
 		itr._pElem()->key    = (CAST_KEY)(key_in);						\
-		itr._elem().val    = (CAST_VAL)(val_in);						\
-		return itr_m(pT, itr.index(), 0ull, itr._pElem(), 0ull, 0);		\
+		itr._pElem()->val    = (CAST_VAL)(val_in);						\
+		return itr_m(pT, itr.index(), NULL, itr._pElem(), NULL, 0);		\
 	}else{																\
 		/* inserting on the singly linked list */						\
+		/* find() guarantees that itr->pElem() is the tail of singly linked list */	\
 																		\
 		itr._pPrev()->pNext = new struct elem_m();						\
 		itr._pPrev()->pNext->isUsed = true;								\
 		itr._pPrev()->pNext->key    = (CAST_KEY)(key_in);				\
 		itr._pPrev()->pNext->val    = (CAST_VAL)(val_in);				\
-		return itr_m(pT, itr.index(), itr._pPrev(), itr._pElem(), 0ull, 0); \
+		return itr_m(pT, itr.index(), itr._pPrev(), itr._pElem(), NULL, 0); \
 	}
 
 template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::insert(const T_key&  key_in, const T_val&  val_in){ insert_preproc_m(); insert_m(key_in, val_in, T_key,     T_val    ); }
@@ -564,16 +565,16 @@ template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct 
 
 #define findBase_m()													\
 																		\
-	if(!pT[idx].isUsed){ return itr_m(pT, idx, 0ull, 0ull, 0ull, itr_end_m); } /* key is not found. */ \
+	if(!pT[idx].isUsed){ return itr_m(pT, idx, NULL, NULL, NULL, itr_end_m); } /* key is not found. */ \
 																		\
-	struct elem_m* pP = 0ull;     /* previous element pointer */		\
+	struct elem_m* pP = NULL;     /* previous element pointer */		\
 	struct elem_m* pE = &pT[idx]; /* current element pointer */			\
-	while(pE!=0ull){													\
+	while(pE!=NULL){													\
 		if(T_key_eq()(pE->key, key_in)){ return itr_m(pT, idx, pP, pE, pE->pNext, 0); } /* key is found. */ \
 		pP = pE;														\
 		pE = pE->pNext;													\
 	}																	\
-	return itr_m(pT, idx, pP, 0ull, 0ull, itr_end_m); /* key is not found. */
+	return itr_m(pT, idx, pP, NULL, NULL, itr_end_m); /* key is not found. */
 
 template <class T_key, class T_val, class T_hash, class T_key_eq>
 inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::find(const T_key& key_in, const uint64 idx){
@@ -599,7 +600,7 @@ inline bool sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::erase(struct itr_m& it
 	if(itr.state_R()==itr_end_m){ return false; } // key is not found
 	
 	elems--;
-	if(itr._pPrev()==0ull && itr._pNext()==0ull){
+	if(itr._pPrev()==NULL && itr._pNext()==NULL){
 		// case 1. erase an element on the table without element on the singly linked list.
 		
 		T_key keyBuf;// in order to call destructor
@@ -607,7 +608,7 @@ inline bool sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::erase(struct itr_m& it
 		itr._pElem()->isUsed = false;
 		swap(itr._pElem()->key, keyBuf);
 		swap(itr._pElem()->val, valBuf);
-	}else if(itr._pPrev()==0ull && itr._pNext()!=0ull){
+	}else if(itr._pPrev()==NULL && itr._pNext()!=NULL){
 		// case 2. erase an element on the table with element(s) on the singly linked list.
 		
 		// <- on the table ...... -> | <- on the singly linked list ......................... -> |
@@ -624,18 +625,18 @@ inline bool sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::erase(struct itr_m& it
 		swap(itr._pElem()->key, itr._pNext()->key); // <1-1>, <2-1>
 		swap(itr._pElem()->val, itr._pNext()->val); // <1-2>, <2-2>
 		struct elem_m* pENN_buf = itr._pNext()->pNext; // <2-3>
-		itr._pNext()->pNext = 0ull; // <2-3> // deleting "itr._pElem()->pNext" without filling "itr._pElem()->pNext->pNext" with zero will cause the recursive release of the memory.
+		itr._pNext()->pNext = NULL; // <2-3> // deleting "itr._pElem()->pNext" without filling "itr._pElem()->pNext->pNext" with zero will cause the recursive release of the memory.
 		delete itr._pNext(); // <2>
 		itr._pElem()->pNext = pENN_buf; // <1-3> = &<3>
 		
 		// itr
 		itr._pNext()=itr._pElem(); // for operator++.
-		itr._pElem()=0ull;         // for operator++ will not access.
+		itr._pElem()=NULL;         // for operator++ will not access.
 	}else{
 		// case 3. erase element on the singly linked list. ("case 3" is a interchangeable process by "case 2", while ignoring the over head.)
 		
 		itr._pPrev()->pNext = itr._pNext();
-		itr._pElem()->pNext = 0ull; // deleting "itr._pElem" without filling "itr._pElem->pNext" with zero will cause the recursive release of the memory.
+		itr._pElem()->pNext = NULL; // deleting "itr._pElem" without filling "itr._pElem->pNext" with zero will cause the recursive release of the memory.
 		delete itr._pElem();
 		
 		//itr._pElem() = itr._pHead();
@@ -663,7 +664,7 @@ inline bool sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::erase(const T_key& key
 
 #define insert_OPE_bracket_m(CAST_KEY)									\
 	auto itrF = find(key_in);											\
-	if(itrF==true){ return itrF._pElem()->val; }						\
+	if(itrF.state_R()!=itr_end_m){ return itrF._pElem()->val; }			\
 																		\
 	auto itrA = insert(itrF, (CAST_KEY)(key_in));						\
 	return itrA._pElem()->val;
