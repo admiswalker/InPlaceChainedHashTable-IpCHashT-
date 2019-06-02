@@ -215,8 +215,8 @@ public:
 	inline iterator(const struct elem_m* pBegin_in, const struct elem_m* pEnd_in, const bool TF_in, struct elem_m* pH, struct elem_m* pE, struct elem_m* pP){ pBegin=pBegin_in; pEnd=pEnd_in; TF=TF_in; pHead=pH; pElem=pE; pPrev=pP; }
 	inline ~iterator(){}
 	
-	inline const T_key& key()           { return pElem->key; }
-	inline       T_key& _key_nonConst(){ return pElem->key; } // if a key will be changed, the table sorted by the mod of hash value will be broken.
+	inline const T_key& key()    { return pElem->key; }
+	inline       T_key& _key_RW(){ return pElem->key; } // if a key will be changed, the table sorted by the mod of hash value will be broken.
 	inline T_val& val(){ return pElem->val; }
 	
 	// cast operator
@@ -469,7 +469,7 @@ inline void sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::rehash(){
 	using std::swap;
 	
 	for(auto itr=this->begin(); itr!=this->end(); ++itr){
-		hashT_new.add(std::move(itr._key_nonConst()), std::move(itr.val()));
+		hashT_new.add(std::move(itr._key_RW()), std::move(itr.val()));
 	}
 	this->tSizeL_idx = hashT_new._tSizeL_idx(); // this->_tSizeL_idx() = hashT_new._tSizeL_idx();
 	this->tSize      = hashT_new._tSize();
