@@ -174,8 +174,8 @@ template <class T_key, class T_val>
 struct sstd_CHashT::element{
 private:
 public:
-	inline element(){ isUsed=false; pNext=0; }
-	inline ~element(){ if(pNext!=0){delete pNext; pNext=0;} } // recursive release of the memory
+	inline element(){ isUsed=false; pNext=NULL; }
+	inline ~element(){ if(pNext!=NULL){delete pNext; pNext=NULL;} } // recursive release of the memory
 	
 	bool isUsed;          // flag
 	T_key key;            // key
@@ -194,89 +194,6 @@ public:
 };
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
-/*
-template <class T_key, class T_val>
-struct sstd_CHashT::iterator{
-private:
-	const struct elem_m* pBegin; // pBegin = &pT[0];
-	const struct elem_m* pEnd;   // pEnd = pBegin + tSize * sizeof(struct elem_m);
-	
-	bool TF; // true or false
-	struct elem_m* pHead;
-	struct elem_m* pElem;
-	struct elem_m* pPrev;
-	
-public:
-	inline struct elem_m*& _pHead(){ return pHead; }
-	inline struct elem_m*& _pElem(){ return pElem; }
-	inline struct elem_m*& _pPrev(){ return pPrev; }
-	
-	inline iterator(){ pBegin=0ull; pEnd=0ull; TF=false; pHead=0ull; pElem=0ull; pPrev=0ull; }
-	inline iterator(const struct elem_m* pBegin_in, const struct elem_m* pEnd_in, const bool TF_in, struct elem_m* pH, struct elem_m* pE, struct elem_m* pP){ pBegin=pBegin_in; pEnd=pEnd_in; TF=TF_in; pHead=pH; pElem=pE; pPrev=pP; }
-	inline ~iterator(){}
-	
-	inline const T_key& key()           { return pElem->key; }
-	inline       T_key& _key_nonConst(){ return pElem->key; } // if a key will be changed, the table sorted by the mod of hash value will be broken.
-	inline T_val& val(){ return pElem->val; }
-	
-	// cast operator
-	inline operator bool(){ return TF; }
-	
-	// operator
-	inline const bool operator==(uint64& rhs){ return (uint64)pElem==rhs; }
-	
-	inline const bool operator!=(const struct itr_m_old& rhs){
-		return !(this->TF     == rhs.TF     &&
-				 this->pHead  == rhs.pHead  &&
-				 this->pElem  == rhs.pElem  &&
-				 this->pPrev  == rhs.pPrev  &&
-				 
-				 this->pBegin == rhs.pBegin &&
-				 this->pEnd   == rhs.pEnd     );
-	}
-	
-	// pre-increment (++itr)
-	inline struct itr_m_old operator++(){
-		if(pElem!=0 && pElem->pNext!=0ull){ // "pElem!=0" is for itr after erasing a element will not access.
-			pPrev = pElem;
-			pElem = pElem->pNext;
-			return *this;
-		}
-		pHead++;
-		for(; pHead<pEnd; pHead++){
-			if(pHead->isUsed){
-				pElem = pHead;
-				pPrev = 0ull;
-				return *this;
-			}
-		}
-		pBegin = 0ull;
-		pEnd   = 0ull;
-		TF     = false;
-		pHead  = 0ull;
-		pElem  = 0ull;
-		pPrev  = 0ull;
-		return *this;
-	}
-	
-	// post-increment (itr++)
-//	class itr_m_old operator++(int){ // int is a dummy arg
-//		== not implimented yet. ==
-//	}
-	
-	#ifdef SSTD_CHashT_DEBUG
-	inline void print_dbg(){ // print internal variables for debug
-		std::cout << "pBegin: " << pBegin << std::endl;
-		std::cout << "  pEnd: " <<   pEnd << std::endl;
-		std::cout << "    TF: " <<     TF << std::endl;
-		std::cout << " pHead: " <<  pHead << std::endl;
-		std::cout << " pElem: " <<  pElem << std::endl;
-		std::cout << " pPrev: " <<  pPrev << std::endl;
-		return;
-	}
-	#endif
-};
-//*/
 
 #define itr_end_m        1
 #define itr_needRehash_m 2
@@ -325,7 +242,8 @@ public:
 		if(this->pN!=NULL){
 			this->pP = this->pE;
 			this->pE = this->pN;
-			this->pN = NULL;
+			if(this->pN->pNext!=NULL){ this->pN = this->pN->pNext;
+			}          else          { this->pN = NULL;            }
 			return *this; // next key is on the singly linked list.
 		}
 		
@@ -347,25 +265,24 @@ public:
 		this->pN    = pT[idx].pNext;
 		this->state = 0;
 		return *this; // next key is on the table.
-		
-		// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-		// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-		// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-		// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-		// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-		// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-		// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-		// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-		// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-		// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-		// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-		// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 	}
 	
 	// post-increment (itr++)
 //	class itr_m operator++(int){ // int is a dummy arg
 //		== not implimented yet. ==
 //	}
+	
+	#ifdef SSTD_CHashT_DEBUG
+	inline void print_dbg(){
+		std::cout << "   pT: " << this->pT    << std::endl;
+		std::cout << "  idx: " << this->idx   << std::endl;
+		std::cout << "tSize: " << this->tSize << std::endl;
+		std::cout << "   pP: " << this->pP    << std::endl;
+		std::cout << "   pE: " << this->pT    << std::endl;
+		std::cout << "   pN: " << this->pN    << std::endl;
+		std::cout << "state: " << (int)this->state << std::endl;
+	}
+	#endif
 };
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -544,7 +461,7 @@ inline void sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::rehash(){
 		itr._pElem()->isUsed = true;									\
 		itr._pElem()->key    = (CAST_KEY)(key_in);						\
 		itr._pElem()->val    = (CAST_VAL)(val_in);						\
-		return itr_m(pT, itr.index(), tSize, NULL, itr._pElem(), NULL, 0);		\
+		return itr_m(pT, itr.index(), tSize, NULL, itr._pElem(), NULL, 0); \
 	}else{																\
 		/* inserting on the singly linked list */						\
 		/* find() guarantees that itr->pElem() is the tail of singly linked list */	\
@@ -553,7 +470,7 @@ inline void sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::rehash(){
 		itr._pPrev()->pNext->isUsed = true;								\
 		itr._pPrev()->pNext->key    = (CAST_KEY)(key_in);				\
 		itr._pPrev()->pNext->val    = (CAST_VAL)(val_in);				\
-		return itr_m(pT, itr.index(), tSize, itr._pPrev(), itr._pElem(), NULL, 0); \
+		return itr_m(pT, itr.index(), tSize, itr._pPrev(), itr._pPrev()->pNext, NULL, 0); \
 	}
 
 template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::insert(const T_key&  key_in, const T_val&  val_in){ insert_preproc_m(); insert_m(key_in, val_in, T_key,     T_val    ); }
@@ -611,7 +528,7 @@ template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct 
 
 #define findBase_m()													\
 																		\
-	if(!pT[idx].isUsed){ return itr_m(pT, idx, tSize, NULL, NULL, NULL, itr_end_m); } /* key is not found. */ \
+	if(!pT[idx].isUsed){ return itr_m(pT, idx, tSize, NULL, &pT[idx], NULL, itr_end_m); } /* key is not found. */ \
 																		\
 	struct elem_m* pP = NULL;     /* previous element pointer */		\
 	struct elem_m* pE = &pT[idx]; /* current element pointer */			\

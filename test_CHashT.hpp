@@ -12,17 +12,16 @@ public:
 	~hashFn(){}
 	size_t operator()(const uint64& key){ return key; }
 };
-/*
 TEST(sstd_CHashT, use_usr_defined_hash_func){
-	sstd::CHashT<uint64, uint64, usrDef_in_CHashT::hashFn> hashT(100);
+	sstd::CHashT<uint64, uint64, usrDef_in_CHashT::hashFn> hashT(10);
 	auto
-	itr = hashT.add( 1, 10); ASSERT_TRUE( itr==false );
-	itr = hashT.find(1); ASSERT_TRUE( itr==true ); ASSERT_TRUE( itr.key()==1 ); ASSERT_TRUE( itr.val()==10 );
+	itr = hashT.insert(1, 10); ASSERT_TRUE( itr!=hashT.end() );
+	itr = hashT.find(1); ASSERT_TRUE( itr!=hashT.end() ); ASSERT_TRUE( itr.first()==1 ); ASSERT_TRUE( itr.second()==10 );
 }
-//*/
+
 //-----------------------------------------------------------------------------------------------------------------------------------------------
-/*
-TEST(sstd_CHashT, add){
+
+TEST(sstd_CHashT, insert){
 	sstd::CHashT<uint64, uint64> hashT(100);
 	
 	hashT.use_tIdx_dbg = true; // enable debug option
@@ -30,41 +29,43 @@ TEST(sstd_CHashT, add){
 	
 	// case 1. insertion of key (there is no conflict)
 	auto
-	itr = hashT.add( 1, 10); ASSERT_TRUE( itr==false ); ASSERT_TRUE( hashT.pT_dbg()[0].key==1 ); ASSERT_TRUE( hashT.pT_dbg()[0].val==10 );
+	itr = hashT.insert( 1, 10); ASSERT_TRUE( hashT.pT_dbg()[0].key==1 ); ASSERT_TRUE( hashT.pT_dbg()[0].val==10 );
 	
 	// case 2. insertion of key solving the conflict of tIdx. (table index (tIdx) is a modulation of hash value).
-	itr = hashT.add( 2, 20); ASSERT_TRUE( itr==false ); ASSERT_TRUE( hashT.pT_dbg()[0].pNext->key==2        ); ASSERT_TRUE( hashT.pT_dbg()[0].pNext->val==20        );
-	itr = hashT.add( 3, 30); ASSERT_TRUE( itr==false ); ASSERT_TRUE( hashT.pT_dbg()[0].pNext->pNext->key==3 ); ASSERT_TRUE( hashT.pT_dbg()[0].pNext->pNext->val==30 );
+	itr = hashT.insert( 2, 20); ASSERT_TRUE( hashT.pT_dbg()[0].pNext->key==2        ); ASSERT_TRUE( hashT.pT_dbg()[0].pNext->val==20        );
+	itr = hashT.insert( 3, 30); ASSERT_TRUE( hashT.pT_dbg()[0].pNext->pNext->key==3 ); ASSERT_TRUE( hashT.pT_dbg()[0].pNext->pNext->val==30 );
 	
 	// case 3. confliction of key value
 	//   type 1. on the table.
-	itr = hashT.add( 1, 99); ASSERT_TRUE( itr==true ); ASSERT_TRUE( itr.key()==1 ); ASSERT_TRUE( itr.val()==10 );
+	itr = hashT.insert( 1, 99); ASSERT_TRUE( itr.key()==1 ); ASSERT_TRUE( itr.val()==10 );
 	//   type 2. on the singly linked list.
-	itr = hashT.add( 2, 99); ASSERT_TRUE( itr==true ); ASSERT_TRUE( itr.key()==2 ); ASSERT_TRUE( itr.val()==20 );
-	itr = hashT.add( 3, 99); ASSERT_TRUE( itr==true ); ASSERT_TRUE( itr.key()==3 ); ASSERT_TRUE( itr.val()==30 );
+	itr = hashT.insert( 2, 99); ASSERT_TRUE( itr.key()==2 ); ASSERT_TRUE( itr.val()==20 );
+	itr = hashT.insert( 3, 99); ASSERT_TRUE( itr.key()==3 ); ASSERT_TRUE( itr.val()==30 );
 }
-//*/
-/*
-TEST(sstd_CHashT, add_f){
+TEST(sstd_CHashT, insert_f){
 	sstd::CHashT<uint64, uint64> hashT(100);
 	
-	hashT.add_f( 1, 10);
+	hashT.insert( 1, 10);
 	auto
-	itr = hashT.find(1); ASSERT_TRUE( itr==true ); ASSERT_TRUE( itr.key()==1 ); ASSERT_TRUE( itr.val()==10 );
+	itr = hashT.find(1); ASSERT_TRUE( itr.key()==1 ); ASSERT_TRUE( itr.val()==10 );
 	
-	hashT.add_f( 1, 20);
-	itr = hashT.find(1); ASSERT_TRUE( itr==true ); ASSERT_TRUE( itr.key()==1 ); ASSERT_TRUE( itr.val()==20 );
+	itr = hashT.find(1); ASSERT_TRUE( itr!=hashT.end() );
+	if(itr!=hashT.end()){ itr.val()=20; } // over write
+	itr = hashT.find(1); ASSERT_TRUE( itr.key()==1 ); ASSERT_TRUE( itr.val()==20 );
+	
+	// insert by itr
+	itr = hashT.find(4); ASSERT_TRUE(!(itr!=hashT.end()));
+	hashT.insert(itr, 4); itr.val() = 99;
+	{ auto itr = hashT.find(4); ASSERT_TRUE(itr.val()==99); }
 }
-//*/
-/*
 TEST(sstd_CHashT, find){
 	// case 1. when key is on the table
 	{
 		sstd::CHashT<uint64, uint64> hashT(1024);
 		//        key,  val
-		hashT.add(123, 1230);
+		hashT.insert(123, 1230);
 		
-		auto itr = hashT.find(123); ASSERT_TRUE( itr==true ); ASSERT_TRUE( itr.val()==1230 );
+		auto itr = hashT.find(123); ASSERT_TRUE( itr!=hashT.end() ); ASSERT_TRUE( itr.val()==1230 );
 	}
 	
 	// case 2. when key is on a singly linked list
@@ -74,72 +75,55 @@ TEST(sstd_CHashT, find){
 		hashT.use_tIdx_dbg = true;
 		hashT.tIdx_dbg     = 0;
 		//        key, val
-		hashT.add(1, 10);
-		hashT.add(2, 20);
-		hashT.add(3, 30);
-		hashT.add(4, 40);
-		hashT.add(5, 50);
+		hashT.insert(1, 10);
+		hashT.insert(2, 20);
+		hashT.insert(3, 30);
+		hashT.insert(4, 40);
+		hashT.insert(5, 50);
 		
 		auto
-		itr = hashT.find(1); ASSERT_TRUE( itr==true ); ASSERT_TRUE( itr.val()==10 );
-		itr = hashT.find(2); ASSERT_TRUE( itr==true ); ASSERT_TRUE( itr.val()==20 );
-		itr = hashT.find(3); ASSERT_TRUE( itr==true ); ASSERT_TRUE( itr.val()==30 );
-		itr = hashT.find(4); ASSERT_TRUE( itr==true ); ASSERT_TRUE( itr.val()==40 );
-		itr = hashT.find(5); ASSERT_TRUE( itr==true ); ASSERT_TRUE( itr.val()==50 );
-		itr = hashT.find(6); ASSERT_TRUE( itr==false );
+		itr = hashT.find(1); ASSERT_TRUE( itr!=hashT.end() ); ASSERT_TRUE( itr.val()==10 );
+		itr = hashT.find(2); ASSERT_TRUE( itr!=hashT.end() ); ASSERT_TRUE( itr.val()==20 );
+		itr = hashT.find(3); ASSERT_TRUE( itr!=hashT.end() ); ASSERT_TRUE( itr.val()==30 );
+		itr = hashT.find(4); ASSERT_TRUE( itr!=hashT.end() ); ASSERT_TRUE( itr.val()==40 );
+		itr = hashT.find(5); ASSERT_TRUE( itr!=hashT.end() ); ASSERT_TRUE( itr.val()==50 );
+		itr = hashT.find(6); ASSERT_TRUE(!(itr!=hashT.end()));
 	}
 }
-//*/
-/*
-TEST(sstd_CHashT, sstd_CHashT_element4reference_T_key_T_val){
+TEST(sstd_CHashT, sstd_CHashT_operator){
 	sstd::CHashT<uint64, uint64> hashT(100);
 	auto itr = sstd_CHashT::iterator<uint64, uint64>();
 	
-	// cast operator bool()
-	itr = hashT.add( 1, 10); ASSERT_TRUE( itr==false );
-	itr = hashT.add( 1, 10); ASSERT_TRUE( itr==true );
-	
-	// operator ==(). (below operator !=() is not defind in struct elem4ref_m(), but calculated using operator ==().)
-	itr = hashT.add( 4, 40); ASSERT_TRUE( itr==0 );
-	itr = hashT.add( 4, 40); ASSERT_TRUE( itr!=0 );
+	itr = hashT.insert( 1, 10); ASSERT_TRUE( itr!=hashT.end() );
 	
 	// operator !=(const class itr_m& rhs). "inline bool operator!=(const class itr_m& rhs){ return this->TF != false; }"
-	itr = hashT.find(1);
-	ASSERT_TRUE( itr!=hashT.end() );
-	
-	// check const-key() and overwriting non-const-val() on the table.
-	itr = hashT.add( 4, 40); ASSERT_TRUE( itr==true ); ASSERT_TRUE( itr!=0 ); ASSERT_TRUE( itr.key()==4  ); ASSERT_TRUE( itr.val()==40 );
-	itr.val()=50; // overwrite the value when itr is available. (itr is enabled when add() fails.)
-	
-	itr = hashT.find(4); ASSERT_TRUE( itr.key()==4 ); ASSERT_TRUE( itr.val()==50 );
-	itr.val()=60; // overwrite the value when itr is available. (itr is enabled when find() success.)
-	itr = hashT.find(4); ASSERT_TRUE( itr.key()==4 ); ASSERT_TRUE( itr.val()==60 );
+	itr = hashT.find(1); ASSERT_TRUE( itr!=hashT.end() );
 }
-//*/
-/*
 TEST(sstd_CHashT, iterator){
 	sstd::CHashT<uint64, uint64> hashT(30);
 	hashT.use_tIdx_dbg = true;
 	
 	hashT.tIdx_dbg = 0;
-	hashT.add(1, 10);
+	hashT.insert(1, 10);
 	
 	hashT.tIdx_dbg = 5;
-	hashT.add(2, 20);
-	hashT.add(3, 30);
-	hashT.add(4, 40);
+	hashT.insert(2, 20);
+	hashT.insert(3, 30);
+	hashT.insert(4, 40);
 	
 	hashT.tIdx_dbg = 7;
-	hashT.add(5, 50);
+	hashT.insert(5, 50);
 	hashT.tIdx_dbg = 8;
-	hashT.add(6, 60);
+	hashT.insert(6, 60);
 	
 	hashT.tIdx_dbg = 20;
-	hashT.add(7, 70);
+	hashT.insert(7, 70);
 	
 	printf("■ print internal value of iterator\n");
 	auto itr=hashT.begin();
 	itr.print_dbg();
+	printf("\n");
+	itr._pElem()->print_dbg();
 	printf("\n");
 	
 	printf("■ print const-key and non-const-value of element\n");
@@ -162,7 +146,6 @@ TEST(sstd_CHashT, iterator){
 	ASSERT_TRUE( hashT.size()==0ull );
 	
 }
-//*/
 /*
 TEST(sstd_CHashT, erase){
 	
@@ -170,7 +153,7 @@ TEST(sstd_CHashT, erase){
 	{
 		sstd::CHashT<uint64, uint64> hashT(100);
 		
-		auto itr = hashT.add( 1, 10);
+		auto itr = hashT.insert( 1, 10);
 		ASSERT_TRUE( hashT.erase(1)==true );
 		itr = hashT.find(1); ASSERT_TRUE( itr==false );
 	}
@@ -183,10 +166,10 @@ TEST(sstd_CHashT, erase){
 		hashT.tIdx_dbg     = 0;    // force to set key-val on the table index "tIdx_dbg".
 		
 		auto
-		itr = hashT.add( 1, 10);
-		itr = hashT.add( 2, 20);
-		itr = hashT.add( 3, 30);
-		itr = hashT.add( 4, 40);
+		itr = hashT.insert( 1, 10);
+		itr = hashT.insert( 2, 20);
+		itr = hashT.insert( 3, 30);
+		itr = hashT.insert( 4, 40);
 		
 		ASSERT_TRUE( hashT.erase(1)==true );
 		itr = hashT.find(1); ASSERT_TRUE( itr==false );
@@ -214,10 +197,10 @@ TEST(sstd_CHashT, erase){
 		hashT.tIdx_dbg     = 0;    // force to set key-val on the table index "tIdx_dbg".
 		
 		auto
-		itr = hashT.add( 1, 10);
-		itr = hashT.add( 2, 20);
-		itr = hashT.add( 3, 30);
-		itr = hashT.add( 4, 40);
+		itr = hashT.insert( 1, 10);
+		itr = hashT.insert( 2, 20);
+		itr = hashT.insert( 3, 30);
+		itr = hashT.insert( 4, 40);
 		
 		ASSERT_TRUE( hashT.erase(3)==true );
 		itr = hashT.find(1); ASSERT_TRUE( itr==true );
@@ -240,7 +223,7 @@ TEST(sstd_CHashT, erase_byItr){
 	sstd::CHashT<uint64, uint64> hashT(100);
 	
 	auto
-	itr = hashT.add( 1, 10); ASSERT_TRUE( itr==false );
+	itr = hashT.insert( 1, 10); ASSERT_TRUE( itr==false );
 	itr = hashT.find(1);     ASSERT_TRUE( itr==true );
 	hashT.erase(itr);        ASSERT_TRUE( itr==true );
 	itr = hashT.find(1);     ASSERT_TRUE( itr==false );
@@ -258,14 +241,14 @@ TEST(sstd_CHashT, rehash){
 	{
 		for(uint i=0; i<limitSize; i++){
 			uint64 r = mt();
-			hashT.add(r, r);
+			hashT.insert(r, r);
 		}
 		ASSERT_TRUE( hashT.size() ==1031 );
 //		ASSERT_TRUE( hashT.tableSize()==1031 ); // this test is for prime table.
 	}
 	{
 		uint64 r = mt();
-		hashT.add(r, r); // rehash will be occurd
+		hashT.insert(r, r); // rehash will be occurd
 		ASSERT_TRUE( hashT.size() ==1032 );
 //		ASSERT_TRUE( hashT.tableSize()==2053 ); // this test is for prime table.
 	}
@@ -290,7 +273,7 @@ TEST(sstd_CHashT, stressTest){
 		
 		for(uint64 i=0; i<limitSize; i++){
 			uint64 r = mt();
-			hashT.add(r, r);
+			hashT.insert(r, r);
 		}
 		ASSERT_TRUE( hashT.size()==limitSize );
 	}
@@ -326,7 +309,7 @@ TEST(sstd_CHashT, OPE_bracket){
 	
 	{
 		sstd::CHashT<uint64, uint64> hashT;
-		hashT[1] = 10;         // add()
+		hashT[1] = 10;         // insert()
 		
 		auto itr = hashT.find(1);
 		ASSERT_TRUE( itr==true );
@@ -335,7 +318,7 @@ TEST(sstd_CHashT, OPE_bracket){
 	}
 	{
 		sstd::CHashT<uint64, uint64> hashT;
-		uint64 ret = hashT[1]; // add() T_key, init emply T_val and return empty T_val.
+		uint64 ret = hashT[1]; // insert() T_key, init emply T_val and return empty T_val.
 		ret++; // avoiding "warning: unused variable ‘ret’"
 	}
 }
