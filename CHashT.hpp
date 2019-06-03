@@ -583,7 +583,7 @@ inline bool sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::erase(struct itr_m& it
 		// [ key           <1-1>  ]  |   [ key        <2-1>  ]   |   ...
 		// [ val           <1-2>  ]  |   [ val        <2-2>  ]   |
 		// [ pNext         <1-3>  ] -+   [ pNext      <2-3>  ] --+
-
+		
 		// table
 		swap(itr._pElem()->key, itr._pNext()->key); // <1-1>, <2-1>
 		swap(itr._pElem()->val, itr._pNext()->val); // <1-2>, <2-2>

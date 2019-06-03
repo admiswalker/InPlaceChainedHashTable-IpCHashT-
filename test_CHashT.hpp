@@ -146,7 +146,6 @@ TEST(sstd_CHashT, iterator){
 	ASSERT_TRUE( hashT.size()==0ull );
 	
 }
-/*
 TEST(sstd_CHashT, erase){
 	
 	// case 1. erase an element on the table without singly linked list.
@@ -155,7 +154,7 @@ TEST(sstd_CHashT, erase){
 		
 		auto itr = hashT.insert( 1, 10);
 		ASSERT_TRUE( hashT.erase(1)==true );
-		itr = hashT.find(1); ASSERT_TRUE( itr==false );
+		itr = hashT.find(1); ASSERT_TRUE( !(itr!=hashT.end()) );
 	}
 	
 	// case 2. erase an element on the table with singly linked list.
@@ -172,7 +171,7 @@ TEST(sstd_CHashT, erase){
 		itr = hashT.insert( 4, 40);
 		
 		ASSERT_TRUE( hashT.erase(1)==true );
-		itr = hashT.find(1); ASSERT_TRUE( itr==false );
+		itr = hashT.find(1); ASSERT_TRUE( !(itr!=hashT.end()) );
 		
 		ASSERT_TRUE( hashT.pT_dbg()[0].isUsed==true );
 		ASSERT_TRUE( hashT.pT_dbg()[0].key==2       );
@@ -203,33 +202,29 @@ TEST(sstd_CHashT, erase){
 		itr = hashT.insert( 4, 40);
 		
 		ASSERT_TRUE( hashT.erase(3)==true );
-		itr = hashT.find(1); ASSERT_TRUE( itr==true );
-		itr = hashT.find(2); ASSERT_TRUE( itr==true );
-		itr = hashT.find(3); ASSERT_TRUE( itr==false );
-		itr = hashT.find(4); ASSERT_TRUE( itr==true );
+		itr = hashT.find(1); ASSERT_TRUE( itr!=hashT.end() );
+		itr = hashT.find(2); ASSERT_TRUE( itr!=hashT.end() );
+		itr = hashT.find(3); ASSERT_TRUE(!( itr!=hashT.end() ));
+		itr = hashT.find(4); ASSERT_TRUE( itr!=hashT.end() );
 		
 		ASSERT_TRUE( hashT.erase(4)==true );
-		itr = hashT.find(1); ASSERT_TRUE( itr==true );
-		itr = hashT.find(2); ASSERT_TRUE( itr==true );
-		itr = hashT.find(3); ASSERT_TRUE( itr==false );
-		itr = hashT.find(4); ASSERT_TRUE( itr==false );
+		itr = hashT.find(1); ASSERT_TRUE( itr!=hashT.end() );
+		itr = hashT.find(2); ASSERT_TRUE( itr!=hashT.end() );
+		itr = hashT.find(3); ASSERT_TRUE(!( itr!=hashT.end() ));
+		itr = hashT.find(4); ASSERT_TRUE(!( itr!=hashT.end() ));
 	}
 }
-//*/
-/*
 TEST(sstd_CHashT, erase_byItr){
 	// find key-val pair, get value and erase the pair
 	
 	sstd::CHashT<uint64, uint64> hashT(100);
 	
 	auto
-	itr = hashT.insert( 1, 10); ASSERT_TRUE( itr==false );
-	itr = hashT.find(1);     ASSERT_TRUE( itr==true );
-	hashT.erase(itr);        ASSERT_TRUE( itr==true );
-	itr = hashT.find(1);     ASSERT_TRUE( itr==false );
+	itr = hashT.insert( 1, 10);  ASSERT_TRUE( itr!=hashT.end() );
+	itr = hashT.find(1);         ASSERT_TRUE( itr!=hashT.end() );
+	bool ret = hashT.erase(itr); ASSERT_TRUE( ret==true );
+	itr = hashT.find(1);         ASSERT_TRUE(!( itr!=hashT.end() ));
 }
-//*/
-/*
 TEST(sstd_CHashT, rehash){
 	uint64 seed=12345ull;     // using a constant value in order to provide reproducibility.
 	std::mt19937_64 mt(seed); // pseudo random number generator
@@ -253,8 +248,6 @@ TEST(sstd_CHashT, rehash){
 //		ASSERT_TRUE( hashT.tableSize()==2053 ); // this test is for prime table.
 	}
 }
-//*/
-/*
 TEST(sstd_CHashT, stressTest){
 	// this is a stress test of chained hash table
 	
@@ -285,7 +278,7 @@ TEST(sstd_CHashT, stressTest){
 		for(uint64 i=0; i<limitSize; i++){
 			uint64 r = mt();
 			auto itr = hashT.find(r);
-			ASSERT_TRUE( itr==true );
+			ASSERT_TRUE( itr!=hashT.end() );
 			ASSERT_TRUE( itr.key()==r );
 			ASSERT_TRUE( itr.val()==r );
 		}
@@ -302,8 +295,6 @@ TEST(sstd_CHashT, stressTest){
 		ASSERT_TRUE( hashT.size()==0 );
 	}
 }
-//*/
-/*
 TEST(sstd_CHashT, OPE_bracket){
 	// []
 	
@@ -312,7 +303,7 @@ TEST(sstd_CHashT, OPE_bracket){
 		hashT[1] = 10;         // insert()
 		
 		auto itr = hashT.find(1);
-		ASSERT_TRUE( itr==true );
+		ASSERT_TRUE( itr!=hashT.end() );
 		uint64 ret = hashT[1]; // find()
 		ASSERT_TRUE( ret==10 );
 	}
@@ -322,18 +313,6 @@ TEST(sstd_CHashT, OPE_bracket){
 		ret++; // avoiding "warning: unused variable ‘ret’"
 	}
 }
-//*/
+
 //-----------------------------------------------------------------------------------------------------------------------------------------------
-
-// 未実装項目一覧
-// ・ベンチマーク <- ベンチマーク用は，デバッグモードに入らないように，実装を分離する必要がある．
-//   - 仮に，規格化したグラフを作成する場合，要素数を log 単位で刻めばよいと思う．
-//     100, 1000, 10 000, 100 000, 1 000 000
-//   - Appendix なら良いが，グラフ 5 枚は多い．-> いっそ 6 枚にすれば，A4 1 枚にグラフ 6 個になる．
-//   - どのようなグラフを用いるかは，何を主張するかに依存する．
-//   - たとえば，load factor 0.5 に限定して，y 軸を速さ，x 軸をテーブルサイズとするグラフもある．
-// ・
-// ・
-
-
 
