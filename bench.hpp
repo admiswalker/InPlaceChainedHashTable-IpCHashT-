@@ -209,7 +209,7 @@ void bench_find_failedAll(T_hashTable& hashT, const uint64 limitSize, std::vecto
 	
 	std::mt19937 engine(seed_gen()); // for std::shuffle()
 	
-	uint64 numFound=0, numNotFound=0;
+	uint64 numFound=0ull, numNotFound=0ull;
 	for(;;){
 		// add
 		for(uint i=0; i<interval; i++){
@@ -238,39 +238,10 @@ void bench_find_failedAll(T_hashTable& hashT, const uint64 limitSize, std::vecto
 		if(interval!=1){interval/=10;}
 		if(hashT.size()+interval>limitSize){ break; }
 	}
-	printf("%lu / %lu = %lf\n", numFound, numFound+numNotFound, (double)numFound/(double)(numFound+numNotFound));
-	
-	// XXXXXXXXXXXXXXXXXXXXXX
-	// ここの実装は sstd::CHashT<T_key, T_val> にバグあり
-/*
-$ ./exe_bm 
-
-+---------------------------------------------------+
-|                                                   |
-|     Welcome to Sub Standard Library (SSTD) !      |
-|                                                   |
-|     > This is an Implementation Plan for          |
-|     > In-placeChainedHashTable (IpCHashT)         |
-|     >   and   ChainedHashTable (  CHashT).        |
-|                                                   |
-+---------------------------------------------------+
-
-■ measureTime_start---------------
-
-0 / 5000000 = 0.000000
-5000000 / 5000000 = 1.000000
-0 / 5000000 = 0.000000
-0 / 5000000 = 0.000000
-0 / 5000000 = 0.000000
-5000000 / 5000000 = 1.000000
-0 / 5000000 = 0.000000
-0 / 5000000 = 0.000000
-
-■ measureTime_stop----------------
---------------------------------
- Execution time:   156. 413 sec
---------------------------------
-*/
+	if(numFound!=0ull){
+		printf("ERROR: ");
+		printf("%lu / %lu = %lf\n", numFound, numFound+numNotFound, (double)numFound/(double)(numFound+numNotFound));
+	}
 }
 void bench_plot_find_failedAll(const char* savePath, const uint64 initSize, const uint64 limitSize){
 	std::vector<double> vecX_u, vecX_c, vecX_i, vecX_d, vecX_f; // num of elements
@@ -425,7 +396,7 @@ void bench_find_findFailedAll_erase_add(T_hashTable& hashT, const uint64 initSiz
 		for(uint i=0; i<interval; i++){
 			uint64 keyVal = randFFA();
 			auto itr = hashT.find(keyVal);
-//			if(itr != hashT.end()){ sstd::pdbg("ERROR: key val is same."); exit(0); } // there is a bug in sstd::CHashT
+			if(itr != hashT.end()){ sstd::pdbg("ERROR: key val is same."); exit(0); } // there is a bug in sstd::CHashT
 		}
 		// erase change_per_cycle [%]
 		for(uint i=0; i<changeNum_per_cycle; i++){
@@ -599,7 +570,7 @@ void RUN_ALL_BENCHS(){
 	// Warm running, because of the first bench usually returns bad result.
 	const char* pWarmRun = "./bench_warmRunning.png";
 	bench_plot_add(pWarmRun, initSize_preAlloc, limitSize); // pre-allocate
-	/*
+	//*
 	// add: Additional speed [query/sec]
 	bench_plot_add("./bench_add_wRehash.png",  initSize_wRehash,  limitSize); // with rehash
 	bench_plot_add("./bench_add_preAlloc.png", initSize_preAlloc, limitSize); // pre-allocate
@@ -629,7 +600,7 @@ void RUN_ALL_BENCHS(){
 	// max-load factor
 	bench_plot_maxLoadFactor("./bench_maxLoadFactor_pow10_5.png", 100000   );
 	bench_plot_maxLoadFactor("./bench_maxLoadFactor_pow10_6.png", 1000000  );
-	bench_plot_maxLoadFactor("./bench_maxLoadFactor_pow10_8.png", 100000000);
+//	bench_plot_maxLoadFactor("./bench_maxLoadFactor_pow10_8.png", 100000000);
 	//*/
 //	sstd::rm(pWarmRun);
 	
