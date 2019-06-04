@@ -6,7 +6,7 @@
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 // compile options
 
-#define use_prime_table
+//#define use_prime_table
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -97,73 +97,6 @@ namespace sstd_CHashT{
 		9223372036854775837ull, // 2^63 + 29  = 9223372036854775837ull
 	//	18446744073709551629ull // 2^64 + 13  = 18446744073709551629ull // larger than the range of uint64
 		18446744073709551360ull	// 2^64 - 254 = 18446744073709551360ull // not prive (need to find out an appropriate prime)
-	};
-	#else
-	const uint64 tSizeL[64] = { // table size list. (Smallest prime list larger than power of 2.)
-		1ull,                    // 2^  1 - 1   = 1ull
-		3ull,                    // 2^  2 - 1   = 3ull
-		7ull,                    // 2^  3 - 1   = 7ull
-		15ull,                   // 2^  4 - 1   = 15ull
-		31ull,                   // 2^  5 - 1   = 31ull
-		63ull,                   // 2^  6 - 1   = 63ull
-		127ull,                  // 2^  7 - 1   = 127ull
-		255ull,                  // 2^  8 - 1   = 255ull
-		511ull,                  // 2^  9 - 1   = 511ull
-		1023ull,                 // 2^ 10 - 1   = 1023ull
-		2047ull,                 // 2^ 11 - 1   = 2047ull
-		4095ull,                 // 2^ 12 - 1   = 4095ull
-		8191ull,                 // 2^ 13 - 1   = 8191ull
-		16383ull,                // 2^ 14 - 1   = 16383ull
-		32767ull,                // 2^ 15 - 1   = 32767ull
-		65535ull,                // 2^ 16 - 1   = 65535ull
-		131071ull,               // 2^ 17 - 1   = 131071ull
-		262143ull,               // 2^ 18 - 1   = 262143ull
-		524287ull,               // 2^ 19 - 1   = 524287ull
-		1048575ull,              // 2^ 20 - 1   = 1048575ull
-		2097151ull,              // 2^ 21 - 1   = 2097151ull
-		4194303ull,              // 2^ 22 - 1   = 4194303ull
-		8388607ull,              // 2^ 23 - 1   = 8388607ull
-		16777215ull,             // 2^ 24 - 1   = 16777215ull
-		33554431ull,             // 2^ 25 - 1   = 33554431ull
-		67108863ull,             // 2^ 26 - 1   = 67108863ull
-		134217727ull,            // 2^ 27 - 1   = 134217727ull
-		268435455ull,            // 2^ 28 - 1   = 268435455ull
-		536870911ull,            // 2^ 29 - 1   = 536870911ull
-		1073741823ull,           // 2^ 30 - 1   = 1073741823ull
-		2147483647ull,           // 2^ 31 - 1   = 2147483647ull
-		4294967295ull,           // 2^ 32 - 1   = 4294967295ull
-		8589934591ull,           // 2^ 33 - 1   = 8589934591ull
-		17179869183ull,          // 2^ 34 - 1   = 17179869183ull
-		34359738367ull,          // 2^ 35 - 1   = 34359738367ull
-		68719476735ull,          // 2^ 36 - 1   = 68719476735ull
-		137438953471ull,         // 2^ 37 - 1   = 137438953471ull
-		274877906943ull,         // 2^ 38 - 1   = 274877906943ull
-		549755813887ull,         // 2^ 39 - 1   = 549755813887ull
-		1099511627775ull,        // 2^ 40 - 1   = 1099511627775ull
-		2199023255551ull,        // 2^ 41 - 1   = 2199023255551ull
-		4398046511103ull,        // 2^ 42 - 1   = 4398046511103ull
-		8796093022207ull,        // 2^ 43 - 1   = 8796093022207ull
-		17592186044415ull,       // 2^ 44 - 1   = 17592186044415ull
-		35184372088831ull,       // 2^ 45 - 1   = 35184372088831ull
-		70368744177663ull,       // 2^ 46 - 1   = 70368744177663ull
-		140737488355327ull,      // 2^ 47 - 1   = 140737488355327ull
-		281474976710655ull,      // 2^ 48 - 1   = 281474976710655ull
-		562949953421311ull,      // 2^ 49 - 1   = 562949953421311ull
-		1125899906842623ull,     // 2^ 50 - 1   = 1125899906842623ull
-		2251799813685247ull,     // 2^ 51 - 1   = 2251799813685247ull
-		4503599627370495ull,     // 2^ 52 - 1   = 4503599627370495ull
-		9007199254740991ull,     // 2^ 53 - 1   = 9007199254740991ull
-		18014398509481983ull,    // 2^ 54 - 1   = 18014398509481983ull
-		36028797018963967ull,    // 2^ 55 - 1   = 36028797018963967ull
-		72057594037927935ull,    // 2^ 56 - 1   = 72057594037927935ull
-		144115188075855871ull,   // 2^ 57 - 1   = 144115188075855871ull
-		288230376151711743ull,   // 2^ 58 - 1   = 288230376151711743ull
-		576460752303423487ull,   // 2^ 59 - 1   = 576460752303423487ull
-		1152921504606846975ull,  // 2^ 60 - 1   = 1152921504606846975ull
-		2305843009213693951ull,  // 2^ 61 - 1   = 2305843009213693951ull
-		4611686018427387903ull,  // 2^ 62 - 1   = 4611686018427387903ull
-		9223372036854775807ull,  // 2^ 63 - 1   = 9223372036854775807ull
-		18446744073709551615ull  // 2^ 64 - 1   = 18446744073709551615ull
 	};
 	#endif
 }
@@ -290,29 +223,49 @@ public:
 template <class T_key, class T_val, class T_hash, class T_key_eq>
 class sstd::CHashT{
 private:
-	void CHashT_constructor(const uint64& tableSize);
+	void CHashT_constructor(const uint64 tableSize);
 	
-	uint8  tSizeL_idx;     // table size list index
+#ifdef use_prime_table
+	uint8  tSizeL_idx;      // table size list index
+#else
+	uint64 tSize_m1;        // tSize minus 1.
+#endif
 	uint64 tSize;          // table size
 	
 	T_hash* pHashFn;       // pointer to the hash function
 	
 	struct elem_m* pT;     // pointer to the table
 	uint64 elems;          // number of elements on the table
+	uint64 elems_onSinglyLinkedList;  // for detailed load factor
 	
 //	double lf;             // load factor
-	inline uint64 get_tSizeL_idx(const uint64& tableSize); // get table size list index
+	/*
+#ifdef use_prime_table
+	inline uint64 get_tSizeL_idx(const uint64& tableSize); // get table size list index	
+#else
+	inline uint64 get_tSize(const uint64& tableSize);
+#endif
+	//*/
 	
 public:
-	inline uint8&  _tSizeL_idx(){ return tSizeL_idx; }
+	CHashT();
+	CHashT(const uint64 tableSize); // allocate twice size of tableSize.
+#ifdef use_prime_table
+	CHashT(const uint8 tableSizeL_idx, const uint64 tableSize); // allocate same size of tableSize. for rehashing.
+#else
+	CHashT(const uint64 tableSize_minus1, const uint64 tableSize); // allocate same size of tableSize. for rehashing.
+#endif
+	~CHashT();
+	
+#ifdef use_prime_table
+	inline uint8& _tSizeL_idx(){ return tSizeL_idx; }
+#else
+	inline uint64& _tSize_m1(){ return tSize_m1; }
+#endif
 	inline uint64&      _tSize(){ return tSize;      }
 	inline T_hash*&   _pHashFn(){ return pHashFn;    }
 	inline struct elem_m*& _pT(){ return pT;         }
 	inline uint64&      _elems(){ return elems;      }
-	
-	CHashT();
-	CHashT(const uint64& tableSize); // allocate twice size of tableSize.
-	~CHashT();
 	
 	// iterator
 	inline struct itr_m begin(){
@@ -363,7 +316,12 @@ public:
 	inline const uint64 size(){ return elems; }
 	inline const uint64 tableSize(){ return tSize; }
 	inline const uint64 bucket_count(){ return tSize; }
-	inline const double load_factor(){ return (double)elems/(double)tSize; }
+//	inline const double load_factor(){ return (double)elems/(double)tSize; }
+	inline const double load_factor(){ return (double)(elems)/(double)(tSize + elems_onSinglyLinkedList); }
+	
+	// elems_onSinglyLinkedList = elems - elems_onTable;
+	// LoadFactor = elems / (tSize + elems_onSinglyLinkedList);
+	// LoadFactor = elems / (tSize + elems - elems_onTable);
 	
 	void rehash();
 	
@@ -376,31 +334,62 @@ public:
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
+#define get_tSizeL_idx(idx)												\
+	idx=0;																\
+	for(; idx<64; idx++){												\
+		if(sstd_IpCHashT::tSizeL[idx]>=tableSize){ break; }				\
+	}																	\
+	idx++; /* twice size of table will adjust the load factor 50%. */
+#define get_tSize(tSize)						\
+	tSize=2;									\
+	while(tSize<tableSize){ tSize*=2; }			\
+	tSize*=2;
+
+#define constructorBase_init_m()						\
+	pT         = new struct elem_m[tSize];				\
+	pHashFn    = new T_hash();							\
+	elems      = 0ull;									\
+	elems_onSinglyLinkedList = 0ull; /* for detailed load factor */
+
 template <class T_key, class T_val, class T_hash, class T_key_eq>
-inline uint64 sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::get_tSizeL_idx(const uint64& tableSize){
-	
-	uint idx=0;
-	for(; idx<64; idx++){
-		if(sstd_CHashT::tSizeL[idx]>=tableSize){ break; }
-	}
-	idx++; // twice size of table will adjust the load factor 50%.
-	return idx;
-}
-template <class T_key, class T_val, class T_hash, class T_key_eq>
-inline void sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::CHashT_constructor(const uint64& tableSize){
-	
-	tSizeL_idx = get_tSizeL_idx(tableSize);
-	tSize      = sstd_CHashT::tSizeL[tSizeL_idx];
-	#ifndef use_prime_table
-	tSize_m1   = tSize - 1;
+inline void sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::CHashT_constructor(const uint64 tableSize){
+	#ifdef use_prime_table
+	get_tSizeL_idx(tSizeL_idx); tSize = sstd_CHashT::tSizeL[tSizeL_idx];
+	#else
+	get_tSize(tSize); tSize_m1 = tSize - 1;
 	#endif
 	
-	pT         = new struct elem_m[tSize];
-	pHashFn    = new T_hash();
-	elems      = 0ull;
+	constructorBase_init_m();
 }
-template <class T_key, class T_val, class T_hash, class T_key_eq> inline sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::CHashT(                       ){ CHashT_constructor(   512   ); } // in order to store 512 elements, 1024 table length will be allocated.
-template <class T_key, class T_val, class T_hash, class T_key_eq> inline sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::CHashT(const uint64& tableSize){ CHashT_constructor(tableSize); }
+template <class T_key, class T_val, class T_hash, class T_key_eq> inline sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::CHashT(                      ){ CHashT_constructor(   512   ); } // in order to store 512 elements, 1024 table length will be allocated.
+template <class T_key, class T_val, class T_hash, class T_key_eq> inline sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::CHashT(const uint64 tableSize){ CHashT_constructor(tableSize); }
+#undef get_tSize
+#undef get_tSizeL_idx
+
+//---
+
+#ifdef use_prime_table
+template <class T_key, class T_val, class T_hash, class T_key_eq>
+inline sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::CHashT(const uint8 tableSizeL_idx, const uint64 tableSize){ // allocate same size of tableSize. for rehashing.
+	tSizeL_idx = tableSizeL_idx;
+	tSize      = sstd_CHashT::tSizeL[tSizeL_idx];
+	constructorBase_init_m();
+}
+#else
+template <class T_key, class T_val, class T_hash, class T_key_eq>
+inline sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::CHashT(const uint64 tableSize_minus1, const uint64 tableSize){ // allocate same size of tableSize. for rehashing.
+	tSize_m1   = tableSize_minus1;
+	tSize      = tableSize;
+	constructorBase_init_m();
+}
+#endif
+
+//---
+
+
+#undef constructor_init_m
+
+//---
 
 template <class T_key, class T_val, class T_hash, class T_key_eq>
 inline sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::~CHashT(){
@@ -430,7 +419,14 @@ void swap_hashT(sstd::CHashT<T_key, T_val, T_hash, T_key_eq>& lhs, sstd::CHashT<
 
 template <class T_key, class T_val, class T_hash, class T_key_eq>
 inline void sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::rehash(){
-	sstd::CHashT<T_key, T_val, T_hash, T_key_eq> hashT_new(tSize); // twice size of tSize will be allocated.
+#ifdef use_prime_table
+	uint8 tSizeL_idx_p1 = tSizeL_idx + 1; // p1: plus 1
+	sstd::CHashT<T_key, T_val, T_hash, T_key_eq> hashT_new(tSizeL_idx_p1, sstd_CHashT::tSizeL[tSizeL_idx_p1]); // twice size of tSize will be allocated.
+#else
+	uint64 tSize_mul2 = tSize * 2;         // mul2: multiply 2
+	uint64 tSize_mul2_m1 = tSize_mul2 - 1; //   m1: minus 1
+	sstd::CHashT<T_key, T_val, T_hash, T_key_eq> hashT_new(tSize_mul2_m1, tSize_mul2); // twice size of tSize will be allocated.
+#endif
 	
 	// "using std::swap;" is defined, in order to preferentially call overloaded function of swap<T>() for type T. (Ref: https://cpprefjp.github.io/reference/utility/swap.html)
 	// in here, scope of using is limited by "{}", this means that scope of using is same as a usual value.
@@ -463,6 +459,7 @@ inline void sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::rehash(){
 		itr._pElem()->val    = (CAST_VAL)(val_in);						\
 		return itr_m(pT, itr.index(), tSize, NULL, itr._pElem(), NULL, 0); \
 	}else{																\
+		elems_onSinglyLinkedList++;										\
 		/* inserting on the singly linked list */						\
 		/* find() guarantees that itr->pElem() is the tail of singly linked list */	\
 																		\
@@ -517,12 +514,12 @@ template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct 
 	#ifdef SSTD_CHashT_DEBUG
 	#define key2tIdx_m(tIdx, key)											\
 		uint64 hVal = (uint64)(*pHashFn)(key); /* generate hashed value  */	\
-		tIdx = hVal & tSize;
+		tIdx = hVal & tSize_m1;											    \
+		if(use_tIdx_dbg){ idx=tIdx_dbg; } /* over write idx for debug */
 	#else
 	#define key2tIdx_m(tIdx, key)											\
 		uint64 hVal = (uint64)(*pHashFn)(key); /* generate hashed value  */	\
-		tIdx = hVal & tSize;											    \
-		if(use_tIdx_dbg){ idx=tIdx_dbg; } /* over write idx for debug */
+		tIdx = hVal & tSize_m1;
 	#endif
 #endif
 
@@ -572,6 +569,7 @@ inline bool sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::erase(struct itr_m& it
 		swap(itr._pElem()->key, keyBuf);
 		swap(itr._pElem()->val, valBuf);
 	}else if(itr._pPrev()==NULL && itr._pNext()!=NULL){
+		elems_onSinglyLinkedList--;
 		// case 2. erase an element on the table with element(s) on the singly linked list.
 		
 		// <- on the table ...... -> | <- on the singly linked list ......................... -> |
@@ -596,6 +594,7 @@ inline bool sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::erase(struct itr_m& it
 		itr._pNext()=itr._pElem(); // for operator++.
 		itr._pElem()=NULL;         // for operator++ will not access.
 	}else{
+		elems_onSinglyLinkedList--;
 		// case 3. erase element on the singly linked list. ("case 3" is a interchangeable process by "case 2", while ignoring the over head.)
 		
 		itr._pPrev()->pNext = itr._pNext();
