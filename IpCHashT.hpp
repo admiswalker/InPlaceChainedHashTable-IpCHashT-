@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 // compile options
 
-#define use_insert_soft // select soft or hard
+//#define use_insert_soft // select soft or hard
 //#define use_prime_table
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -258,44 +258,42 @@ public:
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
 class sstd::IpCHashT{
 private:
-#ifdef use_prime_table
+	void IpCHashT_constructor(const uint64& tableSize);
+	
+	#ifdef use_prime_table
 	uint8  tSizeL_idx;      // table size list index
-#else
+	#else
 	uint64 tSize_m1;        // tSize minus 1.
-#endif
+	#endif
 	uint64 tSize;           // table size. This is a hash value division size.
 	uint64 pSize;           // padding size of the table
 	uint64 ttSize;          // total table size. This is a seek limit size. ( ttSize == tSize + pSize ).
 	uint64 elems;           // number of elements on the table
 	T_hash* pHashFn;        // pointer to the hash function
 	struct elem_m* pT;      // pointer to the table
-//	double lf;             // load factor
 	
 	// constant values
 	T_shift maxShift;
 	T_shift seekLimit;
-	
-#ifdef use_prime_table
-	uint64 get_tSizeL_idx(const uint64& tableSize); // get table size list index
-#else
-	uint64 get_tSize(const uint64& tableSize); // get table size list index
-#endif
-	
-	void IpCHashT_constructor(const uint64& tableSize);
 	
 	void move_hashT2vecKV(std::vector<elem_KV_m>& vecKV, sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>& hashT);
 	void failSafe_of_rehashing(sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>& hashT_new);
 	
 public:
 	IpCHashT();
-	IpCHashT(const uint64& tableSize); // allocate twice size of tableSize.
+	IpCHashT(const uint64 tableSize); // allocate twice size of tableSize.
+	#ifdef use_prime_table
+	IpCHashT(const uint8 tableSizeL_idx, const uint64 tableSize); // allocate same size of tableSize. for rehashing.
+	#else
+	IpCHashT(const uint64 tableSize_minus1, const uint64 tableSize); // allocate same size of tableSize. for rehashing.
+	#endif
 	~IpCHashT();
 	
-#ifdef use_prime_table
+	#ifdef use_prime_table
 	inline uint8& _tSizeL_idx(){ return tSizeL_idx; }
-#else
+	#else
 	inline uint64& _tSize_m1(){ return tSize_m1; }
-#endif
+	#endif
 	inline uint64& _tSize(){ return tSize; }
 	inline uint64& _pSize(){ return pSize; }
 	inline uint64& _ttSize(){ return ttSize; }
@@ -359,72 +357,100 @@ public:
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
-#ifdef use_prime_table
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-inline uint64 sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::get_tSizeL_idx(const uint64& tableSize){
-	
-	uint idx=0;
-	for(; idx<64; idx++){
-		if(sstd_IpCHashT::tSizeL[idx]>=tableSize){ break; }
-	}
-	idx++; // twice size of table will adjust the load factor 50%.
-	return idx;
-}
-#else
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-inline uint64 sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::get_tSize(const uint64& tableSize){
-	
-	uint64 tSize=2;
-	while(tSize<tableSize){ tSize*=2; }
+#define get_tSizeL_idx(idx)												\
+	idx=0;																\
+	for(; idx<64; idx++){												\
+		if(sstd_IpCHashT::tSizeL[idx]>=tableSize){ break; }				\
+	}																	\
+	idx++; /* twice size of table will adjust the load factor 50%. */
+#define get_tSize(tSize)						\
+	tSize=2;									\
+	while(tSize<tableSize){ tSize*=2; }			\
 	tSize*=2;
-	return tSize;
-}
-#endif
+
+#define constructorBase_init_m()										\
+	ttSize    = tSize + pSize; /* while "#define use_prime_table" is disabled, ttSize must be satisfied ttSize>=tSize+1. Because (hashVal & tSize) will [0, tSize], not [0, tSize). (when using prime table, hashVal % tSize be satisfied [0, tSize).) */ \
+	pT        = new struct elem_m[ttSize];								\
+	pHashFn   = new T_hash();											\
+	elems     = 0ull;													\
+	maxShift  = (T_shift)0;												\
+	maxShift  = ~maxShift; /* 'maxShift' will be filled with '1'. */	\
+	seekLimit = maxShift - 1;
+
+#define constructorBase_init_pSize_m()									\
+	/* pSize = (1/a) * tSize + b                      */				\
+	/*                                                */				\
+	/*         pSize                                  */				\
+	/*           |                                    */				\
+	/*           |                                    */				\
+	/*      254  -          -----------------------   */				\
+	/*           |        *                           */				\
+	/*           |     *   |                          */				\
+	/*           |  *                                 */				\
+	/* b (bias)  -         |                          */				\
+	/*           |                                    */				\
+	/*           +---------|-----------------> tSize  */				\
+	/*                   254*a                        */				\
+	/*                                                */				\
+	/* Fig. pSize vs tSize                            */				\
+																		\
+	const double a = 18; /* hyper parametor for T_shift==uint8. */		\
+	const uint64 b = 35; /* hyper parametor for T_shift==uint8. */		\
+	if(tSize<254*a){ pSize=(uint64)((double)tSize/a + b);				\
+	}     else     { pSize=254ull; } /* when using T_shift=uint8, 0xFF-1==254 is the max-shift. */
+
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
 inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT_constructor(const uint64& tableSize){
+	#ifdef use_prime_table
+	get_tSizeL_idx(tSizeL_idx); tSize = sstd_IpCHashT::tSizeL[tSizeL_idx];
+	#else
+	get_tSize(tSize); tSize_m1 = tSize - 1;
+	#endif
+	
+	constructorBase_init_pSize_m();
+	#ifdef SSTD_IpCHashT_DEBUG
+	if(use_pSize_dbg){ pSize=(uint64)pSize_dbg; } // over write pSize for debug
+	#endif
+	constructorBase_init_m();
+}
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift> inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT(                      ){ IpCHashT_constructor(   512   ); } // In order to store 512 elements, 1024 table length will be allocated.
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift> inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT(const uint64 tableSize){ IpCHashT_constructor(tableSize); }
+
+//---
+
 #ifdef use_prime_table
-	tSizeL_idx = get_tSizeL_idx(tableSize);
-	tSize      = sstd_IpCHashT::tSizeL[tSizeL_idx];
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
+inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT(const uint8 tableSizeL_idx, const uint64 tableSize){ // allocate same size of tableSize. for rehashing.
+	tSizeL_idx = tableSizeL_idx;
+	tSize      = sstd_CHashT::tSizeL[tSizeL_idx];
+	constructorBase_init_pSize_m();
+	
+	#ifdef SSTD_IpCHashT_DEBUG
+	if(use_pSize_dbg){ pSize=(uint64)pSize_dbg; } // over write pSize for debug
+	#endif
+	constructorBase_init_m();
+}
 #else
-	tSize      = get_tSize(tableSize);
-	tSize_m1   = tSize - 1;
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
+inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT(const uint64 tableSize_minus1, const uint64 tableSize){ // allocate same size of tableSize. for rehashing.
+	tSize_m1   = tableSize_minus1;
+	tSize      = tableSize;
+	
+	constructorBase_init_pSize_m();
+	#ifdef SSTD_IpCHashT_DEBUG
+	if(use_pSize_dbg){ pSize=(uint64)pSize_dbg; } // over write pSize for debug
+	#endif
+	constructorBase_init_m();
+}
 #endif
 
-	// pSize = (1/a) * tSize + b
-	// 
-	//         pSize
-	//           |
-	//           |
-	//      254  -          -----------------------
-	//           |        *
-	//           |     *   |
-	//           |  *      
-	// b (bias)  -         |
-	//           |         
-	//           +---------|-----------------> tSize
-	//                   254*a
-	//
-	// Fig. pSize vs tSize
-	
-	const double a = 18; // hyper parametor for T_shift==uint8.
-	const uint64 b = 35; // hyper parametor for T_shift==uint8.
-	if(tSize<254*a){ pSize=(uint64)((double)tSize/a + b);
-	}     else     { pSize=254ull; } // when using T_shift=uint8, 0xFF-1==254 is the max-shift.
-#ifdef SSTD_IpCHashT_DEBUG
-	if(use_pSize_dbg){ pSize=(uint64)pSize_dbg; } // over write pSize for debug
-#endif
-	ttSize     = tSize + pSize; // while "#define use_prime_table" is disabled, ttSize must be satisfied ttSize>=tSize+1. Because (hashVal & tSize) will [0, tSize], not [0, tSize). (when using prime table, hashVal % tSize be satisfied [0, tSize).)
-	
-	pT         = new struct elem_m[ttSize];
-	pHashFn    = new T_hash();
-	elems      = 0ull;
-	
-	maxShift   = (T_shift)0;
-	maxShift   = ~maxShift; // 'maxShift' will be filled with '1'.
-	seekLimit  = maxShift - 1;
-}
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift> inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT(                       ){ IpCHashT_constructor(   512   ); } // In order to store 512 elements, 1024 table length will be allocated.
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift> inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT(const uint64& tableSize){ IpCHashT_constructor(tableSize); }
+//---
+
+#undef get_tSize
+#undef get_tSizeL_idx
+#undef constructorBase_init_m
+
+//---
 
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
 inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::~IpCHashT(){
@@ -468,9 +494,19 @@ void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::failSafe_of_rehash
 	
 	std::vector<elem_KV_m> vecKV(hashT.size()); vecKV.clear();
 	move_hashT2vecKV(vecKV, hashT);
-	
-	sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(hashT.tableSize()); // twice size of tSize will be allocated.
-	swap_hashT(hashT, hashT_new);
+
+	{
+		//	sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(hashT.tableSize()); // twice size of tSize will be allocated.
+	#ifdef use_prime_table
+		uint8 tSizeL_idx_p1 = tSizeL_idx + 1; // p1: plus 1
+		sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(tSizeL_idx_p1, sstd_CHashT::tSizeL[tSizeL_idx_p1]); // twice size of tSize will be allocated.
+	#else
+		uint64 tSize_mul2	 = tSize * 2;      // mul2: multiply 2
+		uint64 tSize_mul2_m1 = tSize_mul2 - 1; //   m1: minus 1
+		sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(tSize_mul2_m1, tSize_mul2); // twice size of tSize will be allocated.
+	#endif
+		swap_hashT(hashT, hashT_new);
+	}
 	
 	while(vecKV.size()!=0){
 		
@@ -488,8 +524,22 @@ void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::failSafe_of_rehash
 		
 		if(itrRet.index()==itr_needRehash_m){
 			move_hashT2vecKV(vecKV, hashT);
-			sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(hashT.tableSize()); // twice size of tSize will be allocated.
-			swap_hashT(hashT, hashT_new);
+			
+			{
+				//	sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(hashT.tableSize()); // twice size of tSize will be allocated.
+			#ifdef use_prime_table
+//				uint8 tSizeL_idx_p1 = tSizeL_idx + 1; // p1: plus 1
+				uint8 tSizeL_idx_p1 = hashT._tSizeL_idx() + 1; // p1: plus 1
+				sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(tSizeL_idx_p1, sstd_CHashT::tSizeL[tSizeL_idx_p1]); // twice size of tSize will be allocated.
+			#else
+//				uint64 tSize_mul2    = tSize * 2;             // mul2: multiply 2
+				uint64 tSize_mul2    = hashT.tableSize() * 2; // mul2: multiply 2
+				uint64 tSize_mul2_m1 = tSize_mul2 - 1;        //   m1: minus 1
+				sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(tSize_mul2_m1, tSize_mul2); // twice size of tSize will be allocated.
+			#endif
+				swap_hashT(hashT, hashT_new);
+			}
+			
 			continue;
 		}
 		hashT._elems()++;
@@ -501,7 +551,17 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::rehash(){
 	// "using std::swap;" is defined, in order to preferentially call overloaded function of swap<T>() for type T. (Ref: https://cpprefjp.github.io/reference/utility/swap.html)
 	// In here, scope of using is limited by "{}", this means that scope of using is same as a usual value.
 	using std::swap;
-	sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(tSize); // twice size of tSize will be allocated.
+	
+//	sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(tSize); // twice size of tSize will be allocated.
+#ifdef use_prime_table
+	uint8 tSizeL_idx_p1 = tSizeL_idx + 1; // p1: plus 1
+	sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(tSizeL_idx_p1, sstd_CHashT::tSizeL[tSizeL_idx_p1]); // twice size of tSize will be allocated.
+#else
+	uint64 tSize_mul2 = tSize * 2;         // mul2: multiply 2
+	uint64 tSize_mul2_m1 = tSize_mul2 - 1; //   m1: minus 1
+	sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(tSize_mul2_m1, tSize_mul2); // twice size of tSize will be allocated.
+#endif
+	
 	for(auto itr=this->begin(); itr!=this->end(); ){
 		
 		#ifdef use_prime_table
@@ -516,8 +576,7 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::rehash(){
 		auto itrRet = hashT_new._insertBase_hard(std::move(itr.first_RW()), std::move(itr.second_RW()), idx);
 		#endif
 		
-		if(itrRet.index()==itr_needRehash_m){
-			failSafe_of_rehashing(hashT_new); continue; } // more rehashing is required while rehashing.
+		if(itrRet.index()==itr_needRehash_m){ failSafe_of_rehashing(hashT_new); continue; } // more rehashing is required while rehashing.
 		hashT_new._elems()++;
 		++itr;
 	}

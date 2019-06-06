@@ -1223,8 +1223,8 @@ TEST(sstd_IpCHashT, stressTest_hard){
 	// this is a stress test of chained hash table
 	std::random_device rnd;
 	for(uint limitSize=0; limitSize<10000; limitSize+=500){
-//		for(uint i=0; i<1000; i++){
-		for(uint i=0; i<10; i++){
+		for(uint i=0; i<1000; i++){
+//		for(uint i=0; i<10; i++){
 			uint64 seed = rnd();
 			bool ret = stressTest_oneCycle_hard(seed, limitSize);
 			if(ret==false){ sstd::printn(seed); }

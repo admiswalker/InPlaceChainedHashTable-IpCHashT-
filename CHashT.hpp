@@ -238,34 +238,26 @@ private:
 	uint64 elems;          // number of elements on the table
 	uint64 elems_onSinglyLinkedList;  // for detailed load factor
 	
-//	double lf;             // load factor
-	/*
-#ifdef use_prime_table
-	inline uint64 get_tSizeL_idx(const uint64& tableSize); // get table size list index	
-#else
-	inline uint64 get_tSize(const uint64& tableSize);
-#endif
-	//*/
-	
 public:
 	CHashT();
 	CHashT(const uint64 tableSize); // allocate twice size of tableSize.
-#ifdef use_prime_table
+	#ifdef use_prime_table
 	CHashT(const uint8 tableSizeL_idx, const uint64 tableSize); // allocate same size of tableSize. for rehashing.
-#else
+	#else
 	CHashT(const uint64 tableSize_minus1, const uint64 tableSize); // allocate same size of tableSize. for rehashing.
-#endif
+	#endif
 	~CHashT();
 	
-#ifdef use_prime_table
+	#ifdef use_prime_table
 	inline uint8& _tSizeL_idx(){ return tSizeL_idx; }
-#else
+	#else
 	inline uint64& _tSize_m1(){ return tSize_m1; }
-#endif
+	#endif
 	inline uint64&      _tSize(){ return tSize;      }
 	inline T_hash*&   _pHashFn(){ return pHashFn;    }
 	inline struct elem_m*& _pT(){ return pT;         }
 	inline uint64&      _elems(){ return elems;      }
+	inline uint64&      _elems_onSinglyLinkedList(){ return elems_onSinglyLinkedList; }
 	
 	// iterator
 	inline struct itr_m begin(){
@@ -363,8 +355,6 @@ inline void sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::CHashT_constructor(con
 }
 template <class T_key, class T_val, class T_hash, class T_key_eq> inline sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::CHashT(                      ){ CHashT_constructor(   512   ); } // in order to store 512 elements, 1024 table length will be allocated.
 template <class T_key, class T_val, class T_hash, class T_key_eq> inline sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::CHashT(const uint64 tableSize){ CHashT_constructor(tableSize); }
-#undef get_tSize
-#undef get_tSizeL_idx
 
 //---
 
@@ -386,8 +376,9 @@ inline sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::CHashT(const uint64 tableSi
 
 //---
 
-
-#undef constructor_init_m
+#undef get_tSize
+#undef get_tSizeL_idx
+#undef constructorBase_init_m
 
 //---
 
@@ -415,10 +406,15 @@ void swap_hashT(sstd::CHashT<T_key, T_val, T_hash, T_key_eq>& lhs, sstd::CHashT<
 	swap(lhs._pHashFn(),    rhs._pHashFn()   );
 	swap(lhs._pT(),         rhs._pT()        );
 	swap(lhs._elems(),      rhs._elems()     );
+	swap(lhs._elems_onSinglyLinkedList(), rhs._elems_onSinglyLinkedList());
 }
 
 template <class T_key, class T_val, class T_hash, class T_key_eq>
 inline void sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::rehash(){
+	// "using std::swap;" is defined, in order to preferentially call overloaded function of swap<T>() for type T. (Ref: https://cpprefjp.github.io/reference/utility/swap.html)
+	// in here, scope of using is limited by "{}", this means that scope of using is same as a usual value.
+	using std::swap;
+	
 #ifdef use_prime_table
 	uint8 tSizeL_idx_p1 = tSizeL_idx + 1; // p1: plus 1
 	sstd::CHashT<T_key, T_val, T_hash, T_key_eq> hashT_new(tSizeL_idx_p1, sstd_CHashT::tSizeL[tSizeL_idx_p1]); // twice size of tSize will be allocated.
@@ -427,10 +423,6 @@ inline void sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::rehash(){
 	uint64 tSize_mul2_m1 = tSize_mul2 - 1; //   m1: minus 1
 	sstd::CHashT<T_key, T_val, T_hash, T_key_eq> hashT_new(tSize_mul2_m1, tSize_mul2); // twice size of tSize will be allocated.
 #endif
-	
-	// "using std::swap;" is defined, in order to preferentially call overloaded function of swap<T>() for type T. (Ref: https://cpprefjp.github.io/reference/utility/swap.html)
-	// in here, scope of using is limited by "{}", this means that scope of using is same as a usual value.
-	using std::swap;
 	
 	for(auto itr=this->begin(); itr!=this->end(); ++itr){
 		hashT_new.insert(std::move(itr._key_RW()), std::move(itr.val()));
@@ -633,10 +625,6 @@ template <class T_key, class T_val, class T_hash, class T_key_eq> inline T_val& 
 
 #undef elem_m
 #undef itr_m
-
-#ifdef SSTD_CHashT_DEBUG
-#undef SSTD_CHashT_DEBUG
-#endif
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 

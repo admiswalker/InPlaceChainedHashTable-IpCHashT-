@@ -119,20 +119,20 @@ TEST(sstd_CHashT, iterator){
 	hashT.tIdx_dbg = 20;
 	hashT.insert(7, 70);
 	
-	printf("■ print internal value of iterator\n");
-	auto itr=hashT.begin();
-	itr.print_dbg();
-	printf("\n");
-	itr._pElem()->print_dbg();
-	printf("\n");
+//	printf("■ print internal value of iterator\n");
+//	auto itr=hashT.begin();
+//	itr.print_dbg();
+//	printf("\n");
+//	itr._pElem()->print_dbg();
+//	printf("\n");
 	
-	printf("■ print const-key and non-const-value of element\n");
+//	printf("■ print const-key and non-const-value of element\n");
 	uint i=0;
 	for(auto itr=hashT.begin(); itr!=hashT.end(); ++itr){
-		itr.print_dbg();
-		sstd::printn(itr.key());
-		sstd::printn(itr.val());
-		printf("\n");
+//		itr.print_dbg();
+//		sstd::printn(itr.key());
+//		sstd::printn(itr.val());
+//		printf("\n");
 		i++;
 	}
 	ASSERT_TRUE( i==7 );
