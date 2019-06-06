@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 // compile options
 
-//#define use_insert_soft // select soft or hard
+#define use_insert_soft // select soft or hard
 //#define use_prime_table
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -493,23 +493,19 @@ void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::failSafe_of_rehash
 	using std::swap;
 	
 	std::vector<elem_KV_m> vecKV(hashT.size()); vecKV.clear();
+	
+ CONTINUE_sstd_failSafe_of_rehashing:
 	move_hashT2vecKV(vecKV, hashT);
-
 	{
-		//	sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(hashT.tableSize()); // twice size of tSize will be allocated.
-	#ifdef use_prime_table
-		uint8 tSizeL_idx_p1 = tSizeL_idx + 1; // p1: plus 1
-		sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(tSizeL_idx_p1, sstd_CHashT::tSizeL[tSizeL_idx_p1]); // twice size of tSize will be allocated.
-	#else
-		uint64 tSize_mul2	 = tSize * 2;      // mul2: multiply 2
-		uint64 tSize_mul2_m1 = tSize_mul2 - 1; //   m1: minus 1
-		sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(tSize_mul2_m1, tSize_mul2); // twice size of tSize will be allocated.
-	#endif
+		#ifdef use_prime_table
+		sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(hashT._tSizeL_idx()+1, sstd_CHashT::tSizeL[hashT._tSizeL_idx()+1]); // twice size of tSize will be allocated.
+		#else
+		sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(hashT.tableSize()*2-1, hashT.tableSize()*2); // twice size of tSize will be allocated.
+		#endif
 		swap_hashT(hashT, hashT_new);
 	}
 	
 	while(vecKV.size()!=0){
-		
 		#ifdef use_prime_table
 		uint64 idx; key2tableIdx_wDivisor_m(idx, vecKV[vecKV.size()-1].key, hashT.tableSize());
 		#else
@@ -522,26 +518,7 @@ void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::failSafe_of_rehash
 		auto itrRet = hashT._insertBase_hard(std::move(vecKV[vecKV.size()-1].key), std::move(vecKV[vecKV.size()-1].val), idx);
 		#endif
 		
-		if(itrRet.index()==itr_needRehash_m){
-			move_hashT2vecKV(vecKV, hashT);
-			
-			{
-				//	sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(hashT.tableSize()); // twice size of tSize will be allocated.
-			#ifdef use_prime_table
-//				uint8 tSizeL_idx_p1 = tSizeL_idx + 1; // p1: plus 1
-				uint8 tSizeL_idx_p1 = hashT._tSizeL_idx() + 1; // p1: plus 1
-				sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(tSizeL_idx_p1, sstd_CHashT::tSizeL[tSizeL_idx_p1]); // twice size of tSize will be allocated.
-			#else
-//				uint64 tSize_mul2    = tSize * 2;             // mul2: multiply 2
-				uint64 tSize_mul2    = hashT.tableSize() * 2; // mul2: multiply 2
-				uint64 tSize_mul2_m1 = tSize_mul2 - 1;        //   m1: minus 1
-				sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(tSize_mul2_m1, tSize_mul2); // twice size of tSize will be allocated.
-			#endif
-				swap_hashT(hashT, hashT_new);
-			}
-			
-			continue;
-		}
+		if(itrRet.index()==itr_needRehash_m){ goto CONTINUE_sstd_failSafe_of_rehashing; }
 		hashT._elems()++;
 		vecKV.pop_back(); // erase the tail element
 	}
@@ -552,15 +529,11 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::rehash(){
 	// In here, scope of using is limited by "{}", this means that scope of using is same as a usual value.
 	using std::swap;
 	
-//	sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(tSize); // twice size of tSize will be allocated.
-#ifdef use_prime_table
-	uint8 tSizeL_idx_p1 = tSizeL_idx + 1; // p1: plus 1
-	sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(tSizeL_idx_p1, sstd_CHashT::tSizeL[tSizeL_idx_p1]); // twice size of tSize will be allocated.
-#else
-	uint64 tSize_mul2 = tSize * 2;         // mul2: multiply 2
-	uint64 tSize_mul2_m1 = tSize_mul2 - 1; //   m1: minus 1
-	sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(tSize_mul2_m1, tSize_mul2); // twice size of tSize will be allocated.
-#endif
+	#ifdef use_prime_table
+	sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(tSizeL_idx+1, sstd_CHashT::tSizeL[tSizeL_idx+1]); // twice size of tSize will be allocated.
+	#else
+	sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(tSize*2-1, tSize*2); // twice size of tSize will be allocated.
+	#endif
 	
 	for(auto itr=this->begin(); itr!=this->end(); ){
 		
