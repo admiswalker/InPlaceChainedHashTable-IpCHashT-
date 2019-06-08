@@ -21,6 +21,7 @@ CFLAGS += -L./googletest-master/build/lib -I./googletest-master/googletest/inclu
 CFLAGS += -I./sparsehash-master/src # sparsehash
 CFLAGS += -std=c++11 # CFLAGS += -std=gnu++0x
 CFLAGS += -Wall
+#CFLAGS += -Wextra
 CFLAGS += -O3
 
 CFLAGS_bm += -DNDEBUG
