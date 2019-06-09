@@ -184,19 +184,19 @@ uint64 sstd_memoryBase(const char* type){
 	if(pclose(fp)==-1){ return 0ull; } // failure
 	return ret;
 }
-uint64 sstd_memory_VmPeak      (){ return sstd_memoryBase("VmPeak");       }
-uint64 sstd_memory_VmSize      (){ return sstd_memoryBase("VmSize");       }
-uint64 sstd_memory_VmLck       (){ return sstd_memoryBase("VmLck");        }
-uint64 sstd_memory_VmPin       (){ return sstd_memoryBase("VmPin");        }
-uint64 sstd_memory_VmHWM       (){ return sstd_memoryBase("VmHWM");        }
-uint64 sstd_memory_VmRSS       (){ return sstd_memoryBase("VmRSS");        }
-uint64 sstd_memory_VmData      (){ return sstd_memoryBase("VmData");       }
-uint64 sstd_memory_VmStk       (){ return sstd_memoryBase("VmStk");        }
-uint64 sstd_memory_VmExe       (){ return sstd_memoryBase("VmExe");        }
-uint64 sstd_memory_VmLib       (){ return sstd_memoryBase("VmLib");        }
-uint64 sstd_memory_VmPTE       (){ return sstd_memoryBase("VmPTE");        }
-uint64 sstd_memory_VmPMD       (){ return sstd_memoryBase("VmPMD");        }
-uint64 sstd_memory_VmSwap      (){ return sstd_memoryBase("VmSwap");       }
+uint64 sstd_memory_VmPeak      (){ return sstd_memoryBase("VmPeak"      ); }
+uint64 sstd_memory_VmSize      (){ return sstd_memoryBase("VmSize"      ); }
+uint64 sstd_memory_VmLck       (){ return sstd_memoryBase("VmLck"       ); }
+uint64 sstd_memory_VmPin       (){ return sstd_memoryBase("VmPin"       ); }
+uint64 sstd_memory_VmHWM       (){ return sstd_memoryBase("VmHWM"       ); }
+uint64 sstd_memory_VmRSS       (){ return sstd_memoryBase("VmRSS"       ); }
+uint64 sstd_memory_VmData      (){ return sstd_memoryBase("VmData"      ); }
+uint64 sstd_memory_VmStk       (){ return sstd_memoryBase("VmStk"       ); }
+uint64 sstd_memory_VmExe       (){ return sstd_memoryBase("VmExe"       ); }
+uint64 sstd_memory_VmLib       (){ return sstd_memoryBase("VmLib"       ); }
+uint64 sstd_memory_VmPTE       (){ return sstd_memoryBase("VmPTE"       ); }
+uint64 sstd_memory_VmPMD       (){ return sstd_memoryBase("VmPMD"       ); }
+uint64 sstd_memory_VmSwap      (){ return sstd_memoryBase("VmSwap"      ); }
 uint64 sstd_memory_HugetlbPages(){ return sstd_memoryBase("HugetlbPages"); }
 
 uint64 sstd_get_ru_maxrss(){
@@ -206,18 +206,15 @@ uint64 sstd_get_ru_maxrss(){
 }
 
 template<typename T_hashTable>
-void bench_usedMemory(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_MB){
+void bench_usedMemory(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_MB, const double baseSize_MB){
 	std::random_device seed_gen;
 	std::mt19937_64 rand(seed_gen()); // pseudo random number generator
 	
-	{
-//		double h_MB = sstd_memory_VmHWM() / 1024.0;
-		double r_MB = sstd_memory_VmRSS() / 1024.0;
-		vecY_MB  <<= r_MB;
-		vecX_num <<= 0;
-	}
+	vecY_MB  <<= baseSize_MB; // base size of allocated memory
+	vecX_num <<= 0;
 	
 	uint64 splitNum  = 100;
+//	uint64 splitNum  = 1000;
 	uint64 interval  = limitSize/splitNum;
 	uint64 tSize_prev = hashT.bucket_count(); // table size
 	for(uint sn=0; sn<splitNum; sn++){
@@ -239,18 +236,31 @@ void bench_usedMemory(T_hashTable& hashT, const uint64 limitSize, std::vector<do
 void bench_plot_usedMemory(const char* savePath, const uint64 initSize, const uint64 limitSize){
 	std::vector<double> vecX_u, vecX_c, vecX_i, vecX_d, vecX_f; // memory size [MB]
 	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // sec
+	double baseSize_MB = 0.0;
 	
-	    std::unordered_map<uint64,uint64> hashT_u(initSize); bench_usedMemory(hashT_u, limitSize, vecX_u, vecY_u);
+	baseSize_MB = sstd_memory_VmRSS()/1024.0;
+	std::unordered_map<uint64,uint64> hashT_u(initSize);
+	bench_usedMemory(hashT_u, limitSize, vecX_u, vecY_u, baseSize_MB);
 	std::vector<char> buf_u((sstd_memory_VmHWM()-sstd_memory_VmRSS())*(1024+100)); // inorder not to count swap memory region
-	          sstd::CHashT<uint64,uint64> hashT_c(initSize); bench_usedMemory(hashT_c, limitSize, vecX_c, vecY_c);
+	
+	baseSize_MB = sstd_memory_VmRSS()/1024.0;
+	sstd::CHashT<uint64,uint64> hashT_c(initSize);
+	bench_usedMemory(hashT_c, limitSize, vecX_c, vecY_c, baseSize_MB);
 	std::vector<char> buf_c((sstd_memory_VmHWM()-sstd_memory_VmRSS())*(1024+100)); // inorder not to count swap memory region
-	        sstd::IpCHashT<uint64,uint64> hashT_i(initSize); bench_usedMemory(hashT_i, limitSize, vecX_i, vecY_i);
+	
+	baseSize_MB = sstd_memory_VmRSS()/1024.0;
+	sstd::IpCHashT<uint64,uint64> hashT_i(initSize);
+	bench_usedMemory(hashT_i, limitSize, vecX_i, vecY_i, baseSize_MB);
 	std::vector<char> buf_i((sstd_memory_VmHWM()-sstd_memory_VmRSS())*(1024+100)); // inorder not to count swap memory region
-	google::dense_hash_map<uint64,uint64> hashT_d(initSize); hashT_d.set_empty_key(0ull);
-	                                                         bench_usedMemory(hashT_d, limitSize, vecX_d, vecY_d); // this meen that 'NULL' will not be able to insert as a key-value.
+	
+	baseSize_MB = sstd_memory_VmRSS()/1024.0;
+	google::dense_hash_map<uint64,uint64> hashT_d(initSize); hashT_d.set_empty_key(0ull); // this meen that 'NULL' will not be able to insert as a key-value.
+	bench_usedMemory(hashT_d, limitSize, vecX_d, vecY_d, baseSize_MB);
 	std::vector<char> buf_d((sstd_memory_VmHWM()-sstd_memory_VmRSS())*(1024+100)); // inorder not to count swap memory region
+	
+	baseSize_MB = sstd_memory_VmRSS()/1024.0;
 	ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT_f(initSize);
-	                                                         bench_usedMemory(hashT_f, limitSize, vecX_f, vecY_f);
+	bench_usedMemory(hashT_f, limitSize, vecX_f, vecY_f, baseSize_MB);
 	
 	// plot2fig
 	const char* tmpDir   = "./tmpDir";
@@ -258,8 +268,7 @@ void bench_plot_usedMemory(const char* savePath, const uint64 initSize, const ui
 	const char* funcName = "vvec2graph";
 	
 	const char* xlabel   = "Number of elements on the table [conut]";
-	//const char* ylabel   = "Used memory size [kB]";
-	const char* ylabel   = "Maximum size of allocated memory [MB]\n(struct rusage.ru_maxrss)";
+	const char* ylabel   = "Allocated memory size [MB]";
 	
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // memory size [MB]
@@ -702,6 +711,10 @@ void RUN_ALL_BENCHS(){
 	const uint64 limitSize = 5000000;  // 50 sec
 	const uint64 initSize_wRehash  = 0;
 	const uint64 initSize_preAlloc = limitSize;
+	
+	// bench of used memory size should run first inorder to avoid memory swap by Linux OS.
+	bench_plot_usedMemory("./bench_usedMemory_wRehash.png",  initSize_wRehash,  limitSize);
+	bench_plot_usedMemory("./bench_usedMemory_preAlloc.png", initSize_preAlloc, limitSize);
 	/*
 	// Warm running, because of the first bench usually returns bad result.
 	const char* pWarmRun = "./bench_warmRunning.png";
@@ -716,9 +729,8 @@ void RUN_ALL_BENCHS(){
 	// add: elapsed time [sec]
 	bench_plot_add_et("./bench_add_et_wRehash.png",  initSize_wRehash,  limitSize); // with rehash
 	bench_plot_add_et("./bench_add_et_preAlloc.png", initSize_preAlloc, limitSize); // pre-allocate
-	//*/
-	bench_plot_usedMemory("./bench_usedMemory.png", 0ull, limitSize);
-	/*
+	
+	
 	// find: find speed [quely/sec]
 	bench_plot_find("./bench_find_wRehash.png",  initSize_wRehash,  limitSize); // with rehash
 	bench_plot_find("./bench_find_preAlloc.png", initSize_preAlloc, limitSize); // pre-allocate

@@ -281,11 +281,11 @@ private:
 	
 public:
 	IpCHashT();
-	IpCHashT(const uint64 tableSize); // allocate twice size of tableSize.
+	IpCHashT(const uint64 tableSize); // nearest size under power of 2 will be allocate.
 	#ifdef use_prime_table
-	IpCHashT(const uint8 tableSizeL_idx, const uint64 tableSize); // allocate same size of tableSize. for rehashing.
+	IpCHashT(const uint8 tableSizeL_idx, const uint64 tableSize); // allocate same size of tableSize. for rehashing. (select size from prime table, never form the others).
 	#else
-	IpCHashT(const uint64 tableSize_minus1, const uint64 tableSize); // allocate same size of tableSize. for rehashing.
+	IpCHashT(const uint64 tableSize_minus1, const uint64 tableSize); // allocate same size of tableSize. for rehashing. (select size of power 2, never form the others).
 	#endif
 	~IpCHashT();
 	
@@ -361,12 +361,10 @@ public:
 	idx=0;																\
 	for(; idx<64; idx++){												\
 		if(sstd_IpCHashT::tSizeL[idx]>=tableSize){ break; }				\
-	}																	\
-	idx++; /* twice size of table will adjust the load factor 50%. */
+	}
 #define get_tSize(tSize)						\
 	tSize=2;									\
-	while(tSize<tableSize){ tSize*=2; }			\
-	tSize*=2;
+	while(tSize<tableSize){ tSize*=2; }
 
 #define constructorBase_init_m()										\
 	ttSize    = tSize + pSize; /* while "#define use_prime_table" is disabled, ttSize must be satisfied ttSize>=tSize+1. Because (hashVal & tSize) will [0, tSize], not [0, tSize). (when using prime table, hashVal % tSize be satisfied [0, tSize).) */ \
@@ -413,14 +411,14 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT_co
 	#endif
 	constructorBase_init_m();
 }
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift> inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT(                      ){ IpCHashT_constructor(   512   ); } // In order to store 512 elements, 1024 table length will be allocated.
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift> inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT(                      ){ IpCHashT_constructor(   512   ); }
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift> inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT(const uint64 tableSize){ IpCHashT_constructor(tableSize); }
 
 //---
 
 #ifdef use_prime_table
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT(const uint8 tableSizeL_idx, const uint64 tableSize){ // allocate same size of tableSize. for rehashing.
+inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT(const uint8 tableSizeL_idx, const uint64 tableSize){ // allocate same size of tableSize. for rehashing. (select size from prime table, never form the others).
 	tSizeL_idx = tableSizeL_idx;
 	tSize      = sstd_CHashT::tSizeL[tSizeL_idx];
 	constructorBase_init_pSize_m();
@@ -432,7 +430,7 @@ inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT(const u
 }
 #else
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT(const uint64 tableSize_minus1, const uint64 tableSize){ // allocate same size of tableSize. for rehashing.
+inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT(const uint64 tableSize_minus1, const uint64 tableSize){ // allocate same size of tableSize. for rehashing. (select size of power 2, never form the others).
 	tSize_m1   = tableSize_minus1;
 	tSize      = tableSize;
 	

@@ -226,25 +226,25 @@ private:
 	void CHashT_constructor(const uint64 tableSize);
 	
 #ifdef use_prime_table
-	uint8  tSizeL_idx;      // table size list index
+	uint8  tSizeL_idx;                // table size list index
 #else
-	uint64 tSize_m1;        // tSize minus 1.
+	uint64 tSize_m1;                  // tSize minus 1.
 #endif
-	uint64 tSize;          // table size
+	uint64 tSize;                     // table size
 	
-	T_hash* pHashFn;       // pointer to the hash function
+	T_hash* pHashFn;                  // pointer to the hash function
 	
-	struct elem_m* pT;     // pointer to the table
-	uint64 elems;          // number of elements on the table
+	struct elem_m* pT;                // pointer to the table
+	uint64 elems;                     // number of elements on the table
 	uint64 elems_onSinglyLinkedList;  // for detailed load factor
 	
 public:
 	CHashT();
-	CHashT(const uint64 tableSize); // allocate twice size of tableSize.
+	CHashT(const uint64 tableSize); // nearest size under power of 2 will be allocate.
 	#ifdef use_prime_table
-	CHashT(const uint8 tableSizeL_idx, const uint64 tableSize); // allocate same size of tableSize. for rehashing.
+	CHashT(const uint8 tableSizeL_idx, const uint64 tableSize); // allocate same size of tableSize. for rehashing. (select size from prime table, never form the others).
 	#else
-	CHashT(const uint64 tableSize_minus1, const uint64 tableSize); // allocate same size of tableSize. for rehashing.
+	CHashT(const uint64 tableSize_minus1, const uint64 tableSize); // allocate same size of tableSize. for rehashing. (select size of power 2, never form the others).
 	#endif
 	~CHashT();
 	
@@ -330,12 +330,10 @@ public:
 	idx=0;																\
 	for(; idx<64; idx++){												\
 		if(sstd_IpCHashT::tSizeL[idx]>=tableSize){ break; }				\
-	}																	\
-	idx++; /* twice size of table will adjust the load factor 50%. */
+	}
 #define get_tSize(tSize)						\
 	tSize=2;									\
-	while(tSize<tableSize){ tSize*=2; }			\
-	tSize*=2;
+	while(tSize<tableSize){ tSize*=2; }
 
 #define constructorBase_init_m()						\
 	pT         = new struct elem_m[tSize];				\
@@ -353,21 +351,21 @@ inline void sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::CHashT_constructor(con
 	
 	constructorBase_init_m();
 }
-template <class T_key, class T_val, class T_hash, class T_key_eq> inline sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::CHashT(                      ){ CHashT_constructor(   512   ); } // in order to store 512 elements, 1024 table length will be allocated.
+template <class T_key, class T_val, class T_hash, class T_key_eq> inline sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::CHashT(                      ){ CHashT_constructor(   512   ); }
 template <class T_key, class T_val, class T_hash, class T_key_eq> inline sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::CHashT(const uint64 tableSize){ CHashT_constructor(tableSize); }
 
 //---
 
 #ifdef use_prime_table
 template <class T_key, class T_val, class T_hash, class T_key_eq>
-inline sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::CHashT(const uint8 tableSizeL_idx, const uint64 tableSize){ // allocate same size of tableSize. for rehashing.
+inline sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::CHashT(const uint8 tableSizeL_idx, const uint64 tableSize){ // allocate same size of tableSize. for rehashing. (select size from prime table, never form the others).
 	tSizeL_idx = tableSizeL_idx;
 	tSize      = sstd_CHashT::tSizeL[tSizeL_idx];
 	constructorBase_init_m();
 }
 #else
 template <class T_key, class T_val, class T_hash, class T_key_eq>
-inline sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::CHashT(const uint64 tableSize_minus1, const uint64 tableSize){ // allocate same size of tableSize. for rehashing.
+inline sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::CHashT(const uint64 tableSize_minus1, const uint64 tableSize){ // allocate same size of tableSize. for rehashing. (select size of power 2, never form the others).
 	tSize_m1   = tableSize_minus1;
 	tSize      = tableSize;
 	constructorBase_init_m();
