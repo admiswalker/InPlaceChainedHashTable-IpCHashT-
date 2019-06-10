@@ -342,12 +342,11 @@ public:
 	void erase(const T_key& key_in);
 // erase_recursive(); // recursive erasion.
 	
-	#ifdef SSTD_IpCHashT_DEBUG
-	bool   use_tIdx_dbg = false;
-	uint64     tIdx_dbg;
-	bool   use_pSize_dbg = false;
-	uint64     pSize_dbg;
-	#endif
+#ifdef SSTD_IpCHashT_DEBUG
+	bool use_tIdx_dbg     = false; uint64 tIdx_dbg;
+	bool use_pSize_dbg    = false; uint64 pSize_dbg;
+	bool use_testFSOR_dbg = false;
+#endif
 	
 	// ---
 	
@@ -365,15 +364,6 @@ public:
 #define get_tSize(tSize)						\
 	tSize=2;									\
 	while(tSize<tableSize){ tSize*=2; }
-
-#define constructorBase_init_m()										\
-	ttSize    = tSize + pSize; /* while "#define use_prime_table" is disabled, ttSize must be satisfied ttSize>=tSize+1. Because (hashVal & tSize) will [0, tSize], not [0, tSize). (when using prime table, hashVal % tSize be satisfied [0, tSize).) */ \
-	pT        = new struct elem_m[ttSize];								\
-	pHashFn   = new T_hash();											\
-	elems     = 0ull;													\
-	maxShift  = (T_shift)0;												\
-	maxShift  = ~maxShift; /* 'maxShift' will be filled with '1'. */	\
-	seekLimit = maxShift - 1;
 
 #define constructorBase_init_pSize_m()									\
 	/* pSize = (1/a) * tSize + b                      */				\
@@ -396,6 +386,15 @@ public:
 	const uint64 b = 35; /* hyper parametor for T_shift==uint8. */		\
 	if(tSize<254*a){ pSize=(uint64)((double)tSize/a + b);				\
 	}     else     { pSize=254ull; } /* when using T_shift=uint8, 0xFF-1==254 is the max-shift. */
+
+#define constructorBase_init_m()										\
+	ttSize    = tSize + pSize; /* while "#define use_prime_table" is disabled, ttSize must be satisfied ttSize>=tSize+1. Because (hashVal & tSize) will [0, tSize], not [0, tSize). (when using prime table, hashVal % tSize be satisfied [0, tSize).) */ \
+	pT        = new struct elem_m[ttSize];								\
+	pHashFn   = new T_hash();											\
+	elems     = 0ull;													\
+	maxShift  = (T_shift)0;												\
+	maxShift  = ~maxShift; /* 'maxShift' will be filled with '1'. */	\
+	seekLimit = maxShift - 1;
 
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
 inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT_constructor(const uint64& tableSize){
@@ -517,6 +516,15 @@ void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::failSafe_of_rehash
 		#endif
 		
 		if(itrRet.index()==itr_needRehash_m){ goto CONTINUE_sstd_failSafe_of_rehashing; }
+		#ifdef SSTD_IpCHashT_DEBUG
+		if(use_testFSOR_dbg){ // testing failSafe_of_rehashing()
+			hashT._elems()++;
+			vecKV.pop_back(); // erase the tail element
+			use_testFSOR_dbg=false;
+			goto CONTINUE_sstd_failSafe_of_rehashing;
+		}
+		#endif
+		
 		hashT._elems()++;
 		vecKV.pop_back(); // erase the tail element
 	}
@@ -548,6 +556,15 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::rehash(){
 		#endif
 		
 		if(itrRet.index()==itr_needRehash_m){ failSafe_of_rehashing(hashT_new); continue; } // more rehashing is required while rehashing.
+		#ifdef SSTD_IpCHashT_DEBUG
+		if(use_testFSOR_dbg){ // testing failSafe_of_rehashing()
+			hashT_new._elems()++;
+			++itr;
+			failSafe_of_rehashing(hashT_new);
+			continue;
+		}
+		#endif
+		
 		hashT_new._elems()++;
 		++itr;
 	}

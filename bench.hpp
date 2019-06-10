@@ -715,7 +715,7 @@ void RUN_ALL_BENCHS(){
 	// bench of used memory size should run first inorder to avoid memory swap by Linux OS.
 	bench_plot_usedMemory("./bench_usedMemory_wRehash.png",  initSize_wRehash,  limitSize);
 	bench_plot_usedMemory("./bench_usedMemory_preAlloc.png", initSize_preAlloc, limitSize);
-	/*
+	//*
 	// Warm running, because of the first bench usually returns bad result.
 	const char* pWarmRun = "./bench_warmRunning.png";
 	bench_plot_add(pWarmRun, initSize_preAlloc, limitSize); // pre-allocate
@@ -751,10 +751,10 @@ void RUN_ALL_BENCHS(){
 	bench_plot_maxLoadFactor("./bench_maxLoadFactor_pow10_5.png", 100000   );
 	bench_plot_maxLoadFactor("./bench_maxLoadFactor_pow10_6.png", 1000000  );
 //	bench_plot_maxLoadFactor("./bench_maxLoadFactor_pow10_8.png", 100000000);
-	//*/
-//	sstd::rm(pWarmRun);
 	
-//	bench_plot_find_findFailedAll_erase_add("./bench_find_fainFailedAll_erase_add_pow10_6.png", 1000000); // find with erasion
+	bench_plot_find_findFailedAll_erase_add("./bench_find_fainFailedAll_erase_add_pow10_6.png", 1000000); // find with erasion
+//*/
+//	sstd::rm(pWarmRun);
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------

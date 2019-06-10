@@ -1233,6 +1233,67 @@ TEST(sstd_IpCHashT, stressTest_hard){
 	}
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------------
+bool stressTest_oneCycle__failSafe_of_rehashing__hard(const uint64 seed, const uint64 limitSize){
+	const uint64 testFSOR_size = 553;
+	
+	sstd::IpCHashT<uint64, uint64> hashT(0);
+	hashT.use_pSize_dbg = true; // enable debug option
+	hashT.pSize_dbg     = 0;    // force to set key-val on the table index "tIdx_dbg".
+	
+	// insert_hard
+	{
+		std::mt19937_64 mt(seed); // pseudo random number generator
+		 
+		for(uint64 i=0; i<limitSize; i++){
+			uint64 r = mt();
+			hashT.insert_hard(r, r);
+			
+			if(i==testFSOR_size){ hashT.use_testFSOR_dbg = true;  }
+		}
+		
+		if(!( hashT.size()==limitSize )){ sstd::pdbg("ERROR: stressTest_oneCycle_hard\n"); sstd::printn( limitSize ); sstd::printn( hashT.size() ); return false; }
+	}
+//	printTable_all(hashT);
+	
+	// find
+	{
+		std::mt19937_64 mt(seed); // pseudo random number generator
+		
+		for(uint64 i=0; i<limitSize; i++){
+			uint64 r = mt();
+			auto itr = hashT.find(r);
+			if(!( itr!=hashT.end() )){ sstd::pdbg("ERROR: stressTest_oneCycle_hard\n"); sstd::printn(r); return false; }
+			if(!( itr.first() ==r  )){ sstd::pdbg("ERROR: stressTest_oneCycle_hard\n"); sstd::printn(r); return false; }
+			if(!( itr.second()==r  )){ sstd::pdbg("ERROR: stressTest_oneCycle_hard\n"); sstd::printn(r); return false; }
+		}
+	}
+	
+	// erase
+	{
+		std::mt19937_64 mt(seed); // pseudo random number generator
+		
+		for(uint64 i=0; i<limitSize; i++){
+			uint64 r = mt();
+			hashT.erase(r);
+		}
+		if(!( hashT.size()==0 )){ sstd::pdbg("ERROR: stressTest_oneCycle_hard\n"); return false; }
+	}
+	return true;
+}
+TEST(sstd_IpCHashT, stressTest__failSafe_of_rehashing__hard){
+	// this is a stress test of chained hash table
+	std::random_device rnd;
+	for(uint limitSize=0; limitSize<10000; limitSize+=500){
+//		for(uint i=0; i<1000; i++){
+		for(uint i=0; i<10; i++){
+			uint64 seed = rnd();
+			bool ret = stressTest_oneCycle__failSafe_of_rehashing__hard(seed, limitSize);
+			if(ret==false){ sstd::printn(seed); }
+			ASSERT_TRUE( ret );
+		}
+	}
+}
+//-----------------------------------------------------------------------------------------------------------------------------------------------
 TEST(sstd_IpCHashT, OPE_bracket){
 	// []
 	
