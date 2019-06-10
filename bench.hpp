@@ -170,7 +170,7 @@ VmPMD:	      12 kB
 VmSwap:	       0 kB
 HugetlbPages:	       0 kB
 //*/
-uint64 sstd_memoryBase(const char* type){
+uint64 sstd_statusBase(const char* type){
 	FILE *fp;
 	char cmd[128];
 	sprintf(cmd, "grep %s /proc/%d/status", type, getpid());
@@ -184,20 +184,21 @@ uint64 sstd_memoryBase(const char* type){
 	if(pclose(fp)==-1){ return 0ull; } // failure
 	return ret;
 }
-uint64 sstd_memory_VmPeak      (){ return sstd_memoryBase("VmPeak"      ); }
-uint64 sstd_memory_VmSize      (){ return sstd_memoryBase("VmSize"      ); }
-uint64 sstd_memory_VmLck       (){ return sstd_memoryBase("VmLck"       ); }
-uint64 sstd_memory_VmPin       (){ return sstd_memoryBase("VmPin"       ); }
-uint64 sstd_memory_VmHWM       (){ return sstd_memoryBase("VmHWM"       ); }
-uint64 sstd_memory_VmRSS       (){ return sstd_memoryBase("VmRSS"       ); }
-uint64 sstd_memory_VmData      (){ return sstd_memoryBase("VmData"      ); }
-uint64 sstd_memory_VmStk       (){ return sstd_memoryBase("VmStk"       ); }
-uint64 sstd_memory_VmExe       (){ return sstd_memoryBase("VmExe"       ); }
-uint64 sstd_memory_VmLib       (){ return sstd_memoryBase("VmLib"       ); }
-uint64 sstd_memory_VmPTE       (){ return sstd_memoryBase("VmPTE"       ); }
-uint64 sstd_memory_VmPMD       (){ return sstd_memoryBase("VmPMD"       ); }
-uint64 sstd_memory_VmSwap      (){ return sstd_memoryBase("VmSwap"      ); }
-uint64 sstd_memory_HugetlbPages(){ return sstd_memoryBase("HugetlbPages"); }
+uint64 sstd_status_VmPeak      (){ return sstd_statusBase("VmPeak"      ); }
+uint64 sstd_status_VmSize      (){ return sstd_statusBase("VmSize"      ); }
+uint64 sstd_status_VmLck       (){ return sstd_statusBase("VmLck"       ); }
+uint64 sstd_status_VmPin       (){ return sstd_statusBase("VmPin"       ); }
+uint64 sstd_status_VmHWM       (){ return sstd_statusBase("VmHWM"       ); }
+uint64 sstd_status_VmRSS       (){ return sstd_statusBase("VmRSS"       ); }
+uint64 sstd_status_VmData      (){ return sstd_statusBase("VmData"      ); }
+uint64 sstd_status_VmStk       (){ return sstd_statusBase("VmStk"       ); }
+uint64 sstd_status_VmExe       (){ return sstd_statusBase("VmExe"       ); }
+uint64 sstd_status_VmLib       (){ return sstd_statusBase("VmLib"       ); }
+uint64 sstd_status_VmPTE       (){ return sstd_statusBase("VmPTE"       ); }
+uint64 sstd_status_VmPMD       (){ return sstd_statusBase("VmPMD"       ); }
+uint64 sstd_status_VmSwap      (){ return sstd_statusBase("VmSwap"      ); }
+uint64 sstd_status_HugetlbPages(){ return sstd_statusBase("HugetlbPages"); }
+// 他の status も取得できるようにして，sstd へ標準導入する．(ただし，#ifndef __WIN32 内に実装．)
 
 uint64 sstd_get_ru_maxrss(){
 	struct rusage r;
@@ -224,8 +225,8 @@ void bench_usedMemory(T_hashTable& hashT, const uint64 limitSize, std::vector<do
 			hashT[r] = r;
 		}
 		
-		double h_MB = sstd_memory_VmHWM() / 1024.0;
-		double r_MB = sstd_memory_VmRSS() / 1024.0;
+		double h_MB = sstd_status_VmHWM() / 1024.0;
+		double r_MB = sstd_status_VmRSS() / 1024.0;
 		uint64 tSize = hashT.bucket_count();
 		double MB; if(tSize > tSize_prev){ MB=h_MB; tSize_prev=tSize; }else{ MB=r_MB; }
 		vecY_MB  <<= MB;
@@ -238,27 +239,27 @@ void bench_plot_usedMemory(const char* savePath, const uint64 initSize, const ui
 	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // sec
 	double baseSize_MB = 0.0;
 	
-	baseSize_MB = sstd_memory_VmRSS()/1024.0;
+	baseSize_MB = sstd_status_VmRSS()/1024.0;
 	std::unordered_map<uint64,uint64> hashT_u(initSize);
 	bench_usedMemory(hashT_u, limitSize, vecX_u, vecY_u, baseSize_MB);
-	std::vector<char> buf_u((sstd_memory_VmHWM()-sstd_memory_VmRSS())*(1024+100)); // inorder not to count swap memory region
+	std::vector<char> buf_u((sstd_status_VmHWM()-sstd_status_VmRSS())*(1024+100)); // inorder not to count swap memory region
 	
-	baseSize_MB = sstd_memory_VmRSS()/1024.0;
+	baseSize_MB = sstd_status_VmRSS()/1024.0;
 	sstd::CHashT<uint64,uint64> hashT_c(initSize);
 	bench_usedMemory(hashT_c, limitSize, vecX_c, vecY_c, baseSize_MB);
-	std::vector<char> buf_c((sstd_memory_VmHWM()-sstd_memory_VmRSS())*(1024+100)); // inorder not to count swap memory region
+	std::vector<char> buf_c((sstd_status_VmHWM()-sstd_status_VmRSS())*(1024+100)); // inorder not to count swap memory region
 	
-	baseSize_MB = sstd_memory_VmRSS()/1024.0;
+	baseSize_MB = sstd_status_VmRSS()/1024.0;
 	sstd::IpCHashT<uint64,uint64> hashT_i(initSize);
 	bench_usedMemory(hashT_i, limitSize, vecX_i, vecY_i, baseSize_MB);
-	std::vector<char> buf_i((sstd_memory_VmHWM()-sstd_memory_VmRSS())*(1024+100)); // inorder not to count swap memory region
+	std::vector<char> buf_i((sstd_status_VmHWM()-sstd_status_VmRSS())*(1024+100)); // inorder not to count swap memory region
 	
-	baseSize_MB = sstd_memory_VmRSS()/1024.0;
+	baseSize_MB = sstd_status_VmRSS()/1024.0;
 	google::dense_hash_map<uint64,uint64> hashT_d(initSize); hashT_d.set_empty_key(0ull); // this meen that 'NULL' will not be able to insert as a key-value.
 	bench_usedMemory(hashT_d, limitSize, vecX_d, vecY_d, baseSize_MB);
-	std::vector<char> buf_d((sstd_memory_VmHWM()-sstd_memory_VmRSS())*(1024+100)); // inorder not to count swap memory region
+	std::vector<char> buf_d((sstd_status_VmHWM()-sstd_status_VmRSS())*(1024+100)); // inorder not to count swap memory region
 	
-	baseSize_MB = sstd_memory_VmRSS()/1024.0;
+	baseSize_MB = sstd_status_VmRSS()/1024.0;
 	ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT_f(initSize);
 	bench_usedMemory(hashT_f, limitSize, vecX_f, vecY_f, baseSize_MB);
 	
@@ -408,6 +409,134 @@ void bench_plot_find_failedAll(const char* savePath, const uint64 initSize, cons
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
 	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_ms
+	
+	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const char*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
+	vvec2graph(savePath, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------
+// find_et
+
+template<typename T_hashTable>
+void bench_find_et(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_s){
+	std::random_device seed_gen;
+	uint64 seed = seed_gen();
+	std::mt19937_64 rand_init   (seed); // pseudo random number generator
+	std::mt19937_64 rand_measure(seed); // pseudo random number generator
+	
+	// add
+	for(uint i=0; i<limitSize; i++){
+		uint64 r = rand_init();
+		hashT[r] = r;
+	}
+	
+	uint64 splitNum  = 100;
+	uint64 interval  = limitSize/splitNum;
+	
+	double totalTime_sec = 0.0;
+	
+	uint64 numFound=0ull, numNotFound=0ull;
+	vecY_s   <<= 0.0;
+	vecX_num <<= 0;
+	for(uint sn=0; sn<splitNum; sn++){
+		time_m timem; sstd::measureTime_start(timem);
+		
+		// find
+		for(uint i=0; i<interval; i++){
+			uint64 r = rand_measure();
+			auto itr = hashT.find(r);
+			if(itr!=hashT.end()){ numFound++; }else{ numNotFound++; }
+		}
+		
+		double lapTime_sec = sstd::measureTime_stop_ms(timem) / 1000.0;
+		totalTime_sec += lapTime_sec;
+		vecY_s   <<= totalTime_sec;
+		vecX_num <<= numFound;
+	}
+	if(numNotFound!=0ull){ sstd::pdbg("ERROR: bench_find_et() was failed.\n"); }
+}
+void bench_plot_find_et(const char* savePath, const uint64 initSize, const uint64 limitSize){
+	std::vector<double> vecX_u, vecX_c, vecX_i, vecX_d, vecX_f; // num of elements
+	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // sec
+	{     std::unordered_map<uint64,uint64> hashT(initSize);                            bench_find_et(hashT, limitSize, vecX_u, vecY_u); }
+	{           sstd::CHashT<uint64,uint64> hashT(initSize);                            bench_find_et(hashT, limitSize, vecX_c, vecY_c); }
+	{         sstd::IpCHashT<uint64,uint64> hashT(initSize);                            bench_find_et(hashT, limitSize, vecX_i, vecY_i); }
+	{ google::dense_hash_map<uint64,uint64> hashT(initSize); hashT.set_empty_key(0ull); bench_find_et(hashT, limitSize, vecX_d, vecY_d); } // this meen that 'NULL' will not be able to insert as a key-value.
+	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(initSize); bench_find_et(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
+	
+	// plot2fig
+	const char* tmpDir   = "./tmpDir";
+	const char* fileName = "plot_et";
+	const char* funcName = "vvec2graph";
+	
+	const char* xlabel   = "Number of elements on the table [conut]";
+	const char* ylabel   = "Elapsed time [sec]";
+	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
+	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
+	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // sec
+	
+	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const char*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
+	vvec2graph(savePath, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------
+// find_failedAll_et
+
+template<typename T_hashTable>
+void bench_find_failedAll_et(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_s){
+	std::random_device seed_gen;
+	std::mt19937_64 rand(seed_gen()); // pseudo random number generator
+	
+	// add
+	for(uint i=0; i<limitSize; i++){
+		uint64 r = rand();
+		hashT[r] = r;
+	}
+	
+	uint64 splitNum  = 100;
+	uint64 interval  = limitSize/splitNum;
+	
+	double totalTime_sec = 0.0;
+	
+	uint64 numFound=0ull, numNotFound=0ull;
+	vecY_s   <<= 0.0;
+	vecX_num <<= 0;
+	for(uint sn=0; sn<splitNum; sn++){
+		time_m timem; sstd::measureTime_start(timem);
+		
+		// find
+		for(uint i=0; i<interval; i++){
+			uint64 r = rand();
+			auto itr = hashT.find(r);
+			if(itr!=hashT.end()){ numFound++; }else{ numNotFound++; }
+		}
+		
+		double lapTime_sec = sstd::measureTime_stop_ms(timem) / 1000.0;
+		totalTime_sec += lapTime_sec;
+		vecY_s   <<= totalTime_sec;
+		vecX_num <<= numNotFound;
+	}
+	if(numFound!=0ull){ sstd::pdbg("ERROR: bench_find_failedAll_et() was failed.\n"); }
+}
+void bench_plot_find_failedAll_et(const char* savePath, const uint64 initSize, const uint64 limitSize){
+	std::vector<double> vecX_u, vecX_c, vecX_i, vecX_d, vecX_f; // num of elements
+	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // sec
+	{     std::unordered_map<uint64,uint64> hashT(initSize);                            bench_find_failedAll_et(hashT, limitSize, vecX_u, vecY_u); }
+	{           sstd::CHashT<uint64,uint64> hashT(initSize);                            bench_find_failedAll_et(hashT, limitSize, vecX_c, vecY_c); }
+	{         sstd::IpCHashT<uint64,uint64> hashT(initSize);                            bench_find_failedAll_et(hashT, limitSize, vecX_i, vecY_i); }
+	{ google::dense_hash_map<uint64,uint64> hashT(initSize); hashT.set_empty_key(0ull); bench_find_failedAll_et(hashT, limitSize, vecX_d, vecY_d); } // this meen that 'NULL' will not be able to insert as a key-value.
+	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(initSize); bench_find_failedAll_et(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
+	
+	// plot2fig
+	const char* tmpDir   = "./tmpDir";
+	const char* fileName = "plot_et";
+	const char* funcName = "vvec2graph";
+	
+	const char* xlabel   = "Number of elements on the table [conut]";
+	const char* ylabel   = "Elapsed time [sec]";
+	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
+	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
+	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // sec
 	
 	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const char*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
 	vvec2graph(savePath, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
@@ -711,11 +840,11 @@ void RUN_ALL_BENCHS(){
 	const uint64 limitSize = 5000000;  // 50 sec
 	const uint64 initSize_wRehash  = 0;
 	const uint64 initSize_preAlloc = limitSize;
-	
+	/*
 	// bench of used memory size should run first inorder to avoid memory swap by Linux OS.
 	bench_plot_usedMemory("./bench_usedMemory_wRehash.png",  initSize_wRehash,  limitSize);
 	bench_plot_usedMemory("./bench_usedMemory_preAlloc.png", initSize_preAlloc, limitSize);
-	//*
+	
 	// Warm running, because of the first bench usually returns bad result.
 	const char* pWarmRun = "./bench_warmRunning.png";
 	bench_plot_add(pWarmRun, initSize_preAlloc, limitSize); // pre-allocate
@@ -755,6 +884,11 @@ void RUN_ALL_BENCHS(){
 	bench_plot_find_findFailedAll_erase_add("./bench_find_fainFailedAll_erase_add_pow10_6.png", 1000000); // find with erasion
 //*/
 //	sstd::rm(pWarmRun);
+	
+	bench_plot_find_et("./bench_find_et.png", initSize_preAlloc, limitSize);
+//	bench_plot_find_et("./bench_find_et.png", initSize_preAlloc, 200000000);
+	
+	bench_plot_find_failedAll_et("./bench_find_failedAll_et.png", initSize_preAlloc, limitSize);
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
