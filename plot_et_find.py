@@ -27,7 +27,7 @@ def vvec2graph(savePath, xlabel, ylabel, vecLabel, vvecX, vvecY):
     
     # x: lim
     num_of_minorLoc = int((maxVal+minorLoc*0.5)//minorLoc)
-    margen = 0.3
+    margen = 0.5
     xlim_min = -margen*minorLoc
     xlim_max = num_of_minorLoc * minorLoc + margen*minorLoc
     ax1.set_xlim(xlim_min, xlim_max)
@@ -35,16 +35,14 @@ def vvec2graph(savePath, xlabel, ylabel, vecLabel, vvecX, vvecY):
     # x: x10^X
     ax1.xaxis.set_major_formatter(tick.ScalarFormatter(useMathText=True))
     ax1.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
-
-    # x: invAxisX
-    ax1.invert_xaxis()
     
     # y: locator
     ax1.set_ylabel(ylabel)
-    ax1.yaxis.set_major_locator(tick.MultipleLocator(0.5))
-    ax1.yaxis.set_minor_locator(tick.MultipleLocator(0.1))
+    ax1.yaxis.set_major_locator(tick.MultipleLocator(0.1 ))
+    ax1.yaxis.set_minor_locator(tick.MultipleLocator(0.025))
     #ax1.set_yscale('log')
-    #ax1.set_ylim(0.05, 1000)
+    #ax1.set_ylim(0-0.025, 1.25+0.025)
+    ax1.set_ylim(0-0.025, 0.55+0.025)
     
     # x-y: tick
     ax1.tick_params(pad=5, which='major', direction='in', bottom=True, top=True, left=True, right=True, length=4) # 軸の余白 # which: major tick と minor tick に対して変更を適用 # tick を内側方向に # tick を bottom, top, left, right に付加 # tick width # tick length
@@ -54,8 +52,8 @@ def vvec2graph(savePath, xlabel, ylabel, vecLabel, vvecX, vvecY):
     vColor=['black', 'blue', 'red', 'green', 'sandybrown']
     vLineStyle = ['solid', 'dashed', 'dashdot', 'dotted', 'dotted'] # solid, dashed, dashdot, dotted
     for i in range(len(vecLabel)):
-        #ax1.plot(vvecX[i], vvecY[i], linewidth=1, color=cmap(i), label=vecLabel[i])
         ax1.plot(vvecX[i], vvecY[i], linewidth=1, color=vColor[i], linestyle=vLineStyle[i], label=vecLabel[i])
+        #ax1.plot(vvecX[i], vvecY[i], linewidth=1, color=cmap(i), label=vecLabel[i])
     ax1.legend(loc='upper left')
     plt.savefig(savePath, bbox_inches='tight')
 
