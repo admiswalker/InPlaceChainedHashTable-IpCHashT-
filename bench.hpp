@@ -729,7 +729,6 @@ void bench_erase(T_hashTable& hashT, const uint64 limitSize, std::vector<double>
 	
 	std::random_device seed_gen;
 	std::mt19937_64 rand(seed_gen()); // pseudo random number generator
-	std::mt19937_64 engine(seed_gen()); // for std::shuffle()
 	
 	// add elements to the num of limitSize
 	while(hashT.size()<limitSize){
@@ -738,18 +737,14 @@ void bench_erase(T_hashTable& hashT, const uint64 limitSize, std::vector<double>
 		vecKeyVal <<= r;
 	}
 	
+	std::mt19937_64 engine(seed_gen()); // for std::shuffle()
+	std::shuffle(vecKeyVal.begin(), vecKeyVal.end(), engine);
+	
 	uint64 interval = 1;
 	for(;;){
-//		uint8 order = (uint8)std::log10((double)hashT.size());
 		uint8 order = (uint8)std::log10((double)vecKeyVal.size());
 		interval = (uint64)std::pow(10, order);
 		if(interval!=1){interval/=10;}
-//		sstd::printn(interval);
-//		sstd::printn(vecKeyVal.size());
-//		sstd::printn(hashT.size());
-		
-		double numBuf = vecKeyVal.size();
-		// hash.size() はテーブルサイズとして振る舞っており，テーブル上の要素数は bucket_count か何かだと思う．たぶん．
 		
 		// erase
 		time_m timem; sstd::measureTime_start(timem);
@@ -760,7 +755,7 @@ void bench_erase(T_hashTable& hashT, const uint64 limitSize, std::vector<double>
 		}
 		double nsec = sstd::measureTime_stop_ns(timem);
 		vecY_quely_per_ms <<= ((double)interval * 1000.0) / (nsec);
-		vecX_num          <<= numBuf;
+		vecX_num          <<= vecKeyVal.size();
 		if(vecKeyVal.size()==0ull){ break; }
 		
 		std::shuffle(vecKeyVal.begin(), vecKeyVal.end(), engine);
@@ -776,7 +771,7 @@ void bench_plot_erase(const char* savePath, const uint64 initSize, const uint64 
 		                                                     bench_erase(hashT, limitSize, vecX_d, vecY_d); }
 	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(initSize);
 		                                                     bench_erase(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
-	
+
 	// plot2fig
 	const char* tmpDir   = "./tmpDir";
 	const char* fileName = "plot";
@@ -808,29 +803,33 @@ void bench_erase_et(T_hashTable& hashT, const uint64 limitSize, std::vector<doub
 		hashT[r] = r;
 		vecKeyVal <<= r;
 	}
+	vecY_s   <<= 0.0;
+	vecX_num <<= vecKeyVal.size();
 	
 	// shuffle "vecKeyVal"
 	std::mt19937_64 engine(seed_gen()); // for std::shuffle()
 	std::shuffle(vecKeyVal.begin(), vecKeyVal.end(), engine);
 	
-	uint64 splitNum  = 100;
-	uint64 interval  = limitSize/splitNum;
-	
-	time_m timem;
-	sstd::measureTime_start(timem);
-	
-	uint64 eraseElemNum=0; // erasion element number
-	for(uint sn=0; sn<splitNum; sn++){
+	double sec_sum = 0.0;
+	uint64 interval = 1;
+	for(;;){
+		uint8 order = (uint8)std::log10((double)vecKeyVal.size());
+		interval = (uint64)std::pow(10, order);
+		if(interval!=1){interval/=10;}
+		
 		// erase
-		for(uint i=0; i<interval; i++){
-			hashT.erase( vecKeyVal[eraseElemNum] );
-			eraseElemNum++;
+		time_m timem; sstd::measureTime_start(timem);
+		for(uint i=0; i<interval && vecKeyVal.size()!=0; i++){
+			uint64 r = vecKeyVal[vecKeyVal.size()-1];
+			vecKeyVal.pop_back();
+			hashT[r] = r;
 		}
+		sec_sum += sstd::measureTime_stop_ms(timem) / 1000.0;
+		vecY_s   <<= sec_sum;
+		vecX_num <<= vecKeyVal.size();
+		if(vecKeyVal.size()==0ull){ break; }
 		
-		vecX_num <<= hashT.size();
-		
-		double sec = sstd::measureTime_stop_ms(timem) / 1000.0;
-		vecY_s <<= sec;
+		std::shuffle(vecKeyVal.begin(), vecKeyVal.end(), engine);
 	}
 }
 void bench_plot_erase_et(const char* savePath, const uint64 initSize, const uint64 limitSize){
@@ -945,7 +944,7 @@ void RUN_ALL_BENCHS(){
 	bench_plot_erase("./bench_erase_preAlloc.png", initSize_preAlloc, limitSize); // pre-allocate
 	
 	bench_plot_erase_et("./bench_erase_et.png",    initSize_preAlloc, limitSize*1); // pre-allocate
-	bench_plot_erase_et("./bench_erase_et_x2.png", initSize_preAlloc, limitSize*2); // pre-allocate
+//	bench_plot_erase_et("./bench_erase_et_x2.png", initSize_preAlloc, limitSize*2); // pre-allocate
 	/*
 	// find -> erase -> add (reHash occurd)
 	bench_plot_find_erase_add("./bench_find_erase_add_pow10_4.png", 10000  ); // find with erasion
