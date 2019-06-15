@@ -49,17 +49,16 @@ void bench_plot_add(const char* savePath, const uint64 initSize, const uint64 li
 	{ google::dense_hash_map<uint64,uint64> hashT(initSize); hashT.set_empty_key(0ull);     bench_add(hashT, limitSize, vecX_d, vecY_d); } // this meen that 'NULL' will not be able to insert as a key-value.
 	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(initSize); bench_add(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
-	// plot2fig
-	const char* tmpDir   = "./tmpDir";
-	const char* fileName = "plot";
-	const char* funcName = "vvec2graph";
-	
 	const char* xlabel   = "Number of elements on the table [conut]";
 	const char* ylabel   = "Additional speed [query/ms]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
 	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_ms
 	
+	// plot2fig
+	const char* tmpDir   = "./tmpDir";
+	const char* fileName = "plots";
+	const char* funcName = "vvec2graph";
 	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const char*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
 	vvec2graph(savePath, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
 }
@@ -121,17 +120,16 @@ void bench_plot_add_et(const char* savePath, const uint64 initSize, const uint64
 //	{ google::dense_hash_map<uint64,uint64> hashT(initSize); hashT.set_empty_key(0ull); bench_add_et(hashT, limitSize, vecX_d, vecY_d); } // this meen that 'NULL' will not be able to insert as a key-value.
 	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(initSize); bench_add_et(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
-	// plot2fig
-	const char* tmpDir   = "./tmpDir";
-	const char* fileName = "plot_et";
-	const char* funcName = "vvec2graph";
-	
 	const char* xlabel   = "Number of elements on the table [conut]";
 	const char* ylabel   = "Elapsed time [sec]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
 	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // sec
 	
+	// plot2fig
+	const char* tmpDir   = "./tmpDir";
+	const char* fileName = "plots";
+	const char* funcName = "vvec2graph_et_add";
 	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const char*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
 	vvec2graph(savePath, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
 }
@@ -263,18 +261,16 @@ void bench_plot_usedMemory(const char* savePath, const uint64 initSize, const ui
 	ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT_f(initSize);
 	bench_usedMemory(hashT_f, limitSize, vecX_f, vecY_f, baseSize_MB);
 	
-	// plot2fig
-	const char* tmpDir   = "./tmpDir";
-	const char* fileName = "plot_memory";
-	const char* funcName = "vvec2graph";
-	
 	const char* xlabel   = "Number of elements on the table [conut]";
 	const char* ylabel   = "Allocated memory size [MB]";
-	
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // memory size [MB]
 	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // sec
 	
+	// plot2fig
+	const char* tmpDir   = "./tmpDir";
+	const char* fileName = "plots";
+	const char* funcName = "vvec2graph_memory";
 	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const char*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
 	vvec2graph(savePath, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
 }
@@ -285,28 +281,34 @@ void bench_plot_usedMemory(const char* savePath, const uint64 initSize, const ui
 template<typename T_hashTable>
 void bench_find(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_quely_per_ms){
 	std::random_device seed_gen;
-	std::mt19937_64 rand(seed_gen()); // pseudo random number generator
+	std::mt19937_64 rand       (seed_gen()); // pseudo random number generator
+	std::mt19937_64 rand_toFind(seed_gen()); // pseudo random number generator
 	
 	uint64 interval = 1;
-	std::vector<uint64> vecKeyVal(limitSize); vecKeyVal.clear();
-	
-	std::mt19937_64 engine(seed_gen()); // for std::shuffle()
+	std::vector<uint64> vecR(limitSize); vecR.clear();
 	
 	for(;;){
 		// add
 		for(uint i=0; i<interval; i++){
 			uint64 r = rand();
-			vecKeyVal <<= r;
+			vecR <<= r;
 			hashT[r] = r;
 		}
-		std::shuffle(vecKeyVal.begin(), vecKeyVal.end(), engine);
 		
 		vecX_num <<= hashT.size();
+		
+		std::vector<uint64> vecR_toFind(vecR.size());
+		{
+			std::uniform_int_distribution<uint64> randRange(0, vecR.size()-1); // make randome number between [0, vecR.size()-1].
+			for(uint i=0; i<interval; i++){
+				vecR_toFind[i] = vecR[randRange(rand_toFind)];
+			}
+		}
 		
 		// find (all elements are found)
 		time_m timem; sstd::measureTime_start(timem);
 		for(uint i=0; i<interval; i++){
-			uint64 keyVal = vecKeyVal[i];
+			uint64 keyVal = vecR[i];
 			if(hashT[keyVal] != keyVal){ sstd::pdbg("ERROR: key val is not same."); exit(-1); }
 		}
 		double nsec = sstd::measureTime_stop_ns(timem);
@@ -327,17 +329,16 @@ void bench_plot_find(const char* savePath, const uint64 initSize, const uint64 l
 	{ google::dense_hash_map<uint64,uint64> hashT(initSize); hashT.set_empty_key(0ull); bench_find(hashT, limitSize, vecX_d, vecY_d); } // this meen that 'NULL' will not be able to insert as a key-value.
 	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(0);    bench_find(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
-	// plot2fig
-	const char* tmpDir   = "./tmpDir";
-	const char* fileName = "plot";
-	const char* funcName = "vvec2graph";
-	
 	const char* xlabel   = "Number of elements on the table [conut]";
 	const char* ylabel   = "Find speed [query/ms]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
 	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_ms
 	
+	// plot2fig
+	const char* tmpDir   = "./tmpDir";
+	const char* fileName = "plots";
+	const char* funcName = "vvec2graph";
 	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const char*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
 	vvec2graph(savePath, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
 }
@@ -348,12 +349,11 @@ void bench_plot_find(const char* savePath, const uint64 initSize, const uint64 l
 template<typename T_hashTable>
 void bench_find_failedAll(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_quely_per_ms){
 	std::random_device seed_gen;
-	std::mt19937_64 rand(seed_gen()); // pseudo random number generator
+	std::mt19937_64 rand       (seed_gen()); // pseudo random number generator
+	std::mt19937_64 rand_toFind(seed_gen()); // pseudo random number generator
 	
 	uint64 interval = 1;
-	std::vector<uint64> vecKeyVal(limitSize); vecKeyVal.clear();
-	
-	std::mt19937_64 engine(seed_gen()); // for std::shuffle()
+	std::vector<uint64> vecR(limitSize); vecR.clear();
 	
 	uint64 numFound=0ull, numNotFound=0ull;
 	for(;;){
@@ -361,20 +361,24 @@ void bench_find_failedAll(T_hashTable& hashT, const uint64 limitSize, std::vecto
 		for(uint i=0; i<interval; i++){
 			uint64 r = rand();
 			hashT[r] = r;
-			vecKeyVal <<= r;
+			vecR <<= r;
 		}
-		std::shuffle(vecKeyVal.begin(), vecKeyVal.end(), engine);
 		
 		vecX_num <<= hashT.size();
+		
+		std::vector<uint64> vecR_toFind(interval);
+		{
+			for(uint i=0; i<interval; i++){
+				vecR_toFind[i] = rand_toFind();
+			}
+		}
 		
 		// find (all elements are not found)
 		time_m timem; sstd::measureTime_start(timem);
 		for(uint i=0; i<interval; i++){
-			uint64 r = rand();
+			uint64 r = vecR_toFind[i];
 			auto itr = hashT.find(r);
 			if(itr!=hashT.end()){ numFound++; }else{ numNotFound++; }
-//			uint64 keyVal = vecKeyVal[i];
-//			if(hashT[keyVal] != keyVal){ sstd::pdbg("ERROR: key val is not same."); exit(0); }
 		}
 		double nsec = sstd::measureTime_stop_ns(timem);
 		vecY_quely_per_ms <<= ((double)interval * 1000.0) / (nsec);
@@ -399,17 +403,16 @@ void bench_plot_find_failedAll(const char* savePath, const uint64 initSize, cons
 	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(initSize);
 		                                                     bench_find_failedAll(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
-	// plot2fig
-	const char* tmpDir   = "./tmpDir";
-	const char* fileName = "plot";
-	const char* funcName = "vvec2graph";
-	
 	const char* xlabel   = "Number of elements on the table [conut]";
 	const char* ylabel   = "Find speed [query/ms]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
 	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_ms
 	
+	// plot2fig
+	const char* tmpDir   = "./tmpDir";
+	const char* fileName = "plots";
+	const char* funcName = "vvec2graph";
 	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const char*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
 	vvec2graph(savePath, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
 }
@@ -464,17 +467,16 @@ void bench_plot_find_et(const char* savePath, const uint64 initSize, const uint6
 	{ google::dense_hash_map<uint64,uint64> hashT(initSize); hashT.set_empty_key(0ull); bench_find_et(hashT, limitSize, vecX_d, vecY_d); } // this meen that 'NULL' will not be able to insert as a key-value.
 	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(initSize); bench_find_et(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
-	// plot2fig
-	const char* tmpDir   = "./tmpDir";
-	const char* fileName = "plot_et_find";
-	const char* funcName = "vvec2graph";
-	
 	const char* xlabel   = "Number of elements on the table [conut]";
 	const char* ylabel   = "Elapsed time [sec]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
 	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // sec
 	
+	// plot2fig
+	const char* tmpDir   = "./tmpDir";
+	const char* fileName = "plot_et_find";
+	const char* funcName = "vvec2graph";
 	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const char*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
 	vvec2graph(savePath, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
 }
@@ -527,17 +529,16 @@ void bench_plot_find_failedAll_et(const char* savePath, const uint64 initSize, c
 	{ google::dense_hash_map<uint64,uint64> hashT(initSize); hashT.set_empty_key(0ull); bench_find_failedAll_et(hashT, limitSize, vecX_d, vecY_d); } // this meen that 'NULL' will not be able to insert as a key-value.
 	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(initSize); bench_find_failedAll_et(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
-	// plot2fig
-	const char* tmpDir   = "./tmpDir";
-	const char* fileName = "plot_et_find";
-	const char* funcName = "vvec2graph";
-	
 	const char* xlabel   = "Number of elements on the table [conut]";
 	const char* ylabel   = "Elapsed time [sec]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
 	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // sec
 	
+	// plot2fig
+	const char* tmpDir   = "./tmpDir";
+	const char* fileName = "plot_et_find";
+	const char* funcName = "vvec2graph";
 	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const char*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
 	vvec2graph(savePath, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
 }
@@ -612,17 +613,16 @@ void bench_plot_find_erase_add(const char* savePath, const uint64 initSize){
 	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(initSize);
 		                                                     bench_find_erase_add(hashT, initSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
-	// plot2fig
-	const char* tmpDir   = "./tmpDir";
-	const char* fileName = "plot_wErase";
-	const char* funcName = "vvec2graph";
-	
 	const char* xlabel   = "Non-changed rate [\%]";
 	const char* ylabel   = "A speed of one find-erase-add cycle [query/ms]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
 	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_ms
 	
+	// plot2fig
+	const char* tmpDir   = "./tmpDir";
+	const char* fileName = "plots";
+	const char* funcName = "vvec2graph_FEA";
 	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const char*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
 	vvec2graph(savePath, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
 }
@@ -705,17 +705,16 @@ void bench_plot_find_findFailedAll_erase_add(const char* savePath, const uint64 
 	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(initSize);
 		                                                     bench_find_findFailedAll_erase_add(hashT, initSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
-	// plot2fig
-	const char* tmpDir   = "./tmpDir";
-	const char* fileName = "plot_wErase";
-	const char* funcName = "vvec2graph";
-	
 	const char* xlabel   = "Non-changed rate [\%]";
 	const char* ylabel   = "A speed of one find-erase-add cycle [query/ms]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
 	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_ms
 	
+	// plot2fig
+	const char* tmpDir   = "./tmpDir";
+	const char* fileName = "plots";
+	const char* funcName = "vvec2graph_FEA";
 	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const char*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
 	vvec2graph(savePath, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
 }
@@ -725,41 +724,45 @@ void bench_plot_find_findFailedAll_erase_add(const char* savePath, const uint64 
 
 template<typename T_hashTable>
 void bench_erase(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_quely_per_ms){
-	
-	std::vector<uint64> vecKeyVal(limitSize); vecKeyVal.clear();
-	
 	std::random_device seed_gen;
 	std::mt19937_64 rand(seed_gen()); // pseudo random number generator
 	
-	// add elements to the num of limitSize
-	while(hashT.size()<limitSize){
-		uint64 r = rand();
-		hashT[r] = r;
-		vecKeyVal <<= r;
-	}
+	uint64 interval = 1;
+	std::vector<uint64> vecKeyVal(limitSize); vecKeyVal.clear();
 	
 	std::mt19937_64 engine(seed_gen()); // for std::shuffle()
-	std::shuffle(vecKeyVal.begin(), vecKeyVal.end(), engine);
 	
-	uint64 interval = 1;
 	for(;;){
-		uint8 order = (uint8)std::log10((double)vecKeyVal.size());
-		interval = (uint64)std::pow(10, order);
-		if(interval!=1){interval/=10;}
-		
-		// erase
-		time_m timem; sstd::measureTime_start(timem);
-		for(uint i=0; i<interval && vecKeyVal.size()!=0; i++){
-			uint64 r = vecKeyVal[vecKeyVal.size()-1];
-			vecKeyVal.pop_back();
+		// add
+		for(uint i=0; i<interval; i++){
+			uint64 r = rand();
+			vecKeyVal <<= r;
 			hashT[r] = r;
 		}
-		double nsec = sstd::measureTime_stop_ns(timem);
-		vecY_quely_per_ms <<= ((double)interval * 1000.0) / (nsec);
-		vecX_num          <<= vecKeyVal.size();
-		if(vecKeyVal.size()==0ull){ break; }
-		
 		std::shuffle(vecKeyVal.begin(), vecKeyVal.end(), engine);
+		
+		vecX_num <<= hashT.size();
+		
+		// erase (all elements are found)
+		time_m timem; sstd::measureTime_start(timem);
+		for(uint i=0; i<interval; i++){
+			uint64 keyVal = vecKeyVal[vecKeyVal.size()-1]; vecKeyVal.pop_back();
+			vecKeyVal[keyVal];
+		}
+		double nsec = sstd::measureTime_stop_ns(timem);
+		// add
+		for(uint i=0; i<interval; i++){
+			uint64 r = rand();
+			vecKeyVal <<= r;
+			hashT[r] = r;
+		}
+		std::shuffle(vecKeyVal.begin(), vecKeyVal.end(), engine);
+		vecY_quely_per_ms <<= ((double)interval * 1000.0) / (nsec);
+		
+		uint8 order = (uint8)std::log10((double)hashT.size());
+		interval = (uint64)std::pow(10, order);
+		if(interval!=1){interval/=10;}
+		if(hashT.size()+interval>limitSize){ break; }
 	}
 }
 void bench_plot_erase(const char* savePath, const uint64 initSize, const uint64 limitSize){
@@ -773,17 +776,16 @@ void bench_plot_erase(const char* savePath, const uint64 initSize, const uint64 
 	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(initSize);
 		                                                     bench_erase(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 
-	// plot2fig
-	const char* tmpDir   = "./tmpDir";
-	const char* fileName = "plot";
-	const char* funcName = "vvec2graph";
-	
 	const char* xlabel   = "Number of elements on the table [conut]\n(This axis is inverted.)";
 	const char* ylabel   = "Erasion speed [query/ms]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
 	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_ms
 	
+	// plot2fig
+	const char* tmpDir   = "./tmpDir";
+	const char* fileName = "plots";
+	const char* funcName = "vvec2graph_erase";
 	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const char*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
 	vvec2graph(savePath, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
 }
@@ -844,17 +846,16 @@ void bench_plot_erase_et(const char* savePath, const uint64 initSize, const uint
 	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(initSize);
 		                                                     bench_erase_et(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
-	// plot2fig
-	const char* tmpDir   = "./tmpDir";
-	const char* fileName = "plot_et_invAxisX";
-	const char* funcName = "vvec2graph";
-	
 	const char* xlabel   = "Number of elements on the table [conut]\n(This axis is inverted.)";
 	const char* ylabel   = "Elapsed time [sec]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
 	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_ms
 	
+	// plot2fig
+	const char* tmpDir   = "./tmpDir";
+	const char* fileName = "plot_et_invAxisX";
+	const char* funcName = "vvec2graph";
 	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const char*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
 	vvec2graph(savePath, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
 }
@@ -889,17 +890,16 @@ void bench_plot_maxLoadFactor(const char* savePath, const uint64 limitSize){
 	{ google::dense_hash_map<uint64,uint64> hashT(0); hashT.set_empty_key(0ull);     bench_maxLoadFactor(hashT, limitSize, vecX_d, vecY_d); } // this meen that 'NULL' will not be able to insert as a key-value.
 	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(0); bench_maxLoadFactor(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
-	// plot2fig
-	const char* tmpDir   = "./tmpDir";
-	const char* fileName = "plot_lf";
-	const char* funcName = "vvec2graph";
-	
 	const char* xlabel   = "Table size [count]\n(Maximum load factor of std::IpHashT is limitted by its maximum length of shift_T. Maximum load factor of google::dense_hash_map is artificially limited by 50 %.)";
 	const char* ylabel   = "maximum load factor [%]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // table size
 	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // maximum load factor
 	
+	// plot2fig
+	const char* tmpDir   = "./tmpDir";
+	const char* fileName = "plots";
+	const char* funcName = "vvec2graph_lf";
 	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const char*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
 	vvec2graph(savePath, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
 }
@@ -913,11 +913,11 @@ void RUN_ALL_BENCHS(){
 	const uint64 limitSize = 5000000;  // 50 sec
 	const uint64 initSize_wRehash  = 0;
 	const uint64 initSize_preAlloc = limitSize;
-	
+	/*
 	// bench of used memory size should run first inorder to avoid memory swap by Linux OS.
 	bench_plot_usedMemory("./bench_usedMemory_wRehash_log.png",  initSize_wRehash,  limitSize);
 	bench_plot_usedMemory("./bench_usedMemory_preAlloc_log.png", initSize_preAlloc, limitSize);
-	//*
+	
 	// Warm running, because of the first bench usually returns bad result.
 	const char* pWarmRun = "./bench_warmRunning.png";
 	bench_plot_add(pWarmRun, initSize_preAlloc, limitSize); // pre-allocate
@@ -931,16 +931,15 @@ void RUN_ALL_BENCHS(){
 	// add: elapsed time [sec]
 	bench_plot_add_et("./bench_add_et_wRehash.png",  initSize_wRehash,  limitSize); // with rehash
 	bench_plot_add_et("./bench_add_et_preAlloc.png", initSize_preAlloc, limitSize); // pre-allocate
-	
-	
+	//*/
 	// find: find speed [quely/sec]
 	bench_plot_find("./bench_find_wRehash.png",  initSize_wRehash,  limitSize); // with rehash
-	bench_plot_find("./bench_find_preAlloc.png", initSize_preAlloc, limitSize); // pre-allocate
+//	bench_plot_find("./bench_find_preAlloc.png", initSize_preAlloc, limitSize); // pre-allocate
 	
 	// find: all lookup is failed
 	bench_plot_find_failedAll("./bench_find_wRehash_failedAll.png",  initSize_wRehash,  limitSize);
-	bench_plot_find_failedAll("./bench_find_preAlloc_failedAll.png", initSize_preAlloc, limitSize);
-	
+//	bench_plot_find_failedAll("./bench_find_preAlloc_failedAll.png", initSize_preAlloc, limitSize);
+	/*
 	// find: elapsed time [sec]
 	bench_plot_find_et          ("./bench_find_et.png",           initSize_preAlloc, limitSize);
 	bench_plot_find_failedAll_et("./bench_find_failedAll_et.png", initSize_preAlloc, limitSize);
@@ -956,12 +955,12 @@ void RUN_ALL_BENCHS(){
 	bench_plot_find_erase_add("./bench_find_erase_add_pow10_5.png", 100000 ); // find with erasion
 	bench_plot_find_erase_add("./bench_find_erase_add_pow10_6.png", 1000000); // find with erasion
 	
+	bench_plot_find_findFailedAll_erase_add("./bench_find_fainFailedAll_erase_add_pow10_6.png", 1000000); // find with erasion
+	
 	// max-load factor
 	bench_plot_maxLoadFactor("./bench_maxLoadFactor_pow10_5.png", 100000   );
 	bench_plot_maxLoadFactor("./bench_maxLoadFactor_pow10_6.png", 1000000  );
 //	bench_plot_maxLoadFactor("./bench_maxLoadFactor_pow10_8.png", 100000000);
-	
-	bench_plot_find_findFailedAll_erase_add("./bench_find_fainFailedAll_erase_add_pow10_6.png", 1000000); // find with erasion
 	//*/
 //	sstd::rm(pWarmRun);
 }
