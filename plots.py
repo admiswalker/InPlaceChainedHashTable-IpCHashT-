@@ -110,7 +110,7 @@ def vvec2graph_memory(savePath, xlabel, ylabel, vecLabel, vvecX, vvecY):
     vvec2graph_base(savePath, xlabel, ylabel, vecLabel, labelLoc, vvecX, vvecY, vecXlim, vecYlim, xscale, yscale)
     return
 
-def vvec2graph_et_add(savePath, xlabel, ylabel, vecLabel, vvecX, vvecY):
+def vvec2graph_et_insert(savePath, xlabel, ylabel, vecLabel, vvecX, vvecY):
     xmargin=4*10000; vecXlim = [-xmargin, 5*1000000+xmargin]
     ymargin=0.025; vecYlim=[0-ymargin, 2.5+ymargin]
     xscale = 'linear'
