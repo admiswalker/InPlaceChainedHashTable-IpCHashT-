@@ -62,7 +62,9 @@ def vvec2graph_base(savePath, xlabel, ylabel, vecLabel, labelLoc, vvecX, vvecY, 
 
     if len(labelLoc)!=0:
         ax1.legend(loc=labelLoc)
-    
+    else:
+        ax1.legend()
+        
     plt.savefig(savePath, bbox_inches='tight')
     return
 #------------------------------------------------------------------------------------------------------------------------------------------------
@@ -81,15 +83,6 @@ def vvec2graph(savePath, xlabel, ylabel, vecLabel, vvecX, vvecY):
     vvec2graph_base(savePath, xlabel, ylabel, vecLabel, labelLoc, vvecX, vvecY, vecXlim, vecYlim, xscale, yscale)
     return
 
-def vvec2graph_erase(savePath, xlabel, ylabel, vecLabel, vvecX, vvecY):
-    vecXlim = [0.9, 55000000]
-    vecYlim = [5, 100000]
-    xscale = 'log'
-    yscale = 'log'
-    labelLoc = ''
-    vvec2graph_base(savePath, xlabel, ylabel, vecLabel, labelLoc, vvecX, vvecY, vecXlim, vecYlim, xscale, yscale)
-    return 
-
 def vvec2graph_FEA(savePath, xlabel, ylabel, vecLabel, vvecX, vvecY):
     vecXlim = [0.00009, 1.1]
     vecYlim = [0.9, 200]
@@ -100,7 +93,7 @@ def vvec2graph_FEA(savePath, xlabel, ylabel, vecLabel, vvecX, vvecY):
     return 
 
 def vvec2graph_lf(savePath, xlabel, ylabel, vecLabel, vvecX, vvecY):
-    vecXlim = [2, 4*1000000]
+    vecXlim = [0.9, 55000000]
     vecYlim = [0, 1.025]
     xscale = 'log'
     yscale = 'linear'
