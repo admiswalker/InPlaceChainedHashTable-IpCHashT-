@@ -305,9 +305,9 @@ void bench_find(T_hashTable& hashT, const uint64 limitSize, std::vector<double>&
 		
 		std::vector<uint64> vecR_toFind(vecR.size());
 		{
-			std::uniform_int_distribution<uint64> randRange(0, vecR.size()-1); // make randome number between [0, vecR.size()-1].
+			std::uniform_int_distribution<uint64> range(0, vecR.size()-1); // make randome number between [0, vecR.size()-1].
 			for(uint i=0; i<interval; i++){
-				vecR_toFind[i] = vecR[randRange(rand_toFind)];
+				vecR_toFind[i] = vecR[range(rand_toFind)];
 			}
 		}
 		
@@ -371,17 +371,14 @@ void bench_find_failedAll(T_hashTable& hashT, const uint64 limitSize, std::vecto
 		vecX_num <<= hashT.size();
 		
 		std::vector<uint64> vecR_toFind(interval);
-		{
-			for(uint i=0; i<interval; i++){
-				vecR_toFind[i] = rand_toFind();
-			}
+		for(uint i=0; i<interval; i++){
+			vecR_toFind[i] = rand_toFind();
 		}
 		
 		// find (all elements are not found)
 		time_m timem; sstd::measureTime_start(timem);
 		for(uint i=0; i<interval; i++){
-			uint64 r = vecR_toFind[i];
-			auto itr = hashT.find(r);
+			auto itr = hashT.find( vecR_toFind[i] );
 			if(itr!=hashT.end()){ numFound++; }else{ numNotFound++; }
 		}
 		double nsec = sstd::measureTime_stop_ns(timem);
@@ -441,9 +438,6 @@ void bench_find_erase_add(T_hashTable& hashT, const uint64 initSize, std::vector
 	std::mt19937_64 engine(seed_gen()); // for std::shuffle()
 	std::shuffle(vecKeyVal.begin(), vecKeyVal.end(), engine);
 	
-	uint8 order = (uint8)std::log10((double)hashT.size());
-	uint64 interval = (uint64)std::pow(10, order); if(interval!=1){interval/=10;}
-	
 	double change_per_cycle = 0.05; // [%]
 	double nonChangedRate   = 1.00; // [%]
 	double endRate          = 0.0001; // [%]
@@ -452,7 +446,7 @@ void bench_find_erase_add(T_hashTable& hashT, const uint64 initSize, std::vector
 		
 		time_m timem; sstd::measureTime_start(timem);
 		// find (with all elements found)
-		for(uint i=0; i<interval; i++){
+		for(uint i=0; i<changeNum_per_cycle; i++){
 			uint64 keyVal = vecKeyVal[i];
 			if(hashT[keyVal] != keyVal){ sstd::pdbg("ERROR: key val is not same."); exit(0); }
 		}
@@ -470,7 +464,7 @@ void bench_find_erase_add(T_hashTable& hashT, const uint64 initSize, std::vector
 		}
 		double nsec = sstd::measureTime_stop_ns(timem);
 		
-		vecY_quely_per_ms <<= ((double)interval * 1000.0) / (nsec);
+		vecY_quely_per_ms <<= ((double)changeNum_per_cycle * 1000.0) / (nsec);
 		vecX_num          <<= nonChangedRate;
 		nonChangedRate *= (1.00 - change_per_cycle);
 		
@@ -525,8 +519,6 @@ void bench_find_findFailedAll_erase_add(T_hashTable& hashT, const uint64 initSiz
 	std::mt19937_64 engine(seed_gen()); // for std::shuffle()
 	std::shuffle(vecKeyVal.begin(), vecKeyVal.end(), engine);
 	
-	uint64 interval = size2interval(hashT.size());
-	
 	double change_per_cycle = 0.05; // [%]
 	double nonChangedRate   = 1.00; // [%]
 	double endRate          = 0.0001; // [%]
@@ -538,12 +530,12 @@ void bench_find_findFailedAll_erase_add(T_hashTable& hashT, const uint64 initSiz
 		
 		time_m timem; sstd::measureTime_start(timem);
 		// find (with all elements found)
-		for(uint i=0; i<interval; i++){
+		for(uint i=0; i<changeNum_per_cycle; i++){
 			uint64 keyVal = vecKeyVal[i];
 			if(hashT[keyVal] != keyVal){ sstd::pdbg("ERROR: key val is not same."); exit(0); }
 		}
 		// find-failed-all (with all elements found)
-		for(uint i=0; i<interval; i++){
+		for(uint i=0; i<changeNum_per_cycle; i++){
 			uint64 keyVal = randFFA();
 			auto itr = hashT.find(keyVal);
 			if(itr != hashT.end()){ sstd::pdbg("ERROR: key val is same."); exit(0); } // there is a bug in sstd::CHashT
@@ -561,7 +553,7 @@ void bench_find_findFailedAll_erase_add(T_hashTable& hashT, const uint64 initSiz
 		}
 		double nsec = sstd::measureTime_stop_ns(timem);
 		
-		vecY_quely_per_ms <<= ((double)interval * 1000.0) / (nsec);
+		vecY_quely_per_ms <<= ((double)changeNum_per_cycle * 1000.0) / (nsec);
 		vecX_num          <<= nonChangedRate;
 		nonChangedRate *= (1.00 - change_per_cycle);
 		
@@ -619,9 +611,9 @@ void bench_erase(T_hashTable& hashT, const uint64 limitSize, std::vector<double>
 		std::vector<uint64> vecR_toErase(vecR.size());
 		std::vector<uint64> vecR_idx   (vecR.size());
 		{
-			std::uniform_int_distribution<uint64> randRange(0, vecR.size()-1); // make randome number between [0, vecR.size()-1].
+			std::uniform_int_distribution<uint64> range(0, vecR.size()-1); // make randome number between [0, vecR.size()-1].
 			for(uint i=0; i<interval; i++){
-				vecR_idx[i]    = randRange(rand_toFind);
+				vecR_idx[i]     = range(rand_toFind);
 				vecR_toErase[i] = vecR[vecR_idx[i]];
 			}
 		}
@@ -720,7 +712,7 @@ void RUN_ALL_BENCHS(){
 	const uint64 limitSize = 5000000;   // 50 sec
 	const uint64 initSize_wRehash  = 0ull;
 	const uint64 initSize_preAlloc = limitSize;
-	
+	/*
 	// bench of used memory size should run first inorder to avoid memory swap by Linux OS.
 	bench_plot_usedMemory("./bench_usedMemory_wRehash_log.png",  initSize_wRehash,  limitSize);
 	bench_plot_usedMemory("./bench_usedMemory_preAlloc_log.png", initSize_preAlloc, limitSize);
@@ -746,13 +738,14 @@ void RUN_ALL_BENCHS(){
 	
 	// erase
 	bench_plot_erase("./bench_erase_wRehash.png", initSize_wRehash, limitSize); // pre-allocate
-	
+	//*/
 	// find -> erase -> add (reHash occurd)
 	bench_plot_find_erase_add("./bench_find_erase_add_pow10_4.png", 10000  ); // find with erasion
 	bench_plot_find_erase_add("./bench_find_erase_add_pow10_5.png", 100000 ); // find with erasion
 	bench_plot_find_erase_add("./bench_find_erase_add_pow10_6.png", 1000000); // find with erasion
-	
+	/*
 	bench_plot_find_findFailedAll_erase_add("./bench_find_fainFailedAll_erase_add_pow10_6.png", 1000000); // find with erasion
+	
 	
 	// max-load factor
 	bench_plot_maxLoadFactor("./bench_maxLoadFactor.png", limitSize);
