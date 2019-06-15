@@ -5,6 +5,7 @@
 
 __pycache__/
 tmpDir/
+tmp*/
 
 googletest-master/
 sparsehash-master/

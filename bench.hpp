@@ -296,8 +296,8 @@ void bench_find(T_hashTable& hashT, const uint64 limitSize, std::vector<double>&
 		// add
 		for(uint i=0; i<interval; i++){
 			uint64 r = rand();
-			hashT[r] = r;
 			vecKeyVal <<= r;
+			hashT[r] = r;
 		}
 		std::shuffle(vecKeyVal.begin(), vecKeyVal.end(), engine);
 		
@@ -581,14 +581,15 @@ void bench_find_erase_add(T_hashTable& hashT, const uint64 initSize, std::vector
 		}
 		// erase change_per_cycle [%]
 		for(uint i=0; i<changeNum_per_cycle; i++){
-			hashT.erase( vecKeyVal[vecKeyVal.size()-1] );
+			uint64 r = vecKeyVal[vecKeyVal.size()-1];
 			vecKeyVal.pop_back();
+			hashT.erase( r );
 		}
 		// add change_per_cycle [%]
 		for(uint i=0; i<changeNum_per_cycle; i++){
 			uint64 r = rand();
-			hashT[r] = r;
 			vecKeyVal <<= r;
+			hashT[r] = r;
 		}
 		double nsec = sstd::measureTime_stop_ns(timem);
 		
@@ -912,11 +913,11 @@ void RUN_ALL_BENCHS(){
 	const uint64 limitSize = 5000000;  // 50 sec
 	const uint64 initSize_wRehash  = 0;
 	const uint64 initSize_preAlloc = limitSize;
-	/*
-	// bench of used memory size should run first inorder to avoid memory swap by Linux OS.
-	bench_plot_usedMemory("./bench_usedMemory_wRehash.png",  initSize_wRehash,  limitSize);
-	bench_plot_usedMemory("./bench_usedMemory_preAlloc.png", initSize_preAlloc, limitSize);
 	
+	// bench of used memory size should run first inorder to avoid memory swap by Linux OS.
+	bench_plot_usedMemory("./bench_usedMemory_wRehash_log.png",  initSize_wRehash,  limitSize);
+	bench_plot_usedMemory("./bench_usedMemory_preAlloc_log.png", initSize_preAlloc, limitSize);
+	//*
 	// Warm running, because of the first bench usually returns bad result.
 	const char* pWarmRun = "./bench_warmRunning.png";
 	bench_plot_add(pWarmRun, initSize_preAlloc, limitSize); // pre-allocate
@@ -939,13 +940,17 @@ void RUN_ALL_BENCHS(){
 	// find: all lookup is failed
 	bench_plot_find_failedAll("./bench_find_wRehash_failedAll.png",  initSize_wRehash,  limitSize);
 	bench_plot_find_failedAll("./bench_find_preAlloc_failedAll.png", initSize_preAlloc, limitSize);
-	//*/
+	
+	// find: elapsed time [sec]
+	bench_plot_find_et          ("./bench_find_et.png",           initSize_preAlloc, limitSize);
+	bench_plot_find_failedAll_et("./bench_find_failedAll_et.png", initSize_preAlloc, limitSize);
+	
 	// erase
 	bench_plot_erase("./bench_erase_preAlloc.png", initSize_preAlloc, limitSize); // pre-allocate
 	
 	bench_plot_erase_et("./bench_erase_et.png",    initSize_preAlloc, limitSize*1); // pre-allocate
 //	bench_plot_erase_et("./bench_erase_et_x2.png", initSize_preAlloc, limitSize*2); // pre-allocate
-	/*
+	
 	// find -> erase -> add (reHash occurd)
 	bench_plot_find_erase_add("./bench_find_erase_add_pow10_4.png", 10000  ); // find with erasion
 	bench_plot_find_erase_add("./bench_find_erase_add_pow10_5.png", 100000 ); // find with erasion
@@ -959,12 +964,6 @@ void RUN_ALL_BENCHS(){
 	bench_plot_find_findFailedAll_erase_add("./bench_find_fainFailedAll_erase_add_pow10_6.png", 1000000); // find with erasion
 	//*/
 //	sstd::rm(pWarmRun);
-	/*
-	bench_plot_find_et("./bench_find_et.png", initSize_preAlloc, limitSize);
-//	bench_plot_find_et("./bench_find_et.png", initSize_preAlloc, 200000000);
-	
-	bench_plot_find_failedAll_et("./bench_find_failedAll_et.png", initSize_preAlloc, limitSize);
-	//*/
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------

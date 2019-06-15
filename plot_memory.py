@@ -35,6 +35,8 @@ def vvec2graph(savePath, xlabel, ylabel, vecLabel, vvecX, vvecY):
     # x: x10^X
     ax1.xaxis.set_major_formatter(tick.ScalarFormatter(useMathText=True))
     ax1.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+    #ax1.set_xscale('log')
+    #ax1.set_xlim(0.9, 5*10000000)
     
     # y: locator
     ax1.set_ylabel(ylabel)
