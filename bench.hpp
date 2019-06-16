@@ -143,67 +143,6 @@ void bench_plot_insert_et(const char* savePath, const uint64 initSize, const uin
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 // used memory size
 
-/*
-VmPeak:	   15676 kB
-VmSize:	   15676 kB
-VmLck:	       0 kB
-VmPin:	       0 kB
-VmHWM:	    1688 kB
-VmRSS:	    1688 kB
-VmData:	     296 kB
-VmStk:	     132 kB
-VmExe:	     248 kB
-VmLib:	    4664 kB
-VmPTE:	      48 kB
-VmPMD:	      12 kB
-VmSwap:	       0 kB
-HugetlbPages:	       0 kB
-
-VmPeak:	  254924 kB
-VmSize:	  240956 kB
-VmLck:	       0 kB
-VmPin:	       0 kB
-VmHWM:	  242460 kB
-VmRSS:	  228608 kB
-VmData:	  225576 kB
-VmStk:	     132 kB
-VmExe:	     248 kB
-VmLib:	    4664 kB
-VmPTE:	     496 kB
-VmPMD:	      12 kB
-VmSwap:	       0 kB
-HugetlbPages:	       0 kB
-//*/
-uint64 sstd_statusBase(const char* type){
-	FILE *fp;
-	char cmd[128];
-	sprintf(cmd, "grep %s /proc/%d/status", type, getpid());
-	if( (fp=popen(cmd,"r"))==NULL ){ return 0ull; } // failure
-	
-	uint64 ret=0;
-	char fmt[128];
-	sprintf(fmt, "%s: %%ull kB", type);
-	fscanf(fp, fmt, &ret);
-	
-	if(pclose(fp)==-1){ return 0ull; } // failure
-	return ret;
-}
-uint64 sstd_status_VmPeak      (){ return sstd_statusBase("VmPeak"      ); }
-uint64 sstd_status_VmSize      (){ return sstd_statusBase("VmSize"      ); }
-uint64 sstd_status_VmLck       (){ return sstd_statusBase("VmLck"       ); }
-uint64 sstd_status_VmPin       (){ return sstd_statusBase("VmPin"       ); }
-uint64 sstd_status_VmHWM       (){ return sstd_statusBase("VmHWM"       ); }
-uint64 sstd_status_VmRSS       (){ return sstd_statusBase("VmRSS"       ); }
-uint64 sstd_status_VmData      (){ return sstd_statusBase("VmData"      ); }
-uint64 sstd_status_VmStk       (){ return sstd_statusBase("VmStk"       ); }
-uint64 sstd_status_VmExe       (){ return sstd_statusBase("VmExe"       ); }
-uint64 sstd_status_VmLib       (){ return sstd_statusBase("VmLib"       ); }
-uint64 sstd_status_VmPTE       (){ return sstd_statusBase("VmPTE"       ); }
-uint64 sstd_status_VmPMD       (){ return sstd_statusBase("VmPMD"       ); }
-uint64 sstd_status_VmSwap      (){ return sstd_statusBase("VmSwap"      ); }
-uint64 sstd_status_HugetlbPages(){ return sstd_statusBase("HugetlbPages"); }
-// 他の status も取得できるようにして，sstd へ標準導入する．(ただし，#ifndef __WIN32 内に実装．)
-
 template<typename T_hashTable>
 void bench_usedMemory(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_MB, const double baseSize_MB){
 	std::random_device seed_gen;
@@ -223,8 +162,8 @@ void bench_usedMemory(T_hashTable& hashT, const uint64 limitSize, std::vector<do
 			hashT[r] = r;
 		}
 		
-		double h_MB = sstd_status_VmHWM() / 1024.0;
-		double r_MB = sstd_status_VmRSS() / 1024.0;
+		double h_MB = sstd::status_VmHWM() / 1024.0;
+		double r_MB = sstd::status_VmRSS() / 1024.0;
 		uint64 tSize = hashT.bucket_count();
 		double MB; if(tSize > tSize_prev){ MB=h_MB; tSize_prev=tSize; }else{ MB=r_MB; }
 		vecY_MB  <<= MB;
@@ -237,27 +176,27 @@ void bench_plot_usedMemory(const char* savePath, const uint64 initSize, const ui
 	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // sec
 	double baseSize_MB = 0.0;
 	
-	baseSize_MB = sstd_status_VmRSS()/1024.0;
+	baseSize_MB = sstd::status_VmRSS()/1024.0;
 	std::unordered_map<uint64,uint64> hashT_u(initSize);
 	bench_usedMemory(hashT_u, limitSize, vecX_u, vecY_u, baseSize_MB);
-	std::vector<char> buf_u((sstd_status_VmHWM()-sstd_status_VmRSS())*(1024+100)); // inorder not to count swap memory region
+	std::vector<char> buf_u((sstd::status_VmHWM()-sstd::status_VmRSS())*1024); // inorder not to count swap memory region
 	
-	baseSize_MB = sstd_status_VmRSS()/1024.0;
+	baseSize_MB = sstd::status_VmRSS()/1024.0;
 	sstd::CHashT<uint64,uint64> hashT_c(initSize);
 	bench_usedMemory(hashT_c, limitSize, vecX_c, vecY_c, baseSize_MB);
-	std::vector<char> buf_c((sstd_status_VmHWM()-sstd_status_VmRSS())*(1024+100)); // inorder not to count swap memory region
+	std::vector<char> buf_c((sstd::status_VmHWM()-sstd::status_VmRSS())*1024); // inorder not to count swap memory region
 	
-	baseSize_MB = sstd_status_VmRSS()/1024.0;
+	baseSize_MB = sstd::status_VmRSS()/1024.0;
 	sstd::IpCHashT<uint64,uint64> hashT_i(initSize);
 	bench_usedMemory(hashT_i, limitSize, vecX_i, vecY_i, baseSize_MB);
-	std::vector<char> buf_i((sstd_status_VmHWM()-sstd_status_VmRSS())*(1024+100)); // inorder not to count swap memory region
+	std::vector<char> buf_i((sstd::status_VmHWM()-sstd::status_VmRSS())*1024); // inorder not to count swap memory region
 	
-	baseSize_MB = sstd_status_VmRSS()/1024.0;
+	baseSize_MB = sstd::status_VmRSS()/1024.0;
 	google::dense_hash_map<uint64,uint64> hashT_d(initSize); hashT_d.set_empty_key(0ull); // this meen that 'NULL' will not be able to insert as a key-value.
 	bench_usedMemory(hashT_d, limitSize, vecX_d, vecY_d, baseSize_MB);
-	std::vector<char> buf_d((sstd_status_VmHWM()-sstd_status_VmRSS())*(1024+100)); // inorder not to count swap memory region
+	std::vector<char> buf_d((sstd::status_VmHWM()-sstd::status_VmRSS())*1024); // inorder not to count swap memory region
 	
-	baseSize_MB = sstd_status_VmRSS()/1024.0;
+	baseSize_MB = sstd::status_VmRSS()/1024.0;
 	ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT_f(initSize);
 	bench_usedMemory(hashT_f, limitSize, vecX_f, vecY_f, baseSize_MB);
 	
@@ -710,7 +649,7 @@ void RUN_ALL_BENCHS(){
 	// bench of used memory size should run first inorder to avoid memory swap by Linux OS.
 	bench_plot_usedMemory("./bench_usedMemory_wRehash_log.png",  initSize_wRehash,  limitSize);
 	bench_plot_usedMemory("./bench_usedMemory_preAlloc_log.png", initSize_preAlloc, limitSize);
-	
+	/*
 	// Warm running, because of the first bench usually returns bad result.
 	const char* pWarmRun = "./bench_warmRunning.png";
 	bench_plot_insert(pWarmRun, initSize_wRehash, limitSize); // pre-allocate
