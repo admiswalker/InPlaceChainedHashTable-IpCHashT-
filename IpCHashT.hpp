@@ -512,7 +512,11 @@ void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::failSafe_of_rehash
 		#ifdef use_insert_soft
 		auto itrRet = hashT._insertBase_soft(std::move(vecKV[vecKV.size()-1].key), std::move(vecKV[vecKV.size()-1].val), idx);
 		#else
-		auto itrRet = hashT._insertBase_hard(std::move(vecKV[vecKV.size()-1].key), std::move(vecKV[vecKV.size()-1].val), idx);
+			#ifdef SSTD_IpCHashT_DEBUG
+			auto itrRet = hashT._insertBase_hard(std::move(vecKV[vecKV.size()-1].key), std::move(vecKV[vecKV.size()-1].val), idx); // when rehashing, there is no meaning to use _insertBase_hard() without stress test.
+			#else
+			auto itrRet = hashT._insertBase_soft(std::move(vecKV[vecKV.size()-1].key), std::move(vecKV[vecKV.size()-1].val), idx);
+			#endif
 		#endif
 		
 		if(itrRet.index()==itr_needRehash_m){ goto CONTINUE_sstd_failSafe_of_rehashing; }
@@ -552,7 +556,11 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::rehash(){
 		#ifdef use_insert_soft
 		auto itrRet = hashT_new._insertBase_soft(std::move(itr.first_RW()), std::move(itr.second_RW()), idx);
 		#else
-		auto itrRet = hashT_new._insertBase_hard(std::move(itr.first_RW()), std::move(itr.second_RW()), idx);
+			#ifdef SSTD_IpCHashT_DEBUG
+			auto itrRet = hashT_new._insertBase_hard(std::move(itr.first_RW()), std::move(itr.second_RW()), idx); // when rehashing, there is no meaning to use _insertBase_hard() without stress test.
+			#else
+			auto itrRet = hashT_new._insertBase_soft(std::move(itr.first_RW()), std::move(itr.second_RW()), idx);
+			#endif
 		#endif
 		
 		if(itrRet.index()==itr_needRehash_m){ failSafe_of_rehashing(hashT_new); continue; } // more rehashing is required while rehashing.
