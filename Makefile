@@ -2,8 +2,8 @@
 # please set each item
 
 # source files
-SRCS_t  = test_main.cpp FNV_Hash.cpp
-SRCS_bm = bench_main.cpp FNV_Hash.cpp
+SRCS_t   = test_main.cpp FNV_Hash.cpp
+SRCS_bm  = bench_main.cpp FNV_Hash.cpp
 HEADS    = CHashT.hpp IpCHashT.hpp
 HEADS_t  = test_CHashT.hpp test_IpCHashT.hpp
 HEADS_bm = bench.hpp

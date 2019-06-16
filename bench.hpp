@@ -1,13 +1,11 @@
-#include "./CHashT.hpp"
-#include "./IpCHashT.hpp"
-#include "./flat_hash_map/flat_hash_map.hpp"
 #include <time.h>
 #include <random>
+
 #include <unordered_map>
+#include "./CHashT.hpp"
+#include "./IpCHashT.hpp"
 #include <sparsehash/dense_hash_map> // sparsehash-master
-#include <sys/time.h>     // getrusage
-#include <sys/resource.h> // getrusage
-#include <thread> // std::thread
+#include "./flat_hash_map/flat_hash_map.hpp"
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 // common functions
@@ -118,13 +116,13 @@ void bench_insert_et(T_hashTable& hashT, const uint64 limitSize, std::vector<dou
 void bench_plot_insert_et(const char* savePath, const uint64 initSize, const uint64 limitSize){
 	std::vector<double> vecX_u, vecX_c, vecX_i, vecX_d, vecX_f; // num of elements
 	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // sec
-	{ google::dense_hash_map<uint64,uint64> hashT(initSize); hashT.set_empty_key(0ull); hashT.set_deleted_key(1ull); // this meen that 'NULL' and '1' will not be able to insert as a key-value.
+	{     std::unordered_map<uint64,uint64> hashT(initSize); bench_insert_et(hashT, limitSize, vecX_u, vecY_u); }
+	{           sstd::CHashT<uint64,uint64> hashT(initSize); bench_insert_et(hashT, limitSize, vecX_c, vecY_c); }
+	{         sstd::IpCHashT<uint64,uint64> hashT(initSize); bench_insert_et(hashT, limitSize, vecX_i, vecY_i); }
+	{ google::dense_hash_map<uint64,uint64> hashT(initSize); hashT.set_empty_key(0ull); // this meen that 'NULL' will not be able to insert as a key-value.
 		                                                     bench_insert_et(hashT, limitSize, vecX_d, vecY_d); }
-	{     std::unordered_map<uint64,uint64> hashT(initSize);                            bench_insert_et(hashT, limitSize, vecX_u, vecY_u); }
-	{           sstd::CHashT<uint64,uint64> hashT(initSize);                            bench_insert_et(hashT, limitSize, vecX_c, vecY_c); }
-	{         sstd::IpCHashT<uint64,uint64> hashT(initSize);                            bench_insert_et(hashT, limitSize, vecX_i, vecY_i); }
-//	{ google::dense_hash_map<uint64,uint64> hashT(initSize); hashT.set_empty_key(0ull); bench_insert_et(hashT, limitSize, vecX_d, vecY_d); } // this meen that 'NULL' will not be able to insert as a key-value.
-	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(initSize); bench_insert_et(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
+	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(initSize);
+	                                                         bench_insert_et(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
 	const char* xlabel   = "Number of elements on the table [conut]";
 	const char* ylabel   = "Elapsed time [sec]";
@@ -645,11 +643,11 @@ void RUN_ALL_BENCHS(){
 	const uint64 limitSize = 5000000;   // 50 sec
 	const uint64 initSize_wRehash  = 0ull;
 	const uint64 initSize_preAlloc = limitSize;
-	//*
+	/*
 	// bench of used memory size should run first inorder to avoid memory swap by Linux OS.
 	bench_plot_usedMemory("./bench_usedMemory_wRehash_log.png",  initSize_wRehash,  limitSize);
 	bench_plot_usedMemory("./bench_usedMemory_preAlloc_log.png", initSize_preAlloc, limitSize);
-	/*
+	
 	// Warm running, because of the first bench usually returns bad result.
 	const char* pWarmRun = "./bench_warmRunning.png";
 	bench_plot_insert(pWarmRun, initSize_wRehash, limitSize); // pre-allocate
@@ -658,11 +656,11 @@ void RUN_ALL_BENCHS(){
 	bench_plot_insert("./bench_insert_wRehash.png",  initSize_wRehash,  limitSize); // with rehash
 	// wRehash の方が，preAlloc よりも適切なテーブルサイズが選択されているため，最高性能がよい．
 	// limitSize 付近の性能はほぼ同一である．
-	
+	//*/
 	// insert: elapsed time [sec]
 	bench_plot_insert_et("./bench_insert_et_wRehash.png",  initSize_wRehash,  limitSize); // with rehash
 	bench_plot_insert_et("./bench_insert_et_preAlloc.png", initSize_preAlloc, limitSize); // pre-allocate
-	
+	/*
 	// find: find speed [quely/sec]
 	bench_plot_find("./bench_find_wRehash.png",  initSize_wRehash,  limitSize); // with rehash
 	
