@@ -204,12 +204,6 @@ uint64 sstd_status_VmSwap      (){ return sstd_statusBase("VmSwap"      ); }
 uint64 sstd_status_HugetlbPages(){ return sstd_statusBase("HugetlbPages"); }
 // 他の status も取得できるようにして，sstd へ標準導入する．(ただし，#ifndef __WIN32 内に実装．)
 
-uint64 sstd_get_ru_maxrss(){
-	struct rusage r;
-	if( getrusage(RUSAGE_SELF, &r)!=0 ){ sstd::pdbg("ERROR: getrusage() is failed."); return 0ull; }
-	return r.ru_maxrss;
-}
-
 template<typename T_hashTable>
 void bench_usedMemory(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_MB, const double baseSize_MB){
 	std::random_device seed_gen;
