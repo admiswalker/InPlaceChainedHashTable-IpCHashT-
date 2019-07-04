@@ -95,7 +95,7 @@ TEST(sstd_IpCHashT, insert_soft_case03){
 		ASSERT_TRUE( hashT._pT()[3].next== 0 );
 	}
 }
-TEST(sstd_IpCHashT, insert_soft_case11){
+TEST(sstd_IpCHashT, insert_soft_case06){
 	sstd::IpCHashT<uint64, uint64> hashT(10);
 	
 	{
@@ -116,12 +116,12 @@ TEST(sstd_IpCHashT, insert_soft_case11){
 	hashT.use_tIdx_dbg = true; // enable debug option
 	hashT.tIdx_dbg     = 2;    // force to set key-val on the table index "tIdx_dbg".
 	
-	// insertion: case11
+	// insertion: case06
 	hashT.insert_soft( 3, 30);
 //	printTable_all(hashT);
 	
 	{
-		// check: case11
+		// check: case06
 		ASSERT_TRUE( hashT._pT()[1].key == 1 );
 		ASSERT_TRUE( hashT._pT()[1].val ==10 );
 		ASSERT_TRUE( hashT._pT()[1].prev== 0 );
@@ -138,7 +138,7 @@ TEST(sstd_IpCHashT, insert_soft_case11){
 		ASSERT_TRUE( hashT._pT()[3].next== 0 );
 	}
 }
-TEST(sstd_IpCHashT, insert_soft_case10){
+TEST(sstd_IpCHashT, insert_soft_case11){
 	sstd::IpCHashT<uint64, uint64> hashT(10);
 	
 	{
@@ -164,11 +164,11 @@ TEST(sstd_IpCHashT, insert_soft_case10){
 	hashT.use_tIdx_dbg = true; // enable debug option
 	hashT.tIdx_dbg     = 2;    // force to set key-val on the table index "tIdx_dbg".
 	
-	// insertion: case10
+	// insertion: case11
 	hashT.insert_soft( 4, 40);
 //	printTable_all(hashT);
 	{
-		// check: case10
+		// check: case11
 		ASSERT_TRUE( hashT._pT()[1].key == 1 );
 		ASSERT_TRUE( hashT._pT()[1].val ==10 );
 		ASSERT_TRUE( hashT._pT()[1].prev== 0 );
@@ -404,6 +404,101 @@ TEST(sstd_IpCHashT, insert_hard_case05){
 		hashT._pT()[1].prev= 0;
 		hashT._pT()[1].next= 2;
 		
+		hashT._pT()[3].key = 3;
+		hashT._pT()[3].val =30;
+		hashT._pT()[3].prev= 2;
+		hashT._pT()[3].next= 1;
+		
+		hashT._pT()[4].key = 4;
+		hashT._pT()[4].val =40;
+		hashT._pT()[4].prev= 1;
+		hashT._pT()[4].next= 0;
+
+		hashT._elems() = 3;
+	}
+	
+	hashT.use_tIdx_dbg = true; // enable debug option
+	hashT.tIdx_dbg     = 4;    // force to set key-val on the table index "tIdx_dbg".
+	
+	// insertion: case05
+	hashT.insert_hard( 5, 50);
+//	printTable_all(hashT);
+	{
+		// check: case05
+		ASSERT_TRUE( hashT._pT()[1].key == 1 );
+		ASSERT_TRUE( hashT._pT()[1].val ==10 );
+		ASSERT_TRUE( hashT._pT()[1].prev== 0 );
+		ASSERT_TRUE( hashT._pT()[1].next== 1 );
+		
+		ASSERT_TRUE( hashT._pT()[2].key == 4 );
+		ASSERT_TRUE( hashT._pT()[2].val ==40 );
+		ASSERT_TRUE( hashT._pT()[2].prev== 1 );
+		ASSERT_TRUE( hashT._pT()[2].next== 1 );
+		
+		ASSERT_TRUE( hashT._pT()[3].key == 3 );
+		ASSERT_TRUE( hashT._pT()[3].val ==30 );
+		ASSERT_TRUE( hashT._pT()[3].prev== 1 );
+		ASSERT_TRUE( hashT._pT()[3].next== 0 );
+		
+		ASSERT_TRUE( hashT._pT()[4].key == 5 );
+		ASSERT_TRUE( hashT._pT()[4].val ==50 );
+		ASSERT_TRUE( hashT._pT()[4].prev== 0 );
+		ASSERT_TRUE( hashT._pT()[4].next== 0 );
+	}
+}
+TEST(sstd_IpCHashT, insert_hard_case06){
+	sstd::IpCHashT<uint64, uint64> hashT(10);
+	
+	{
+		// init
+		hashT._pT()[1].key = 1;
+		hashT._pT()[1].val =10;
+		hashT._pT()[1].prev= 0;
+		hashT._pT()[1].next= 1;
+		
+		hashT._pT()[2].key = 2;
+		hashT._pT()[2].val =20;
+		hashT._pT()[2].prev= 1;
+		hashT._pT()[2].next= 0;
+
+		hashT._elems() = 2;
+	}
+	
+	hashT.use_tIdx_dbg = true; // enable debug option
+	hashT.tIdx_dbg     = 2;    // force to set key-val on the table index "tIdx_dbg".
+	
+	// insertion: case06
+	hashT.insert_hard( 3, 30);
+//	printTable_all(hashT);
+	
+	{
+		// check: case06
+		ASSERT_TRUE( hashT._pT()[1].key == 1 );
+		ASSERT_TRUE( hashT._pT()[1].val ==10 );
+		ASSERT_TRUE( hashT._pT()[1].prev== 0 );
+		ASSERT_TRUE( hashT._pT()[1].next== 2 );
+		
+		ASSERT_TRUE( hashT._pT()[2].key == 3 );
+		ASSERT_TRUE( hashT._pT()[2].val ==30 );
+		ASSERT_TRUE( hashT._pT()[2].prev== 0 );
+		ASSERT_TRUE( hashT._pT()[2].next== 0 );
+		
+		ASSERT_TRUE( hashT._pT()[3].key == 2 );
+		ASSERT_TRUE( hashT._pT()[3].val ==20 );
+		ASSERT_TRUE( hashT._pT()[3].prev== 2 );
+		ASSERT_TRUE( hashT._pT()[3].next== 0 );
+	}
+}
+TEST(sstd_IpCHashT, insert_hard_case07){
+	sstd::IpCHashT<uint64, uint64> hashT(10);
+	
+	{
+		// init
+		hashT._pT()[1].key = 1;
+		hashT._pT()[1].val =10;
+		hashT._pT()[1].prev= 0;
+		hashT._pT()[1].next= 2;
+		
 		// idx==2 is empty
 		
 		hashT._pT()[3].key = 3;
@@ -422,7 +517,7 @@ TEST(sstd_IpCHashT, insert_hard_case05){
 	hashT.use_tIdx_dbg = true; // enable debug option
 	hashT.tIdx_dbg     = 3;    // force to set key-val on the table index "tIdx_dbg".
 	
-	// insertion: case05
+	// insertion: case07
 	hashT.insert_hard( 5, 50);
 //	printTable_all(hashT);
 	{
@@ -448,59 +543,7 @@ TEST(sstd_IpCHashT, insert_hard_case05){
 		ASSERT_TRUE( hashT._pT()[4].next== 0 );
 	}
 }
-TEST(sstd_IpCHashT, insert_hard_case06){
-	sstd::IpCHashT<uint64, uint64> hashT(10);
-	
-	{
-		// init
-		hashT._pT()[1].key = 1;
-		hashT._pT()[1].val =10;
-		hashT._pT()[1].prev= 0;
-		hashT._pT()[1].next= 2;
-		
-		hashT._pT()[3].key = 3;
-		hashT._pT()[3].val =30;
-		hashT._pT()[3].prev= 2;
-		hashT._pT()[3].next= 1;
-		
-		hashT._pT()[4].key = 4;
-		hashT._pT()[4].val =40;
-		hashT._pT()[4].prev= 1;
-		hashT._pT()[4].next= 0;
-
-		hashT._elems() = 3;
-	}
-	
-	hashT.use_tIdx_dbg = true; // enable debug option
-	hashT.tIdx_dbg     = 4;    // force to set key-val on the table index "tIdx_dbg".
-	
-	// insertion: case06
-	hashT.insert_hard( 5, 50);
-//	printTable_all(hashT);
-	{
-		// check: case06
-		ASSERT_TRUE( hashT._pT()[1].key == 1 );
-		ASSERT_TRUE( hashT._pT()[1].val ==10 );
-		ASSERT_TRUE( hashT._pT()[1].prev== 0 );
-		ASSERT_TRUE( hashT._pT()[1].next== 1 );
-		
-		ASSERT_TRUE( hashT._pT()[2].key == 4 );
-		ASSERT_TRUE( hashT._pT()[2].val ==40 );
-		ASSERT_TRUE( hashT._pT()[2].prev== 1 );
-		ASSERT_TRUE( hashT._pT()[2].next== 1 );
-		
-		ASSERT_TRUE( hashT._pT()[3].key == 3 );
-		ASSERT_TRUE( hashT._pT()[3].val ==30 );
-		ASSERT_TRUE( hashT._pT()[3].prev== 1 );
-		ASSERT_TRUE( hashT._pT()[3].next== 0 );
-		
-		ASSERT_TRUE( hashT._pT()[4].key == 5 );
-		ASSERT_TRUE( hashT._pT()[4].val ==50 );
-		ASSERT_TRUE( hashT._pT()[4].prev== 0 );
-		ASSERT_TRUE( hashT._pT()[4].next== 0 );
-	}
-}
-TEST(sstd_IpCHashT, insert_hard_case07){
+TEST(sstd_IpCHashT, insert_hard_case08){
 	sstd::IpCHashT<uint64, uint64> hashT(10);
 	
 	{
@@ -533,11 +576,11 @@ TEST(sstd_IpCHashT, insert_hard_case07){
 	hashT.use_tIdx_dbg = true; // enable debug option
 	hashT.tIdx_dbg     = 4;    // force to set key-val on the table index "tIdx_dbg".
 	
-	// insertion: case07
+	// insertion: case08
 	hashT.insert_hard( 6, 60);
 //	printTable_all(hashT);
 	{
-		// check: case07
+		// check: case08
 		ASSERT_TRUE( hashT._pT()[1].key == 1 );
 		ASSERT_TRUE( hashT._pT()[1].val ==10 );
 		ASSERT_TRUE( hashT._pT()[1].prev== 0 );
@@ -618,7 +661,7 @@ TEST(sstd_IpCHashT, insert_hard_case09){
 		ASSERT_TRUE( hashT._pT()[4].next== 0 );
 	}
 }
-TEST(sstd_IpCHashT, insert_hard_case08){
+TEST(sstd_IpCHashT, insert_hard_case10){
 	sstd::IpCHashT<uint64, uint64> hashT(10);
 	
 	{
@@ -651,11 +694,11 @@ TEST(sstd_IpCHashT, insert_hard_case08){
 	hashT.use_tIdx_dbg = true; // enable debug option
 	hashT.tIdx_dbg     = 2;    // force to set key-val on the table index "tIdx_dbg".
 	
-	// insertion: case08
+	// insertion: case10
 	hashT.insert_hard( 6, 60);
 //	printTable_all(hashT);
 	{
-		// check: case08
+		// check: case10
 		ASSERT_TRUE( hashT._pT()[1].key == 1 );
 		ASSERT_TRUE( hashT._pT()[1].val ==10 );
 		ASSERT_TRUE( hashT._pT()[1].prev== 0 );
@@ -682,7 +725,7 @@ TEST(sstd_IpCHashT, insert_hard_case08){
 		ASSERT_TRUE( hashT._pT()[5].next== 0 );
 	}
 }
-TEST(sstd_IpCHashT, insert_hard_case08_02){
+TEST(sstd_IpCHashT, insert_hard_case10_02){
 	sstd::IpCHashT<uint64, uint64> hashT(10);
 	
 	{
@@ -720,11 +763,11 @@ TEST(sstd_IpCHashT, insert_hard_case08_02){
 	hashT.use_tIdx_dbg = true; // enable debug option
 	hashT.tIdx_dbg     = 2;    // force to set key-val on the table index "tIdx_dbg".
 	
-	// insertion: case08
+	// insertion: case10
 	hashT.insert_hard( 7, 70);
 //	printTable_all(hashT);
 	{
-		// check: case08
+		// check: case10
 		ASSERT_TRUE( hashT._pT()[1].key == 1 );
 		ASSERT_TRUE( hashT._pT()[1].val ==10 );
 		ASSERT_TRUE( hashT._pT()[1].prev== 0 );
@@ -756,7 +799,7 @@ TEST(sstd_IpCHashT, insert_hard_case08_02){
 		ASSERT_TRUE( hashT._pT()[6].next== 0 );
 	}
 }
-TEST(sstd_IpCHashT, insert_hard_case10){
+TEST(sstd_IpCHashT, insert_hard_case11){
 	sstd::IpCHashT<uint64, uint64> hashT(10);
 	
 	{
@@ -782,11 +825,11 @@ TEST(sstd_IpCHashT, insert_hard_case10){
 	hashT.use_tIdx_dbg = true; // enable debug option
 	hashT.tIdx_dbg     = 2;    // force to set key-val on the table index "tIdx_dbg".
 	
-	// insertion: case10
+	// insertion: case11
 	hashT.insert_hard( 4, 40);
 //	printTable_all(hashT);
 	{
-		// check: case10
+		// check: case11
 		ASSERT_TRUE( hashT._pT()[1].key == 1 );
 		ASSERT_TRUE( hashT._pT()[1].val ==10 );
 		ASSERT_TRUE( hashT._pT()[1].prev== 0 );
@@ -806,49 +849,6 @@ TEST(sstd_IpCHashT, insert_hard_case10){
 		ASSERT_TRUE( hashT._pT()[4].val ==20 );
 		ASSERT_TRUE( hashT._pT()[4].prev== 1 );
 		ASSERT_TRUE( hashT._pT()[4].next== 0 );
-	}
-}
-TEST(sstd_IpCHashT, insert_hard_case11){
-	sstd::IpCHashT<uint64, uint64> hashT(10);
-	
-	{
-		// init
-		hashT._pT()[1].key = 1;
-		hashT._pT()[1].val =10;
-		hashT._pT()[1].prev= 0;
-		hashT._pT()[1].next= 1;
-		
-		hashT._pT()[2].key = 2;
-		hashT._pT()[2].val =20;
-		hashT._pT()[2].prev= 1;
-		hashT._pT()[2].next= 0;
-
-		hashT._elems() = 2;
-	}
-	
-	hashT.use_tIdx_dbg = true; // enable debug option
-	hashT.tIdx_dbg     = 2;    // force to set key-val on the table index "tIdx_dbg".
-	
-	// insertion: case11
-	hashT.insert_hard( 3, 30);
-//	printTable_all(hashT);
-	
-	{
-		// check: case11
-		ASSERT_TRUE( hashT._pT()[1].key == 1 );
-		ASSERT_TRUE( hashT._pT()[1].val ==10 );
-		ASSERT_TRUE( hashT._pT()[1].prev== 0 );
-		ASSERT_TRUE( hashT._pT()[1].next== 2 );
-		
-		ASSERT_TRUE( hashT._pT()[2].key == 3 );
-		ASSERT_TRUE( hashT._pT()[2].val ==30 );
-		ASSERT_TRUE( hashT._pT()[2].prev== 0 );
-		ASSERT_TRUE( hashT._pT()[2].next== 0 );
-		
-		ASSERT_TRUE( hashT._pT()[3].key == 2 );
-		ASSERT_TRUE( hashT._pT()[3].val ==20 );
-		ASSERT_TRUE( hashT._pT()[3].prev== 2 );
-		ASSERT_TRUE( hashT._pT()[3].next== 0 );
 	}
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -1032,11 +1032,11 @@ TEST(sstd_IpCHashT, erase_case03){
 	hashT.use_tIdx_dbg = true; // enable debug option
 	hashT.tIdx_dbg     = 1;    // force to set key-val on the table index "tIdx_dbg".
 	
-	// insertion: case10
+	// insertion: case11
 	hashT.erase(1);
 //	printTable_all(hashT);
 	{
-		// check: case10
+		// check: case11
 		ASSERT_TRUE( hashT._pT()[1].key == 3 );
 		ASSERT_TRUE( hashT._pT()[1].val ==30 );
 		ASSERT_TRUE( hashT._pT()[1].prev== 0 );
@@ -1075,11 +1075,11 @@ TEST(sstd_IpCHashT, erase_case04){
 	hashT.use_tIdx_dbg = true; // enable debug option
 	hashT.tIdx_dbg     = 1;    // force to set key-val on the table index "tIdx_dbg".
 	
-	// insertion: case10
+	// insertion: case11
 	hashT.erase(2);
 //	printTable_all(hashT);
 	{
-		// check: case10
+		// check: case11
 		ASSERT_TRUE( hashT._pT()[1].key == 1 );
 		ASSERT_TRUE( hashT._pT()[1].val ==10 );
 		ASSERT_TRUE( hashT._pT()[1].prev== 0 );

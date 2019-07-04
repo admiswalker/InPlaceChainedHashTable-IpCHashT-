@@ -659,10 +659,10 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::_insertBas
 //		pT[    idx  ].next = (T_shift)0; // aleady zero
 		return itr_m(maxShift, ttSize, pT, idx);
 	}else if( isTail_m(pT[idx]) ){
-		// For insertion case04, case06 and case11.
+		// For insertion case04, case05 and case06.
 		
 		// --- case04 --- ==>> pass for soft
-		// --- case06 --- ==>> pass for soft
+		// --- case05 --- ==>> pass for soft
 		
 		// seek to an empty element until tSize.
 		uint64 idx_f = idx;
@@ -670,7 +670,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::_insertBas
 		uint64 prevIdx_f = idx_f - pT[idx_f].prev;
 		seek2emptyIndex_m(pT, idx, prevIdx_f); // when false -> returned intaernally -> rehash will be occurd.
 		{
-			// --- case11 ---
+			// --- case06 ---
 			T_shift prevShift_e = idx - prevIdx_f; assert(prevShift_e<=seekLimit);
 			assert(prevIdx_f<ttSize);
 			assert(    idx  <ttSize);
@@ -690,15 +690,15 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::_insertBas
 			return itr_m(maxShift, ttSize, pT, idx_f);
 		}
 	}else{
-		// For insertion case05, case07, case09, case08 and case10.
+		// For insertion case07, case08, case09, case10 and case11.
 		uint64 idx_f = idx; // first index
 		uint64 prev2next_f = (uint64)pT[idx_f].prev + (uint64)pT[idx_f].next;
 		if(prev2next_f>seekLimit){ return itr_m(maxShift, ttSize, pT, itr_needRehash_m); }
 		
-		// --- case05 --- ==>> pass for soft
 		// --- case07 --- ==>> pass for soft
-		// --- case09 --- ==>> pass for soft
 		// --- case08 --- ==>> pass for soft
+		// --- case09 --- ==>> pass for soft
+		// --- case10 --- ==>> pass for soft
 		
 		seek2tail(pT, idx);
 		
@@ -706,7 +706,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::_insertBas
 		uint64 prevIdx_e = idx; // prev index from empty
 		seek2emptyIndex_m(pT, idx, prevIdx_e); // when false -> returned intaernally -> rehash will be occurd.
 		{
-			// --- case10 ---
+			// --- case11 ---
 			uint64 prevIdx_f = idx_f - pT[idx_f].prev;
 			uint64 nextIdx_f = idx_f + pT[idx_f].next;
 			assert(prevIdx_f<ttSize);
@@ -824,7 +824,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::_insertBas
 //		pT[    idx  ].next = (T_shift)0; // aleady zero
 		return itr_m(maxShift, ttSize, pT, idx);
 	}else if( isTail_m(pT[idx]) ){
-		// For insertion case04, case06 and case11.
+		// For insertion case04, case05 and case06.
 		
 		uint64 idx_f = idx; // first index
 		{
@@ -867,7 +867,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::_insertBas
 					continue;
 				}
 				if( isEmpty_m(pT[idx]) ){
-					// --- case06 ---
+					// --- case05 ---
 					uint64 prevIdx_f = idx_f - pT[idx_f].prev;
 					T_shift prevShift_e = idx - prevIdx_e; assert(prevShift_e<=seekLimit);
 					T_shift nextShift_e = nextIdx_e - idx; assert(nextShift_e<=seekLimit);
@@ -900,7 +900,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::_insertBas
 		uint64 prevIdx_f = idx_f - pT[idx_f].prev;
 		seek2emptyIndex_m(pT, idx, prevIdx_f); // when false -> returned intaernally -> rehash will be occurd.
 		{
-			// --- case11 ---
+			// --- case06 ---
 			T_shift prevShift_e = idx - prevIdx_f; assert(prevShift_e<=seekLimit);
 			assert(prevIdx_f<ttSize);
 			assert(    idx  <ttSize);
@@ -920,7 +920,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::_insertBas
 			return itr_m(maxShift, ttSize, pT, idx_f);
 		}
 	}else{
-		// For insertion case05, case07, case09, case08 and case10.
+		// For insertion case07, case08, case09, case10 and case11.
 		
 		uint64 idx_f = idx; // first index
 		{
@@ -929,7 +929,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::_insertBas
 				idx--;
 				if( idx<=prevIdx_e ){ break; }
 				if( isEmpty_m(pT[idx]) ){
-					// --- case05 ---
+					// --- case07 ---
 					uint64 nextIdx_f = idx_f + pT[idx_f].next;
 					T_shift prevShift_e = idx - prevIdx_e;
 					uint64  nextShift_e = idx_f + (uint64)pT[idx_f].next - idx;
@@ -973,7 +973,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::_insertBas
 					continue;
 				}
 				if( isEmpty_m(pT[idx]) ){
-					// --- case07 ---
+					// --- case08 ---
 					uint64 prevIdx_f = idx_f - pT[idx_f].prev;
 					uint64 nextIdx_f = idx_f + pT[idx_f].next;
 					T_shift prevShift_e = idx - prevIdx_e;
@@ -1052,7 +1052,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::_insertBas
 				nextIdx_e = idx + pT[idx].next;
 			}
 			if( isEmpty_m(pT[idx]) ){
-				// --- case08 ---
+				// --- case10 ---
 				assert(prevIdx_f<ttSize);
 				assert(    idx_f<ttSize);
 				assert(nextIdx_f<ttSize);
@@ -1087,7 +1087,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::_insertBas
 		seek2emptyIndex_m(pT, idx, nextIdx_e); // when false -> returned intaernally -> rehash will be occurd.
 		
 		{
-			// --- case10 ---
+			// --- case11 ---
 			assert(prevIdx_f<ttSize);
 			assert(    idx_f<ttSize);
 			assert(nextIdx_f<ttSize);
