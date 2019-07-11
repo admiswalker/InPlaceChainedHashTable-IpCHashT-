@@ -384,8 +384,8 @@ public:
 																		\
 	const double a = 18; /* hyper parametor for T_shift==uint8. */		\
 	const uint64 b = 35; /* hyper parametor for T_shift==uint8. */		\
-	if(tSize<254*a){ pSize=(uint64)((double)tSize/a + b);				\
-	}     else     { pSize=254ull; } /* when using T_shift=uint8, 0xFF-1==254 is the max-shift. */
+	pSize=(uint64)((double)tSize/a + b);								\
+	if(pSize>254){ pSize=254ull; } /* when using T_shift=uint8, 0xFF-1==254 is the max-shift. */
 
 #define constructorBase_init_m()										\
 	ttSize    = tSize + pSize; /* while "#define use_prime_table" is disabled, ttSize must be satisfied ttSize>=tSize+1. Because (hashVal & tSize) will [0, tSize], not [0, tSize). (when using prime table, hashVal % tSize be satisfied [0, tSize).) */ \

@@ -32,7 +32,7 @@ uint64 size2interval(const uint64 size){
 // insert
 
 template<typename T_hashTable>
-void bench_insert(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_quely_per_ms){
+void bench_insert(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_quely_per_us){
 	std::random_device seed_gen;
 	std::mt19937_64 rand(seed_gen()); // pseudo random number generator
 	
@@ -53,7 +53,7 @@ void bench_insert(T_hashTable& hashT, const uint64 limitSize, std::vector<double
 		double nsec = sstd::measureTime_stop_ns(timem);
 		
 		vecX_num          <<= hashT.size();
-		vecY_quely_per_ms <<= ((double)interval * 1000.0) / (nsec);
+		vecY_quely_per_us <<= ((double)interval * 1000.0) / (nsec);
 		
 		interval = size2interval(hashT.size());
 		if(hashT.size()+interval>limitSize){ break; }
@@ -61,7 +61,7 @@ void bench_insert(T_hashTable& hashT, const uint64 limitSize, std::vector<double
 }
 void bench_plot_insert(const char* savePath, const uint64 initSize, const uint64 limitSize){
 	std::vector<double> vecX_u, vecX_c, vecX_i, vecX_d, vecX_f; // num of elements
-	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // quely_per_ms
+	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // quely_per_us
 	{     std::unordered_map<uint64,uint64> hashT(initSize); bench_insert(hashT, limitSize, vecX_u, vecY_u); }
 	{           sstd::CHashT<uint64,uint64> hashT(initSize); bench_insert(hashT, limitSize, vecX_c, vecY_c); }
 	{         sstd::IpCHashT<uint64,uint64> hashT(initSize); bench_insert(hashT, limitSize, vecX_i, vecY_i); }
@@ -71,10 +71,10 @@ void bench_plot_insert(const char* savePath, const uint64 initSize, const uint64
 	                                                         bench_insert(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
 	const char* xlabel   = "Number of elements on the table [conut]";
-	const char* ylabel   = "Insertion speed [query/ms]";
+	const char* ylabel   = "Insertion speed [query/us]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
-	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_ms
+	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_us
 	
 	// plot2fig
 	const char* tmpDir   = "./tmpDir";
@@ -218,7 +218,7 @@ void bench_plot_usedMemory(const char* savePath, const uint64 initSize, const ui
 // find
 
 template<typename T_hashTable>
-void bench_find(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_quely_per_ms){
+void bench_find(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_quely_per_us){
 	std::random_device seed_gen;
 	std::mt19937_64 rand       (seed_gen()); // pseudo random number generator
 	std::mt19937_64 rand_toFind(seed_gen()); // pseudo random number generator
@@ -251,7 +251,7 @@ void bench_find(T_hashTable& hashT, const uint64 limitSize, std::vector<double>&
 			if(hashT[keyVal] != keyVal){ sstd::pdbg("ERROR: key val is not same."); exit(-1); }
 		}
 		double nsec = sstd::measureTime_stop_ns(timem);
-		vecY_quely_per_ms <<= ((double)interval * 1000.0) / (nsec);
+		vecY_quely_per_us <<= ((double)interval * 1000.0) / (nsec);
 		
 		interval = size2interval(hashT.size());
 		if(hashT.size()+interval>limitSize){ break; }
@@ -259,7 +259,7 @@ void bench_find(T_hashTable& hashT, const uint64 limitSize, std::vector<double>&
 }
 void bench_plot_find(const char* savePath, const uint64 initSize, const uint64 limitSize){
 	std::vector<double> vecX_u, vecX_c, vecX_i, vecX_d, vecX_f; // num of elements
-	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // quely_per_ms
+	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // quely_per_us
 	{     std::unordered_map<uint64,uint64> hashT(initSize); bench_find(hashT, limitSize, vecX_u, vecY_u); }
 	{           sstd::CHashT<uint64,uint64> hashT(initSize); bench_find(hashT, limitSize, vecX_c, vecY_c); }
 	{         sstd::IpCHashT<uint64,uint64> hashT(initSize); bench_find(hashT, limitSize, vecX_i, vecY_i); }
@@ -269,10 +269,10 @@ void bench_plot_find(const char* savePath, const uint64 initSize, const uint64 l
 	                                                         bench_find(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
 	const char* xlabel   = "Number of elements on the table [conut]";
-	const char* ylabel   = "Find speed [query/ms]";
+	const char* ylabel   = "Find speed [query/us]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
-	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_ms
+	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_us
 	
 	// plot2fig
 	const char* tmpDir   = "./tmpDir";
@@ -286,7 +286,7 @@ void bench_plot_find(const char* savePath, const uint64 initSize, const uint64 l
 // find: all lookup is failed
 
 template<typename T_hashTable>
-void bench_find_failedAll(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_quely_per_ms){
+void bench_find_failedAll(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_quely_per_us){
 	std::random_device seed_gen;
 	std::mt19937_64 rand       (seed_gen()); // pseudo random number generator
 	std::mt19937_64 rand_toFind(seed_gen()); // pseudo random number generator
@@ -317,7 +317,7 @@ void bench_find_failedAll(T_hashTable& hashT, const uint64 limitSize, std::vecto
 			if(itr!=hashT.end()){ numFound++; }else{ numNotFound++; }
 		}
 		double nsec = sstd::measureTime_stop_ns(timem);
-		vecY_quely_per_ms <<= ((double)interval * 1000.0) / (nsec);
+		vecY_quely_per_us <<= ((double)interval * 1000.0) / (nsec);
 		
 		interval = size2interval(hashT.size());
 		if(hashT.size()+interval>limitSize){ break; }
@@ -329,7 +329,7 @@ void bench_find_failedAll(T_hashTable& hashT, const uint64 limitSize, std::vecto
 }
 void bench_plot_find_failedAll(const char* savePath, const uint64 initSize, const uint64 limitSize){
 	std::vector<double> vecX_u, vecX_c, vecX_i, vecX_d, vecX_f; // num of elements
-	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // quely_per_ms
+	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // quely_per_us
 	{     std::unordered_map<uint64,uint64> hashT(initSize); bench_find_failedAll(hashT, limitSize, vecX_u, vecY_u); }
 	{           sstd::CHashT<uint64,uint64> hashT(initSize); bench_find_failedAll(hashT, limitSize, vecX_c, vecY_c); }
 	{         sstd::IpCHashT<uint64,uint64> hashT(initSize); bench_find_failedAll(hashT, limitSize, vecX_i, vecY_i); }
@@ -338,10 +338,10 @@ void bench_plot_find_failedAll(const char* savePath, const uint64 initSize, cons
 		                                                     bench_find_failedAll(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
 	const char* xlabel   = "Number of elements on the table [conut]";
-	const char* ylabel   = "Find speed [query/ms]";
+	const char* ylabel   = "Find speed [query/us]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
-	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_ms
+	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_us
 	
 	// plot2fig
 	const char* tmpDir   = "./tmpDir";
@@ -355,7 +355,7 @@ void bench_plot_find_failedAll(const char* savePath, const uint64 initSize, cons
 // find-erase-insert cycle
 
 template<typename T_hashTable>
-void bench_find_erase_insert(T_hashTable& hashT, const uint64 initSize, std::vector<double>& vecX_num, std::vector<double>& vecY_quely_per_ms){
+void bench_find_erase_insert(T_hashTable& hashT, const uint64 initSize, std::vector<double>& vecX_num, std::vector<double>& vecY_quely_per_us){
 	
 	std::random_device seed_gen;
 	
@@ -399,7 +399,7 @@ void bench_find_erase_insert(T_hashTable& hashT, const uint64 initSize, std::vec
 		}
 		double nsec = sstd::measureTime_stop_ns(timem);
 		
-		vecY_quely_per_ms <<= ((double)changeNum_per_cycle * 1000.0) / (nsec);
+		vecY_quely_per_us <<= ((double)changeNum_per_cycle * 1000.0) / (nsec);
 		vecX_num          <<= nonChangedRate;
 		nonChangedRate *= (1.00 - change_per_cycle);
 		
@@ -409,7 +409,7 @@ void bench_find_erase_insert(T_hashTable& hashT, const uint64 initSize, std::vec
 }
 void bench_plot_find_erase_insert(const char* savePath, const uint64 initSize){
 	std::vector<double> vecX_u, vecX_c, vecX_i, vecX_d, vecX_f; // num of elements
-	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // quely_per_ms
+	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // quely_per_us
 	{     std::unordered_map<uint64,uint64> hashT(initSize); bench_find_erase_insert(hashT, initSize, vecX_u, vecY_u); }
 	{           sstd::CHashT<uint64,uint64> hashT(initSize); bench_find_erase_insert(hashT, initSize, vecX_c, vecY_c); }
 	{         sstd::IpCHashT<uint64,uint64> hashT(initSize); bench_find_erase_insert(hashT, initSize, vecX_i, vecY_i); }
@@ -419,10 +419,10 @@ void bench_plot_find_erase_insert(const char* savePath, const uint64 initSize){
 		                                                     bench_find_erase_insert(hashT, initSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
 	const char* xlabel   = "Non-changed rate [\%]";
-	const char* ylabel   = "A speed of one find-erase-insert cycle [query/ms]";
+	const char* ylabel   = "A speed of one find-erase-insert cycle [query/us]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
-	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_ms
+	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_us
 	
 	// plot2fig
 	const char* tmpDir   = "./tmpDir";
@@ -436,7 +436,7 @@ void bench_plot_find_erase_insert(const char* savePath, const uint64 initSize){
 // find-findFailed-erase-insert cycle
 
 template<typename T_hashTable>
-void bench_find_findFailedAll_erase_insert(T_hashTable& hashT, const uint64 initSize, std::vector<double>& vecX_num, std::vector<double>& vecY_quely_per_ms){
+void bench_find_findFailedAll_erase_insert(T_hashTable& hashT, const uint64 initSize, std::vector<double>& vecX_num, std::vector<double>& vecY_quely_per_us){
 	
 	std::random_device seed_gen;
 	
@@ -488,7 +488,7 @@ void bench_find_findFailedAll_erase_insert(T_hashTable& hashT, const uint64 init
 		}
 		double nsec = sstd::measureTime_stop_ns(timem);
 		
-		vecY_quely_per_ms <<= ((double)changeNum_per_cycle * 1000.0) / (nsec);
+		vecY_quely_per_us <<= ((double)changeNum_per_cycle * 1000.0) / (nsec);
 		vecX_num          <<= nonChangedRate;
 		nonChangedRate *= (1.00 - change_per_cycle);
 		
@@ -498,7 +498,7 @@ void bench_find_findFailedAll_erase_insert(T_hashTable& hashT, const uint64 init
 }
 void bench_plot_find_findFailedAll_erase_insert(const char* savePath, const uint64 initSize){
 	std::vector<double> vecX_u, vecX_c, vecX_i, vecX_d, vecX_f; // num of elements
-	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // quely_per_ms
+	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // quely_per_us
 	{     std::unordered_map<uint64,uint64> hashT(initSize); bench_find_findFailedAll_erase_insert(hashT, initSize, vecX_u, vecY_u); }
 	{           sstd::CHashT<uint64,uint64> hashT(initSize); bench_find_findFailedAll_erase_insert(hashT, initSize, vecX_c, vecY_c); }
 	{         sstd::IpCHashT<uint64,uint64> hashT(initSize); bench_find_findFailedAll_erase_insert(hashT, initSize, vecX_i, vecY_i); }
@@ -508,10 +508,10 @@ void bench_plot_find_findFailedAll_erase_insert(const char* savePath, const uint
 		                                                     bench_find_findFailedAll_erase_insert(hashT, initSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
 	const char* xlabel   = "Non-changed rate [\%]";
-	const char* ylabel   = "A speed of one find-erase-insert cycle [query/ms]";
+	const char* ylabel   = "A speed of one find-erase-insert cycle [query/us]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
-	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_ms
+	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_us
 	
 	// plot2fig
 	const char* tmpDir   = "./tmpDir";
@@ -525,7 +525,7 @@ void bench_plot_find_findFailedAll_erase_insert(const char* savePath, const uint
 // erase
 
 template<typename T_hashTable>
-void bench_erase(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_quely_per_ms){
+void bench_erase(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_quely_per_us){
 	std::random_device seed_gen;
 	std::mt19937_64 rand       (seed_gen()); // pseudo random number generator
 	std::mt19937_64 rand_toFind(seed_gen()); // pseudo random number generator
@@ -565,7 +565,7 @@ void bench_erase(T_hashTable& hashT, const uint64 limitSize, std::vector<double>
 			vecR[vecR_idx[i]] = r;
 			hashT[r] = r;
 		}
-		vecY_quely_per_ms <<= ((double)interval * 1000.0) / (nsec);
+		vecY_quely_per_us <<= ((double)interval * 1000.0) / (nsec);
 		
 		interval = size2interval(hashT.size());
 		if(hashT.size()+interval>limitSize){ break; }
@@ -573,7 +573,7 @@ void bench_erase(T_hashTable& hashT, const uint64 limitSize, std::vector<double>
 }
 void bench_plot_erase(const char* savePath, const uint64 initSize, const uint64 limitSize){
 	std::vector<double> vecX_u, vecX_c, vecX_i, vecX_d, vecX_f; // num of elements
-	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // quely_per_ms
+	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // quely_per_us
 	{     std::unordered_map<uint64,uint64> hashT(initSize); bench_erase(hashT, limitSize, vecX_u, vecY_u); }
 	{           sstd::CHashT<uint64,uint64> hashT(initSize); bench_erase(hashT, limitSize, vecX_c, vecY_c); }
 	{         sstd::IpCHashT<uint64,uint64> hashT(initSize); bench_erase(hashT, limitSize, vecX_i, vecY_i); }
@@ -583,10 +583,10 @@ void bench_plot_erase(const char* savePath, const uint64 initSize, const uint64 
 		                                                     bench_erase(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
 	const char* xlabel   = "Number of elements on the table [conut]\n(This axis is inverted.)";
-	const char* ylabel   = "Erasion speed [query/ms]";
+	const char* ylabel   = "Erasion speed [query/us]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
-	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_ms
+	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_us
 	
 	// plot2fig
 	const char* tmpDir   = "./tmpDir";
