@@ -71,7 +71,7 @@ void bench_plot_insert(const char* savePath, const uint64 initSize, const uint64
 	                                                         bench_insert(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
 	const char* xlabel   = "Number of elements on the table [conut]";
-	const char* ylabel   = "Insertion speed [query/us]";
+	const char* ylabel   = "Insertion speed [query/μs]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
 	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_us
@@ -269,7 +269,7 @@ void bench_plot_find(const char* savePath, const uint64 initSize, const uint64 l
 	                                                         bench_find(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
 	const char* xlabel   = "Number of elements on the table [conut]";
-	const char* ylabel   = "Find speed [query/us]";
+	const char* ylabel   = "Find speed [query/μs]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
 	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_us
@@ -338,7 +338,7 @@ void bench_plot_find_failedAll(const char* savePath, const uint64 initSize, cons
 		                                                     bench_find_failedAll(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
 	const char* xlabel   = "Number of elements on the table [conut]";
-	const char* ylabel   = "Find speed [query/us]";
+	const char* ylabel   = "Find speed [query/μs]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
 	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_us
@@ -419,7 +419,7 @@ void bench_plot_find_erase_insert(const char* savePath, const uint64 initSize){
 		                                                     bench_find_erase_insert(hashT, initSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
 	const char* xlabel   = "Non-changed rate [\%]";
-	const char* ylabel   = "A speed of one find-erase-insert cycle [query/us]";
+	const char* ylabel   = "A speed of one find-erase-insert cycle [query/μs]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
 	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_us
@@ -508,7 +508,7 @@ void bench_plot_find_findFailedAll_erase_insert(const char* savePath, const uint
 		                                                     bench_find_findFailedAll_erase_insert(hashT, initSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
 	const char* xlabel   = "Non-changed rate [\%]";
-	const char* ylabel   = "A speed of one find-erase-insert cycle [query/us]";
+	const char* ylabel   = "A speed of one find-erase-insert cycle [query/μs]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
 	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_us
@@ -583,7 +583,7 @@ void bench_plot_erase(const char* savePath, const uint64 initSize, const uint64 
 		                                                     bench_erase(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
 	const char* xlabel   = "Number of elements on the table [conut]\n(This axis is inverted.)";
-	const char* ylabel   = "Erasion speed [query/us]";
+	const char* ylabel   = "Erasion speed [query/μs]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // num of elements
 	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i, vecY_d, vecY_f}; // quely_per_us
