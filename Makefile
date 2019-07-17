@@ -41,12 +41,13 @@ TIME_STAMP   = `date +%Y_%m%d_%H%M`
 #LIB_SSTD       = FORCE_SSTD
 #LIB_GOOGLETEST = FORCE_GOOGLETEST
 LIB_SSTD        = ./sstd/lib/libsstd.a
+LIB_flat        = ./flat_hash_map-master.h
 LIB_GOOGLETEST  = ./googletest-master/build/lib/libgtest.a
 HeaderLIB_sHash = ./sparsehash-master/src/sparsehash/internal/sparseconfig.h
 
 
 # generate exe file
-$(TARGET_bm): $(LIB_SSTD) $(LIB_GOOGLETEST) $(HeaderLIB_sHash) $(SRCS_bm) $(TARGET_t) $(HEADS) $(HEADS_bm)
+$(TARGET_bm): $(LIB_SSTD) $(LIB_flat) $(LIB_GOOGLETEST) $(HeaderLIB_sHash) $(SRCS_bm) $(TARGET_t) $(HEADS) $(HEADS_bm)
 	@echo ""
 	@echo "------------------------------------------------------------"
 	@echo "SRCS_bm: \n$(SRCS_bm)\n"
@@ -54,7 +55,7 @@ $(TARGET_bm): $(LIB_SSTD) $(LIB_GOOGLETEST) $(HeaderLIB_sHash) $(SRCS_bm) $(TARG
 	@echo "------------------------------------------------------------"
 	$(CXX) -o $(TARGET_bm) $(SRCS_bm) $(CFLAGS) $(CFLAGS_bm)
 	@echo ""
-$(TARGET_t): $(LIB_SSTD) $(LIB_GOOGLETEST) $(SRCS_t) $(HEADS) $(HEADS_t)
+$(TARGET_t): $(LIB_SSTD) $(LIB_flat) $(LIB_GOOGLETEST) $(SRCS_t) $(HEADS) $(HEADS_t)
 	@echo ""
 	@echo "------------------------------------------------------------"
 	@echo "SRCS_t: \n$(SRCS_t)\n"
@@ -68,6 +69,10 @@ $(LIB_SSTD):
 	@echo ""
 	@unzip -n sstd.zip
 	@(cd ./sstd; make -j)
+
+$(LIB_flat):
+	@echo ""
+	@unzip -n flat_hash_map-master.zip
 
 $(LIB_GOOGLETEST):
 	@echo ""
@@ -90,9 +95,10 @@ all:
 clean:
 	-rm -rf $(TARGET_t)
 	-rm -rf $(TARGET_bm)
-	@(cd ./sstd; make clean)
+	-rm -rf flat_hash_map-master
 	-rm -rf googletest-master
 	-rm -rf sparsehash-master
+	-rm -rf sstd
 	-rm -rf $(RMs)
 #	$(if $(patch_txt_exists) ,$(rm *.stackdump),)
 #	-rm -f $(OBJS) $(DEPS) $(TARGET)

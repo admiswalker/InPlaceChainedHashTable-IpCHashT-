@@ -5,7 +5,7 @@
 #include "./CHashT.hpp"
 #include "./IpCHashT.hpp"
 #include <sparsehash/dense_hash_map> // sparsehash-master
-#include "./flat_hash_map/flat_hash_map.hpp"
+#include "./flat_hash_map-master/flat_hash_map.hpp"
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 // common functions

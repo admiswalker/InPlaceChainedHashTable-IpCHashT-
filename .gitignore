@@ -7,6 +7,7 @@ __pycache__/
 tmpDir/
 tmp*/
 
+flat_hash_map-master/
 googletest-master/
 sparsehash-master/
 sstd/
