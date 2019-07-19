@@ -26,10 +26,6 @@ In a benchmark, assert() will be disabled using -DNDEBUG complie option.
 
 | File name                  | Description                                  | Origin |
 |----------------------------|----------------------------------------------|--------|
-| flat\_hash\_map-master     | Extract file of "flat\_hash\_map-master.zip" |        |
-| googletest-master          | Extract file of "googletest-master.zip"      |        |
-| sparsehash-master          | Extract file of "sparsehash-master.zip"      |        |
-| sstd                       | Extract file of "sstd.zip"                   |        |
 | CHashT.hpp                 | Inplimentation of "sstd::CHashT"             |        |
 | FNV\_Hash.cpp              | Light claculation weight hash function       | https://qiita.com/Ushio/items/a19083514d087a57fc72 |
 | FNV\_Hash.hpp              | Light claculation weight hash function       | https://qiita.com/Ushio/items/a19083514d087a57fc72 |
