@@ -26,9 +26,11 @@ def vecLim2tickInterval(vecLim):
     
     return interval
 
-def vvec2graph_base(savePath, xlabel, ylabel, vecLabel, labelLoc, vvecX, vvecY, vecXlim, vecYlim, xscale, yscale):
+def vvec2graph_base(savePath, saveAs, xlabel, ylabel, vecLabel, labelLoc, vvecX, vvecY, vecXlim, vecYlim, xscale, yscale):
     plt.clf()
-    fig = plt.figure(figsize=(8*3, 2.5*4)) # アスペクト比の設定
+#    fig = plt.figure(figsize=(8*3, 2.5*4)) # アスペクト比の設定
+#    fig = plt.figure(figsize=(12, 5)) # アスペクト比の設定
+    fig = plt.figure(figsize=(8.5, 4)) # アスペクト比の設定
     ax1 = fig.add_subplot(111)
     
     ax1.grid(which='minor', linewidth=1, linestyle=':',  color='gainsboro')
@@ -64,8 +66,10 @@ def vvec2graph_base(savePath, xlabel, ylabel, vecLabel, labelLoc, vvecX, vvecY, 
         ax1.legend(loc=labelLoc)
     else:
         ax1.legend()
-        
-    plt.savefig(savePath, bbox_inches='tight')
+    
+    for ext in saveAs:
+        plt.savefig(savePath+ext, bbox_inches='tight')
+    
     return
 #------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -74,48 +78,48 @@ def vvec2graph_base(savePath, xlabel, ylabel, vecLabel, labelLoc, vvecX, vvecY, 
 # labelLoc = 'lower right'
 # labelLoc = 'lower left'
 
-def vvec2graph(savePath, xlabel, ylabel, vecLabel, vvecX, vvecY):
+def vvec2graph(savePath, saveAs, xlabel, ylabel, vecLabel, vvecX, vvecY):
     vecXlim = [0.9, 55000000]
     vecYlim = [0.05, 1000]
     xscale = 'log'
     yscale = 'log'
     labelLoc = ''
-    vvec2graph_base(savePath, xlabel, ylabel, vecLabel, labelLoc, vvecX, vvecY, vecXlim, vecYlim, xscale, yscale)
+    vvec2graph_base(savePath, saveAs, xlabel, ylabel, vecLabel, labelLoc, vvecX, vvecY, vecXlim, vecYlim, xscale, yscale)
     return
 
-def vvec2graph_FEA(savePath, xlabel, ylabel, vecLabel, vvecX, vvecY):
+def vvec2graph_FEA(savePath, saveAs, xlabel, ylabel, vecLabel, vvecX, vvecY):
     vecXlim = [0.00009, 1.1]
     vecYlim = [0.9, 200]
     xscale = 'log'
     yscale = 'log'
     labelLoc = 'upper right'
-    vvec2graph_base(savePath, xlabel, ylabel, vecLabel, labelLoc, vvecX, vvecY, vecXlim, vecYlim, xscale, yscale)
+    vvec2graph_base(savePath, saveAs, xlabel, ylabel, vecLabel, labelLoc, vvecX, vvecY, vecXlim, vecYlim, xscale, yscale)
     return 
 
-def vvec2graph_lf(savePath, xlabel, ylabel, vecLabel, vvecX, vvecY):
+def vvec2graph_lf(savePath, saveAs, xlabel, ylabel, vecLabel, vvecX, vvecY):
     vecXlim = [0.9, 55000000]
     vecYlim = [0, 1.025]
     xscale = 'log'
     yscale = 'linear'
     labelLoc = 'lower right'
-    vvec2graph_base(savePath, xlabel, ylabel, vecLabel, labelLoc, vvecX, vvecY, vecXlim, vecYlim, xscale, yscale)
+    vvec2graph_base(savePath, saveAs, xlabel, ylabel, vecLabel, labelLoc, vvecX, vvecY, vecXlim, vecYlim, xscale, yscale)
     return
 
-def vvec2graph_memory(savePath, xlabel, ylabel, vecLabel, vvecX, vvecY):
+def vvec2graph_memory(savePath, saveAs, xlabel, ylabel, vecLabel, vvecX, vvecY):
     xmargin=4*10000; vecXlim = [-xmargin, 5*1000000+xmargin]
     ymargin=10; vecYlim=[0-ymargin, 600+ymargin]
     xscale = 'linear'
     yscale = 'linear'
     labelLoc = 'upper left'
-    vvec2graph_base(savePath, xlabel, ylabel, vecLabel, labelLoc, vvecX, vvecY, vecXlim, vecYlim, xscale, yscale)
+    vvec2graph_base(savePath, saveAs, xlabel, ylabel, vecLabel, labelLoc, vvecX, vvecY, vecXlim, vecYlim, xscale, yscale)
     return
 
-def vvec2graph_et_insert(savePath, xlabel, ylabel, vecLabel, vvecX, vvecY):
+def vvec2graph_et_insert(savePath, saveAs, xlabel, ylabel, vecLabel, vvecX, vvecY):
     xmargin=4*10000; vecXlim = [-xmargin, 5*1000000+xmargin]
     ymargin=0.025; vecYlim=[0-ymargin, 2.5+ymargin]
     xscale = 'linear'
     yscale = 'linear'
     labelLoc = 'upper left'
-    vvec2graph_base(savePath, xlabel, ylabel, vecLabel, labelLoc, vvecX, vvecY, vecXlim, vecYlim, xscale, yscale)
+    vvec2graph_base(savePath, saveAs, xlabel, ylabel, vecLabel, labelLoc, vvecX, vvecY, vecXlim, vecYlim, xscale, yscale)
     return 
 
