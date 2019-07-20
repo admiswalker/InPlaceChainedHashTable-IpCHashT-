@@ -34,8 +34,8 @@ def vvec2graph_base(savePath, saveAs, xlabel, ylabel, vecLabel, labelLoc, vvecX,
     fig = plt.figure(figsize=(8.5*imgSize, 4*imgSize)) # アスペクト比の設定
     ax1 = fig.add_subplot(111)
     
-    ax1.grid(which='minor', linewidth=1, linestyle=':',  color='gainsboro')
-    ax1.grid(which='major', linewidth=1, linestyle='-',  color='silver'   )
+    ax1.grid(which='minor', linewidth=1, linestyle=':', color='gainsboro')
+    ax1.grid(which='major', linewidth=1, linestyle='-', color='silver'   )
     
     ax1.set_xlabel(xlabel)
     ax1.set_xscale(xscale)
@@ -57,16 +57,16 @@ def vvec2graph_base(savePath, saveAs, xlabel, ylabel, vecLabel, labelLoc, vvecX,
         ax1.yaxis.set_minor_locator(tick.MultipleLocator( vecLim2tickInterval(vecYlim)/4 ))
     
     #cmap = plt.get_cmap("tab10")
-    vColor=['black', 'blue', 'red', 'green', 'sandybrown']
-    vLineStyle = ['solid', 'dashed', 'dashdot', 'dotted', 'dotted'] # solid, dashed, dashdot, dotted
+    darkred = '#640A1E' # 'crimson'
+    vColor=['black', 'blue', 'red', darkred, 'green', 'darkorange']
+    vLineStyle = ['solid', 'dashed', 'dashed', 'dashdot', 'dotted', 'dotted'] # solid, dashed, dashdot, dotted
     for i in range(len(vecLabel)):
         #ax1.plot(vvecX[i], vvecY[i], linewidth=1, color=cmap(i), label=vecLabel[i])
         ax1.plot(vvecX[i], vvecY[i], linewidth=1, color=vColor[i], linestyle=vLineStyle[i], label=vecLabel[i])
-
-    if len(labelLoc)!=0:
-        ax1.legend(loc=labelLoc)
-    else:
-        ax1.legend()
+    
+    alpha = 0.3
+    if len(labelLoc)!=0: ax1.legend(framealpha=alpha, loc=labelLoc)
+    else:                ax1.legend(framealpha=alpha)
     
     for ext in saveAs:
         plt.savefig(savePath+ext, bbox_inches='tight')
