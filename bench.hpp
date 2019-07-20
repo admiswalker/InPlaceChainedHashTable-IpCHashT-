@@ -8,6 +8,15 @@
 #include "./flat_hash_map-master/flat_hash_map.hpp"
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
+// definitions
+
+typedef                                   std::unordered_map<uint64,uint64>  uHashT;
+typedef                                         sstd::CHashT<uint64,uint64>  cHashT;
+typedef                                       sstd::IpCHashT<uint64,uint64>  iHashT_u8;
+typedef                               google::dense_hash_map<uint64,uint64>  dHashT;
+typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> fHashT;
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------
 // common functions
 // origin
 /*
@@ -62,13 +71,12 @@ void bench_insert(T_hashTable& hashT, const uint64 limitSize, std::vector<double
 void bench_plot_insert(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
 	std::vector<double> vecX_u, vecX_c, vecX_i, vecX_d, vecX_f; // num of elements
 	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // quely_per_us
-	{     std::unordered_map<uint64,uint64> hashT(initSize); bench_insert(hashT, limitSize, vecX_u, vecY_u); }
-	{           sstd::CHashT<uint64,uint64> hashT(initSize); bench_insert(hashT, limitSize, vecX_c, vecY_c); }
-	{         sstd::IpCHashT<uint64,uint64> hashT(initSize); bench_insert(hashT, limitSize, vecX_i, vecY_i); }
-	{ google::dense_hash_map<uint64,uint64> hashT(initSize); hashT.set_empty_key(0ull);
-	                                                         bench_insert(hashT, limitSize, vecX_d, vecY_d); } // this meen that 'NULL' will not be able to insert as a key-value.
-	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(initSize);
-	                                                         bench_insert(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
+	{ uHashT    hashT(initSize); bench_insert(hashT, limitSize, vecX_u, vecY_u); }
+	{ cHashT    hashT(initSize); bench_insert(hashT, limitSize, vecX_c, vecY_c); }
+	{ iHashT_u8 hashT(initSize); bench_insert(hashT, limitSize, vecX_i, vecY_i); }
+	{ dHashT    hashT(initSize); hashT.set_empty_key(0ull);
+	                             bench_insert(hashT, limitSize, vecX_d, vecY_d); } // this meen that 'NULL' will not be able to insert as a key-value.
+	{ fHashT    hashT(initSize); bench_insert(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
 	const char* xlabel   = "Number of elements on the table [conut]";
 	const char* ylabel   = "Insertion speed [query/μs]";
@@ -118,13 +126,12 @@ void bench_insert_et(T_hashTable& hashT, const uint64 limitSize, std::vector<dou
 void bench_plot_insert_et(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
 	std::vector<double> vecX_u, vecX_c, vecX_i, vecX_d, vecX_f; // num of elements
 	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // sec
-	{     std::unordered_map<uint64,uint64> hashT(initSize); bench_insert_et(hashT, limitSize, vecX_u, vecY_u); }
-	{           sstd::CHashT<uint64,uint64> hashT(initSize); bench_insert_et(hashT, limitSize, vecX_c, vecY_c); }
-	{         sstd::IpCHashT<uint64,uint64> hashT(initSize); bench_insert_et(hashT, limitSize, vecX_i, vecY_i); }
-	{ google::dense_hash_map<uint64,uint64> hashT(initSize); hashT.set_empty_key(0ull); // this meen that 'NULL' will not be able to insert as a key-value.
-		                                                     bench_insert_et(hashT, limitSize, vecX_d, vecY_d); }
-	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(initSize);
-	                                                         bench_insert_et(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
+	{ uHashT    hashT(initSize); bench_insert_et(hashT, limitSize, vecX_u, vecY_u); }
+	{ cHashT    hashT(initSize); bench_insert_et(hashT, limitSize, vecX_c, vecY_c); }
+	{ iHashT_u8 hashT(initSize); bench_insert_et(hashT, limitSize, vecX_i, vecY_i); }
+	{ dHashT    hashT(initSize); hashT.set_empty_key(0ull); // this meen that 'NULL' will not be able to insert as a key-value.
+		                      bench_insert_et(hashT, limitSize, vecX_d, vecY_d); }
+	{ fHashT    hashT(initSize); bench_insert_et(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
 	const char* xlabel   = "Number of elements on the table [conut]";
 	const char* ylabel   = "Elapsed time [sec]";
@@ -177,27 +184,27 @@ void bench_plot_usedMemory(const std::string& savePath, const std::vector<std::s
 	double baseSize_MB = 0.0;
 	
 	baseSize_MB = sstd::status_VmRSS()/1024.0;
-	std::unordered_map<uint64,uint64> hashT_u(initSize);
+	uHashT hashT_u(initSize);
 	bench_usedMemory(hashT_u, limitSize, vecX_u, vecY_u, baseSize_MB);
 	std::vector<char> buf_u((sstd::status_VmHWM()-sstd::status_VmRSS())*1024); // inorder not to count swap memory region
 	
 	baseSize_MB = sstd::status_VmRSS()/1024.0;
-	sstd::CHashT<uint64,uint64> hashT_c(initSize);
+	cHashT hashT_c(initSize);
 	bench_usedMemory(hashT_c, limitSize, vecX_c, vecY_c, baseSize_MB);
 	std::vector<char> buf_c((sstd::status_VmHWM()-sstd::status_VmRSS())*1024); // inorder not to count swap memory region
 	
 	baseSize_MB = sstd::status_VmRSS()/1024.0;
-	sstd::IpCHashT<uint64,uint64> hashT_i(initSize);
+	iHashT_u8 hashT_i(initSize);
 	bench_usedMemory(hashT_i, limitSize, vecX_i, vecY_i, baseSize_MB);
 	std::vector<char> buf_i((sstd::status_VmHWM()-sstd::status_VmRSS())*1024); // inorder not to count swap memory region
 	
 	baseSize_MB = sstd::status_VmRSS()/1024.0;
-	google::dense_hash_map<uint64,uint64> hashT_d(initSize); hashT_d.set_empty_key(0ull); // this meen that 'NULL' will not be able to insert as a key-value.
+	dHashT hashT_d(initSize); hashT_d.set_empty_key(0ull); // this meen that 'NULL' will not be able to insert as a key-value.
 	bench_usedMemory(hashT_d, limitSize, vecX_d, vecY_d, baseSize_MB);
 	std::vector<char> buf_d((sstd::status_VmHWM()-sstd::status_VmRSS())*1024); // inorder not to count swap memory region
 	
 	baseSize_MB = sstd::status_VmRSS()/1024.0;
-	ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT_f(initSize);
+	fHashT hashT_f(initSize);
 	bench_usedMemory(hashT_f, limitSize, vecX_f, vecY_f, baseSize_MB);
 	
 	const char* xlabel   = "Number of elements on the table [conut]";
@@ -260,13 +267,12 @@ void bench_find(T_hashTable& hashT, const uint64 limitSize, std::vector<double>&
 void bench_plot_find(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
 	std::vector<double> vecX_u, vecX_c, vecX_i, vecX_d, vecX_f; // num of elements
 	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // quely_per_us
-	{     std::unordered_map<uint64,uint64> hashT(initSize); bench_find(hashT, limitSize, vecX_u, vecY_u); }
-	{           sstd::CHashT<uint64,uint64> hashT(initSize); bench_find(hashT, limitSize, vecX_c, vecY_c); }
-	{         sstd::IpCHashT<uint64,uint64> hashT(initSize); bench_find(hashT, limitSize, vecX_i, vecY_i); }
-	{ google::dense_hash_map<uint64,uint64> hashT(initSize); hashT.set_empty_key(0ull);
-	                                                         bench_find(hashT, limitSize, vecX_d, vecY_d); } // this meen that 'NULL' will not be able to insert as a key-value.
-	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(0);
-	                                                         bench_find(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
+	{ uHashT    hashT(initSize); bench_find(hashT, limitSize, vecX_u, vecY_u); }
+	{ cHashT    hashT(initSize); bench_find(hashT, limitSize, vecX_c, vecY_c); }
+	{ iHashT_u8 hashT(initSize); bench_find(hashT, limitSize, vecX_i, vecY_i); }
+	{ dHashT    hashT(initSize); hashT.set_empty_key(0ull);
+	                             bench_find(hashT, limitSize, vecX_d, vecY_d); } // this meen that 'NULL' will not be able to insert as a key-value.
+	{ fHashT    hashT(0); bench_find(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
 	const char* xlabel   = "Number of elements on the table [conut]";
 	const char* ylabel   = "Find speed [query/μs]";
@@ -330,12 +336,12 @@ void bench_find_failedAll(T_hashTable& hashT, const uint64 limitSize, std::vecto
 void bench_plot_find_failedAll(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
 	std::vector<double> vecX_u, vecX_c, vecX_i, vecX_d, vecX_f; // num of elements
 	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // quely_per_us
-	{     std::unordered_map<uint64,uint64> hashT(initSize); bench_find_failedAll(hashT, limitSize, vecX_u, vecY_u); }
-	{           sstd::CHashT<uint64,uint64> hashT(initSize); bench_find_failedAll(hashT, limitSize, vecX_c, vecY_c); }
-	{         sstd::IpCHashT<uint64,uint64> hashT(initSize); bench_find_failedAll(hashT, limitSize, vecX_i, vecY_i); }
-	{ google::dense_hash_map<uint64,uint64> hashT(initSize); hashT.set_empty_key(0ull); bench_find_failedAll(hashT, limitSize, vecX_d, vecY_d); } // this meen that 'NULL' will not be able to insert as a key-value.
-	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(initSize);
-		                                                     bench_find_failedAll(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
+	{ uHashT    hashT(initSize); bench_find_failedAll(hashT, limitSize, vecX_u, vecY_u); }
+	{ cHashT    hashT(initSize); bench_find_failedAll(hashT, limitSize, vecX_c, vecY_c); }
+	{ iHashT_u8 hashT(initSize); bench_find_failedAll(hashT, limitSize, vecX_i, vecY_i); }
+	{ dHashT    hashT(initSize); hashT.set_empty_key(0ull);
+		                         bench_find_failedAll(hashT, limitSize, vecX_d, vecY_d); } // this meen that 'NULL' will not be able to insert as a key-value.
+	{ fHashT    hashT(initSize); bench_find_failedAll(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
 	const char* xlabel   = "Number of elements on the table [conut]";
 	const char* ylabel   = "Find speed [query/μs]";
@@ -410,13 +416,12 @@ void bench_find_erase_insert(T_hashTable& hashT, const uint64 initSize, std::vec
 void bench_plot_find_erase_insert(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize){
 	std::vector<double> vecX_u, vecX_c, vecX_i, vecX_d, vecX_f; // num of elements
 	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // quely_per_us
-	{     std::unordered_map<uint64,uint64> hashT(initSize); bench_find_erase_insert(hashT, initSize, vecX_u, vecY_u); }
-	{           sstd::CHashT<uint64,uint64> hashT(initSize); bench_find_erase_insert(hashT, initSize, vecX_c, vecY_c); }
-	{         sstd::IpCHashT<uint64,uint64> hashT(initSize); bench_find_erase_insert(hashT, initSize, vecX_i, vecY_i); }
-	{ google::dense_hash_map<uint64,uint64> hashT(initSize); hashT.set_empty_key(0ull); hashT.set_deleted_key(1ull); // this meen that 'NULL' and '1' will not be able to insert as a key-value.
-		                                                     bench_find_erase_insert(hashT, initSize, vecX_d, vecY_d); }
-	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(initSize);
-		                                                     bench_find_erase_insert(hashT, initSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
+	{ uHashT    hashT(initSize); bench_find_erase_insert(hashT, initSize, vecX_u, vecY_u); }
+	{ cHashT    hashT(initSize); bench_find_erase_insert(hashT, initSize, vecX_c, vecY_c); }
+	{ iHashT_u8 hashT(initSize); bench_find_erase_insert(hashT, initSize, vecX_i, vecY_i); }
+	{ dHashT    hashT(initSize); hashT.set_empty_key(0ull); hashT.set_deleted_key(1ull); // this meen that 'NULL' and '1' will not be able to insert as a key-value.
+		                         bench_find_erase_insert(hashT, initSize, vecX_d, vecY_d); }
+	{ fHashT    hashT(initSize); bench_find_erase_insert(hashT, initSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
 	const char* xlabel   = "Non-changed rate [\%]";
 	const char* ylabel   = "A speed of one find-erase-insert cycle [query/μs]";
@@ -499,13 +504,12 @@ void bench_find_findFailedAll_erase_insert(T_hashTable& hashT, const uint64 init
 void bench_plot_find_findFailedAll_erase_insert(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize){
 	std::vector<double> vecX_u, vecX_c, vecX_i, vecX_d, vecX_f; // num of elements
 	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // quely_per_us
-	{     std::unordered_map<uint64,uint64> hashT(initSize); bench_find_findFailedAll_erase_insert(hashT, initSize, vecX_u, vecY_u); }
-	{           sstd::CHashT<uint64,uint64> hashT(initSize); bench_find_findFailedAll_erase_insert(hashT, initSize, vecX_c, vecY_c); }
-	{         sstd::IpCHashT<uint64,uint64> hashT(initSize); bench_find_findFailedAll_erase_insert(hashT, initSize, vecX_i, vecY_i); }
-	{ google::dense_hash_map<uint64,uint64> hashT(initSize); hashT.set_empty_key(0ull); hashT.set_deleted_key(1ull); // this meen that 'NULL' and '1' will not be able to insert as a key-value.
-		                                                     bench_find_findFailedAll_erase_insert(hashT, initSize, vecX_d, vecY_d); }
-	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(initSize);
-		                                                     bench_find_findFailedAll_erase_insert(hashT, initSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
+	{ uHashT    hashT(initSize); bench_find_findFailedAll_erase_insert(hashT, initSize, vecX_u, vecY_u); }
+	{ cHashT    hashT(initSize); bench_find_findFailedAll_erase_insert(hashT, initSize, vecX_c, vecY_c); }
+	{ iHashT_u8 hashT(initSize); bench_find_findFailedAll_erase_insert(hashT, initSize, vecX_i, vecY_i); }
+	{ dHashT    hashT(initSize); hashT.set_empty_key(0ull); hashT.set_deleted_key(1ull); // this meen that 'NULL' and '1' will not be able to insert as a key-value.
+		                         bench_find_findFailedAll_erase_insert(hashT, initSize, vecX_d, vecY_d); }
+	{ fHashT    hashT(initSize); bench_find_findFailedAll_erase_insert(hashT, initSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
 	const char* xlabel   = "Non-changed rate [\%]";
 	const char* ylabel   = "A speed of one find-erase-insert cycle [query/μs]";
@@ -574,13 +578,12 @@ void bench_erase(T_hashTable& hashT, const uint64 limitSize, std::vector<double>
 void bench_plot_erase(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
 	std::vector<double> vecX_u, vecX_c, vecX_i, vecX_d, vecX_f; // num of elements
 	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // quely_per_us
-	{     std::unordered_map<uint64,uint64> hashT(initSize); bench_erase(hashT, limitSize, vecX_u, vecY_u); }
-	{           sstd::CHashT<uint64,uint64> hashT(initSize); bench_erase(hashT, limitSize, vecX_c, vecY_c); }
-	{         sstd::IpCHashT<uint64,uint64> hashT(initSize); bench_erase(hashT, limitSize, vecX_i, vecY_i); }
-	{ google::dense_hash_map<uint64,uint64> hashT(initSize); hashT.set_empty_key(0ull); hashT.set_deleted_key(1ull); // this meen that 'NULL' and '1' will not be able to insert as a key-value.
-		                                                     bench_erase(hashT, limitSize, vecX_d, vecY_d); }
-	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(initSize);
-		                                                     bench_erase(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
+	{ uHashT    hashT(initSize); bench_erase(hashT, limitSize, vecX_u, vecY_u); }
+	{ cHashT    hashT(initSize); bench_erase(hashT, limitSize, vecX_c, vecY_c); }
+	{ iHashT_u8 hashT(initSize); bench_erase(hashT, limitSize, vecX_i, vecY_i); }
+	{ dHashT    hashT(initSize); hashT.set_empty_key(0ull); hashT.set_deleted_key(1ull); // this meen that 'NULL' and '1' will not be able to insert as a key-value.
+		                         bench_erase(hashT, limitSize, vecX_d, vecY_d); }
+	{ fHashT    hashT(initSize); bench_erase(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
 	const char* xlabel   = "Number of elements on the table [conut]\n(This axis is inverted.)";
 	const char* ylabel   = "Erasion speed [query/μs]";
@@ -620,13 +623,12 @@ void bench_plot_maxLoadFactor(const std::string& savePath, const std::vector<std
 	
 	std::vector<double> vecX_u, vecX_c, vecX_i, vecX_d, vecX_f; // table size
 	std::vector<double> vecY_u, vecY_c, vecY_i, vecY_d, vecY_f; // maximum load factor
-	{     std::unordered_map<uint64,uint64> hashT(0); bench_maxLoadFactor(hashT, limitSize, vecX_u, vecY_u); }
-	{           sstd::CHashT<uint64,uint64> hashT(0); bench_maxLoadFactor(hashT, limitSize, vecX_c, vecY_c); }
-	{         sstd::IpCHashT<uint64,uint64> hashT(0); bench_maxLoadFactor(hashT, limitSize, vecX_i, vecY_i); }
-	{ google::dense_hash_map<uint64,uint64> hashT(0); hashT.set_empty_key(0ull);
-		                                              bench_maxLoadFactor(hashT, limitSize, vecX_d, vecY_d); } // this meen that 'NULL' will not be able to insert as a key-value.
-	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(0);
-		                                              bench_maxLoadFactor(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
+	{ uHashT    hashT(0); bench_maxLoadFactor(hashT, limitSize, vecX_u, vecY_u); }
+	{ cHashT    hashT(0); bench_maxLoadFactor(hashT, limitSize, vecX_c, vecY_c); }
+	{ iHashT_u8 hashT(0); bench_maxLoadFactor(hashT, limitSize, vecX_i, vecY_i); }
+	{ dHashT    hashT(0); hashT.set_empty_key(0ull);
+		                  bench_maxLoadFactor(hashT, limitSize, vecX_d, vecY_d); } // this meen that 'NULL' will not be able to insert as a key-value.
+	{ fHashT    hashT(0); bench_maxLoadFactor(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
 	const char* xlabel   = "Table size [count]";
 	const char* ylabel   = "maximum load factor [%]";
