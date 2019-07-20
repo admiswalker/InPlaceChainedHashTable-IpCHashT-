@@ -628,7 +628,7 @@ void bench_plot_maxLoadFactor(const std::string& savePath, const std::vector<std
 	{ ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> hashT(0);
 		                                              bench_maxLoadFactor(hashT, limitSize, vecX_f, vecY_f); } // this meen that 'NULL' will not be able to insert as a key-value.
 	
-	const char* xlabel   = "Table size [count]\n(Maximum load factor of std::IpHashT is limitted by its maximum length of shift_T. \nMaximum load factor of google::dense_hash_map is artificially limited by 50 %.)";
+	const char* xlabel   = "Table size [count]";
 	const char* ylabel   = "maximum load factor [%]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i, vecX_d, vecX_f}; // table size
@@ -653,11 +653,10 @@ void RUN_ALL_BENCHS(){
 	const std::string saveDir = "./tmpBench"; sstd::mkdir(saveDir);
 	std::vector<std::string> saveAs = {".pdf", ".png"};
 	
-	//*
 	// bench of used memory size should run first inorder to avoid memory swap by Linux OS.
 	bench_plot_usedMemory(saveDir+"/usedMemory_wRehash_log",  saveAs, initSize_wRehash, limitSize);
 	bench_plot_usedMemory(saveDir+"/usedMemory_preAlloc_log", saveAs, initSize_preAlloc, limitSize);
-	
+	//*/
 	// Warm running, because of the first bench usually returns bad result.
 	bench_plot_insert(saveDir+"/warmRunning", saveAs, initSize_wRehash, limitSize); // pre-allocate
 	
@@ -685,7 +684,7 @@ void RUN_ALL_BENCHS(){
 	bench_plot_find_erase_insert(saveDir+"/find_erase_insert_pow10_6", saveAs, 1000000); // find with erasion
 	
 	bench_plot_find_findFailedAll_erase_insert(saveDir+"/find_fainFailedAll_erase_insert_pow10_6", saveAs, 1000000); // find with erasion
-	//*/
+	
 	// max-load factor
 	bench_plot_maxLoadFactor(saveDir+"/maxLoadFactor", saveAs, limitSize);
 	//*/

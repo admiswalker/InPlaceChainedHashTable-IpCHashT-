@@ -27,10 +27,11 @@ def vecLim2tickInterval(vecLim):
     return interval
 
 def vvec2graph_base(savePath, saveAs, xlabel, ylabel, vecLabel, labelLoc, vvecX, vvecY, vecXlim, vecYlim, xscale, yscale):
+    imgSize = 4
+    
     plt.clf()
-#    fig = plt.figure(figsize=(8*3, 2.5*4)) # アスペクト比の設定
-#    fig = plt.figure(figsize=(12, 5)) # アスペクト比の設定
-    fig = plt.figure(figsize=(8.5, 4)) # アスペクト比の設定
+    plt.rcParams["font.size"] = 10*imgSize
+    fig = plt.figure(figsize=(8.5*imgSize, 4*imgSize)) # アスペクト比の設定
     ax1 = fig.add_subplot(111)
     
     ax1.grid(which='minor', linewidth=1, linestyle=':',  color='gainsboro')
@@ -44,8 +45,8 @@ def vvec2graph_base(savePath, saveAs, xlabel, ylabel, vecLabel, labelLoc, vvecX,
     ax1.set_yscale(yscale)
     ax1.set_ylim(vecYlim[0], vecYlim[1])
     
-    ax1.tick_params(pad=5, which='major', direction='in', bottom=True, top=True, left=True, right=True, length=4) # 軸の余白 # which: major tick と minor tick に対して変更を適用 # tick を内側方向に # tick を bottom, top, left, right に付加 # tick width # tick length
-    ax1.tick_params(pad=5, which='minor', direction='in', bottom=True, top=True, left=True, right=True, length=2) # 軸の余白 # which: major tick と minor tick に対して変更を適用 # tick を内側方向に # tick を bottom, top, left, right に付加 # tick width # tick length
+    ax1.tick_params(pad=5*imgSize, which='major', direction='in', bottom=True, top=True, left=True, right=True, length=4*imgSize) # 軸の余白 # which: major tick と minor tick に対して変更を適用 # tick を内側方向に # tick を bottom, top, left, right に付加 # tick width # tick length
+    ax1.tick_params(pad=5*imgSize, which='minor', direction='in', bottom=True, top=True, left=True, right=True, length=2*imgSize) # 軸の余白 # which: major tick と minor tick に対して変更を適用 # tick を内側方向に # tick を bottom, top, left, right に付加 # tick width # tick length
     if xscale=='linear':
         ax1.xaxis.set_major_formatter(tick.ScalarFormatter(useMathText=True))
         ax1.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
