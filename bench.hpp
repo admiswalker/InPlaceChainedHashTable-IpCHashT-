@@ -17,7 +17,7 @@ typedef sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uin
 typedef google::dense_hash_map<uint64,uint64>                                        dHashT;
 typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>         fHashT;
 
-#define RUN_BENCH(initSize, limitSize, Fnc)								\
+#define RUN_BENCH(vvecX, vvecY, initSize, limitSize, Fnc)				\
 	std::vector<double> vecX_u, vecX_c, vecX_i8, vecX_i16, vecX_d, vecX_f; \
 	std::vector<double> vecY_u, vecY_c, vecY_i8, vecY_i16, vecY_d, vecY_f; \
 	{ uHashT     hashT(initSize); Fnc(hashT, limitSize, vecX_u,   vecY_u  ); } \
@@ -26,9 +26,11 @@ typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>    
 	{ iHashT_u16 hashT(initSize); Fnc(hashT, limitSize, vecX_i16, vecY_i16); } \
 	{ dHashT     hashT(initSize); hashT.set_empty_key(0ull); /* this meen that 'NULL' will not be able to insert as a key-value. */ \
 	                              Fnc(hashT, limitSize, vecX_d,   vecY_d  ); } \
-	{ fHashT     hashT(initSize); Fnc(hashT, limitSize, vecX_f,   vecY_f  ); }
+	{ fHashT     hashT(initSize); Fnc(hashT, limitSize, vecX_f,   vecY_f  ); } \
+	vvecX={vecX_u, vecX_c, vecX_i8, vecX_i16, vecX_d, vecX_f};			\
+	vvecY={vecY_u, vecY_c, vecY_i8, vecY_i16, vecY_d, vecY_f};
 
-#define RUN_BENCH_withErase(initSize, limitSize, Fnc)					\
+#define RUN_BENCH_withErase(vvecX, vvecY, initSize, limitSize, Fnc)		\
 	std::vector<double> vecX_u, vecX_c, vecX_i8, vecX_i16, vecX_d, vecX_f; \
 	std::vector<double> vecY_u, vecY_c, vecY_i8, vecY_i16, vecY_d, vecY_f; \
 	{ uHashT     hashT(initSize); Fnc(hashT, limitSize, vecX_u,   vecY_u  ); } \
@@ -37,7 +39,9 @@ typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>    
 	{ iHashT_u16 hashT(initSize); Fnc(hashT, limitSize, vecX_i16, vecY_i16); } \
 	{ dHashT     hashT(initSize); hashT.set_empty_key(0ull); hashT.set_deleted_key(1ull); /* this meen that 'NULL' and '1' will not be able to insert as a key-value. */ \
 	                              Fnc(hashT, limitSize, vecX_d,   vecY_d  ); } \
-	{ fHashT     hashT(initSize); Fnc(hashT, limitSize, vecX_f,   vecY_f  ); }
+	{ fHashT     hashT(initSize); Fnc(hashT, limitSize, vecX_f,   vecY_f  ); } \
+	vvecX={vecX_u, vecX_c, vecX_i8, vecX_i16, vecX_d, vecX_f};			\
+	vvecY={vecY_u, vecY_c, vecY_i8, vecY_i16, vecY_d, vecY_f};
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 // common functions
@@ -92,13 +96,13 @@ void bench_insert(T_hashTable& hashT, const uint64 limitSize, std::vector<double
 	}
 }
 void bench_plot_insert(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
-	RUN_BENCH(initSize, limitSize, bench_insert);
+	std::vector<std::vector<double>> vvecX; // num of elements
+	std::vector<std::vector<double>> vvecY; // quely_per_us
+	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_insert);
 	
 	const char* xlabel = "Number of elements on the table [conut]";
 	const char* ylabel = "Insertion speed [query/μs]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
-	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i8, vecX_i16, vecX_d, vecX_f}; // num of elements
-	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i8, vecY_i16, vecY_d, vecY_f}; // quely_per_us
 	
 	// plot2fig
 	const char* tmpDir   = "./tmpDir";
@@ -140,13 +144,13 @@ void bench_insert_et(T_hashTable& hashT, const uint64 limitSize, std::vector<dou
 	}
 }
 void bench_plot_insert_et(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
-	RUN_BENCH(initSize, limitSize, bench_insert_et);
+	std::vector<std::vector<double>> vvecX; // num of elements
+	std::vector<std::vector<double>> vvecY; // sec
+	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_insert_et);
 	
 	const char* xlabel = "Number of elements on the table [conut]";
 	const char* ylabel = "Elapsed time [sec]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
-	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i8, vecX_i16, vecX_d, vecX_f}; // num of elements
-	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i8, vecY_i16, vecY_d, vecY_f}; // sec
 	
 	// plot2fig
 	const char* tmpDir   = "./tmpDir";
@@ -279,13 +283,13 @@ void bench_find(T_hashTable& hashT, const uint64 limitSize, std::vector<double>&
 	}
 }
 void bench_plot_find(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
-	RUN_BENCH(initSize, limitSize, bench_find);
+	std::vector<std::vector<double>> vvecX; // num of elements
+	std::vector<std::vector<double>> vvecY; // quely_per_us
+	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_find);
 	
 	const char* xlabel = "Number of elements on the table [conut]";
 	const char* ylabel = "Find speed [query/μs]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
-	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i8, vecX_i16, vecX_d, vecX_f}; // num of elements
-	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i8, vecY_i16, vecY_d, vecY_f}; // quely_per_us
 	
 	// plot2fig
 	const char* tmpDir   = "./tmpDir";
@@ -341,13 +345,13 @@ void bench_find_failedAll(T_hashTable& hashT, const uint64 limitSize, std::vecto
 	}
 }
 void bench_plot_find_failedAll(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
-	RUN_BENCH(initSize, limitSize, bench_find_failedAll);
+	std::vector<std::vector<double>> vvecX; // num of elements
+	std::vector<std::vector<double>> vvecY; // quely_per_us
+	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_find_failedAll);
 	
 	const char* xlabel = "Number of elements on the table [conut]";
 	const char* ylabel = "Find speed [query/μs]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
-	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i8, vecX_i16, vecX_d, vecX_f}; // num of elements
-	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i8, vecY_i16, vecY_d, vecY_f}; // quely_per_us
 	
 	// plot2fig
 	const char* tmpDir   = "./tmpDir";
@@ -414,13 +418,13 @@ void bench_find_erase_insert(T_hashTable& hashT, const uint64 initSize, std::vec
 	}
 }
 void bench_plot_find_erase_insert(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize){
-	RUN_BENCH_withErase(initSize, initSize, bench_find_erase_insert);
+	std::vector<std::vector<double>> vvecX; // num of elements
+	std::vector<std::vector<double>> vvecY; // quely_per_us
+	RUN_BENCH_withErase(vvecX, vvecY, initSize, initSize, bench_find_erase_insert);
 	
 	const char* xlabel = "Non-changed rate [\%]";
 	const char* ylabel = "A speed of one find-erase-insert cycle [query/μs]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
-	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i8, vecX_i16, vecX_d, vecX_f}; // num of elements
-	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i8, vecY_i16, vecY_d, vecY_f}; // quely_per_us
 	
 	// plot2fig
 	const char* tmpDir   = "./tmpDir";
@@ -495,13 +499,13 @@ void bench_find_findFailedAll_erase_insert(T_hashTable& hashT, const uint64 init
 	}
 }
 void bench_plot_find_findFailedAll_erase_insert(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize){
-	RUN_BENCH_withErase(initSize, initSize, bench_find_findFailedAll_erase_insert);
+	std::vector<std::vector<double>> vvecX; // num of elements
+	std::vector<std::vector<double>> vvecY; // quely_per_us
+	RUN_BENCH_withErase(vvecX, vvecY, initSize, initSize, bench_find_findFailedAll_erase_insert);
 	
 	const char* xlabel = "Non-changed rate [\%]";
 	const char* ylabel = "A speed of one find-erase-insert cycle [query/μs]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
-	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i8, vecX_i16, vecX_d, vecX_f}; // num of elements
-	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i8, vecY_i16, vecY_d, vecY_f}; // quely_per_us
 	
 	// plot2fig
 	const char* tmpDir   = "./tmpDir";
@@ -562,13 +566,13 @@ void bench_erase(T_hashTable& hashT, const uint64 limitSize, std::vector<double>
 	}
 }
 void bench_plot_erase(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
-	RUN_BENCH_withErase(initSize, limitSize, bench_erase);
+	std::vector<std::vector<double>> vvecX; // num of elements
+	std::vector<std::vector<double>> vvecY; // quely_per_us
+	RUN_BENCH_withErase(vvecX, vvecY, initSize, limitSize, bench_erase);
 	
 	const char* xlabel = "Number of elements on the table [conut]\n(This axis is inverted.)";
 	const char* ylabel = "Erasion speed [query/μs]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
-	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i8, vecX_i16, vecX_d, vecX_f}; // num of elements
-	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i8, vecY_i16, vecY_d, vecY_f}; // quely_per_us
 	
 	// plot2fig
 	const char* tmpDir   = "./tmpDir";
@@ -599,14 +603,14 @@ void bench_maxLoadFactor(T_hashTable& hashT, const uint64 limitSize, std::vector
 	}
 }
 void bench_plot_maxLoadFactor(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 limitSize){
+	std::vector<std::vector<double>> vvecX; // table size
+	std::vector<std::vector<double>> vvecY; // maximum load factor
 	const uint64 initSize=0ull;
-	RUN_BENCH(initSize, limitSize, bench_maxLoadFactor);
+	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_maxLoadFactor);
 	
 	const char* xlabel = "Table size [count]";
 	const char* ylabel = "maximum load factor [%]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
-	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i8, vecX_i16, vecX_d, vecX_f}; // table size
-	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i8, vecY_i16, vecY_d, vecY_f}; // maximum load factor
 	
 	// plot2fig
 	const char* tmpDir   = "./tmpDir";
