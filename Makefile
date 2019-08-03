@@ -67,7 +67,9 @@ $(TARGET_t): $(LIB_SSTD) $(LIB_flat) $(LIB_GOOGLETEST) $(SRCS_t) $(HEADS) $(HEAD
 
 $(LIB_SSTD):
 	@echo ""
-	@unzip -n sstd.zip
+	@unzip -n SubStandardLibrary-SSTD--master.zip
+	@mv SubStandardLibrary-SSTD--master/sstd ./
+	@rm -rf SubStandardLibrary-SSTD--master/
 	@(cd ./sstd; make -j)
 
 $(LIB_flat):
