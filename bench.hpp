@@ -95,9 +95,8 @@ void bench_insert(T_hashTable& hashT, const uint64 limitSize, std::vector<double
 		if(hashT.size()+interval>limitSize){ break; }
 	}
 }
-void bench_plot_insert(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
-	std::vector<std::vector<double>> vvecX; // num of elements
-	std::vector<std::vector<double>> vvecY; // quely_per_us
+void bench2plot_insert(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
+	std::vector<std::vector<double>> vvecX, vvecY;
 	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_insert);
 	
 	const char* xlabel = "Number of elements on the table [conut]";
@@ -143,9 +142,8 @@ void bench_insert_et(T_hashTable& hashT, const uint64 limitSize, std::vector<dou
 		vecY_s   <<= totalTime_sec;
 	}
 }
-void bench_plot_insert_et(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
-	std::vector<std::vector<double>> vvecX; // num of elements
-	std::vector<std::vector<double>> vvecY; // sec
+void bench2plot_insert_et(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
+	std::vector<std::vector<double>> vvecX, vvecY;
 	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_insert_et);
 	
 	const char* xlabel = "Number of elements on the table [conut]";
@@ -191,7 +189,7 @@ void bench_usedMemory(T_hashTable& hashT, const uint64 limitSize, std::vector<do
 	}
 	vecY_MB -= (double)vecY_MB[0];
 }
-void bench_plot_usedMemory(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
+void bench2plot_usedMemory(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
 	std::vector<double> vecX_u, vecX_c, vecX_i8, vecX_i16, vecX_d, vecX_f; // memory size [MB]
 	std::vector<double> vecY_u, vecY_c, vecY_i8, vecY_i16, vecY_d, vecY_f; // sec
 	double baseSize_MB = 0.0;
@@ -282,9 +280,8 @@ void bench_find(T_hashTable& hashT, const uint64 limitSize, std::vector<double>&
 		if(hashT.size()+interval>limitSize){ break; }
 	}
 }
-void bench_plot_find(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
-	std::vector<std::vector<double>> vvecX; // num of elements
-	std::vector<std::vector<double>> vvecY; // quely_per_us
+void bench2plot_find(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
+	std::vector<std::vector<double>> vvecX, vvecY;
 	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_find);
 	
 	const char* xlabel = "Number of elements on the table [conut]";
@@ -297,8 +294,42 @@ void bench_plot_find(const std::string& savePath, const std::vector<std::string>
 	const char* funcName = "vvec2graph";
 	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const str, const vec<str>*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
 	vvec2graph(savePath, &saveAs, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
+}/*
+//  Here is under construction.
+//
+//  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+//  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+//  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+//  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+void bench2csv_find(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
+	std::vector<std::vector<double>> vvecX, vvecY;
+	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_find);
+	
+	const char* xlabel = "Number of elements on the table [conut]";
+	const char* ylabel = "Find speed [query/μs]";
+	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
+	
+	std::string header = "[count], uHashT [query/μs], cHashT [query/μs], iHashT_u8 [query/μs], iHashT_u16 [query/μs], dHashT [query/μs], fHashT [query/μs]";
+	std::vector<std::vector<     double>> vvec     = {vvecX[0], vvecY[0], vvecY[1], vvecY[2], vvecY[3], vvecY[4]};
+	std::vector<std::vector<std::string>> vvec_str = vvec_d2str(vvec);
+	vvec_c2csv(header, vvec_str); // vvec col-major to csv.
+	
+//	vvec_str = vvec_Tr(vvec_str);
+//	vvec_r2csv(header, vvecTable, ); // vvec row-major to csv.
+	
+	//      X ,                 Y ,                 Y ,                   Y ,                     Y ,                 Y ,                 Y ,
+	// [count], uHashT [query/μs], cHashT [query/μs], iHashT_u8 [query/μs], iHashT_u16 [query/μs], dHashT [query/μs], fHashT [query/μs],
+	//      0 , 
+	//      1 , 
+	//     ︙ , 
+	//     ︙ , 
 }
 
+// csvPath2vvec_c(vvec_c, header, path);
+// csvPath2vvec_r(vvec_r, header, path);
+//*/
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 // find: all lookup is failed
 
@@ -344,9 +375,8 @@ void bench_find_failedAll(T_hashTable& hashT, const uint64 limitSize, std::vecto
 		printf("%lu / %lu = %lf\n", numFound, numFound+numNotFound, (double)numFound/(double)(numFound+numNotFound));
 	}
 }
-void bench_plot_find_failedAll(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
-	std::vector<std::vector<double>> vvecX; // num of elements
-	std::vector<std::vector<double>> vvecY; // quely_per_us
+void bench2plot_find_failedAll(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
+	std::vector<std::vector<double>> vvecX, vvecY;
 	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_find_failedAll);
 	
 	const char* xlabel = "Number of elements on the table [conut]";
@@ -417,9 +447,8 @@ void bench_find_erase_insert(T_hashTable& hashT, const uint64 initSize, std::vec
 		std::shuffle(vecKeyVal.begin(), vecKeyVal.end(), engine);
 	}
 }
-void bench_plot_find_erase_insert(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize){
-	std::vector<std::vector<double>> vvecX; // num of elements
-	std::vector<std::vector<double>> vvecY; // quely_per_us
+void bench2plot_find_erase_insert(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize){
+	std::vector<std::vector<double>> vvecX, vvecY;
 	RUN_BENCH_withErase(vvecX, vvecY, initSize, initSize, bench_find_erase_insert);
 	
 	const char* xlabel = "Non-changed rate [\%]";
@@ -498,9 +527,8 @@ void bench_find_findFailedAll_erase_insert(T_hashTable& hashT, const uint64 init
 		std::shuffle(vecKeyVal.begin(), vecKeyVal.end(), engine);
 	}
 }
-void bench_plot_find_findFailedAll_erase_insert(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize){
-	std::vector<std::vector<double>> vvecX; // num of elements
-	std::vector<std::vector<double>> vvecY; // quely_per_us
+void bench2plot_find_findFailedAll_erase_insert(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize){
+	std::vector<std::vector<double>> vvecX, vvecY;
 	RUN_BENCH_withErase(vvecX, vvecY, initSize, initSize, bench_find_findFailedAll_erase_insert);
 	
 	const char* xlabel = "Non-changed rate [\%]";
@@ -565,9 +593,8 @@ void bench_erase(T_hashTable& hashT, const uint64 limitSize, std::vector<double>
 		if(hashT.size()+interval>limitSize){ break; }
 	}
 }
-void bench_plot_erase(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
-	std::vector<std::vector<double>> vvecX; // num of elements
-	std::vector<std::vector<double>> vvecY; // quely_per_us
+void bench2plot_erase(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
+	std::vector<std::vector<double>> vvecX, vvecY;
 	RUN_BENCH_withErase(vvecX, vvecY, initSize, limitSize, bench_erase);
 	
 	const char* xlabel = "Number of elements on the table [conut]\n(This axis is inverted.)";
@@ -602,9 +629,8 @@ void bench_maxLoadFactor(T_hashTable& hashT, const uint64 limitSize, std::vector
 		lf_prev = lf;
 	}
 }
-void bench_plot_maxLoadFactor(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 limitSize){
-	std::vector<std::vector<double>> vvecX; // table size
-	std::vector<std::vector<double>> vvecY; // maximum load factor
+void bench2plot_maxLoadFactor(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 limitSize){
+	std::vector<std::vector<double>> vvecX, vvecY;
 	const uint64 initSize=0ull;
 	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_maxLoadFactor);
 	
@@ -624,45 +650,54 @@ void bench_plot_maxLoadFactor(const std::string& savePath, const std::vector<std
 
 void RUN_ALL_BENCHS(){
 //	const uint64 limitSize = 200000000; // limit of memory
-	const uint64 limitSize = 5000000;   // 50 sec
+	const uint64 limitSize = 5000000;
 	const uint64 initSize_wRehash  = 0ull;
 	const uint64 initSize_preAlloc = limitSize;
 	
 	const std::string saveDir = "./tmpBench"; sstd::mkdir(saveDir);
 	std::vector<std::string> saveAs = {".pdf", ".png"};
-	//*
+	/*
 	// bench of used memory size should run first inorder to avoid memory swap by Linux OS.
-	bench_plot_usedMemory(saveDir+"/usedMemory_wRehash_log",  saveAs, initSize_wRehash, limitSize);
-	bench_plot_usedMemory(saveDir+"/usedMemory_preAlloc_log", saveAs, initSize_preAlloc, limitSize);
+	bench2plot_usedMemory(saveDir+"/usedMemory_wRehash_log",  saveAs, initSize_wRehash, limitSize);
+	bench2plot_usedMemory(saveDir+"/usedMemory_preAlloc_log", saveAs, initSize_preAlloc, limitSize);
 	
 	// Warm running, because of the first bench usually returns bad result.
-	bench_plot_insert(saveDir+"/warmRunning", saveAs, initSize_wRehash, limitSize); // pre-allocate
+	bench2plot_insert(saveDir+"/warmRunning", saveAs, initSize_wRehash, limitSize); // pre-allocate
 	
 	// insert: insertion speed [query/sec]
-	bench_plot_insert(saveDir+"/insert_wRehash", saveAs, initSize_wRehash, limitSize); // with rehash
+	bench2plot_insert(saveDir+"/insert_wRehash", saveAs, initSize_wRehash, limitSize); // with rehash
 	
 	// insert: elapsed time [sec]
-	bench_plot_insert_et(saveDir+"/insert_et_wRehash",  saveAs, initSize_wRehash,  limitSize); // with rehash
-	bench_plot_insert_et(saveDir+"/insert_et_preAlloc", saveAs, initSize_preAlloc, limitSize); // pre-allocate
-	
+	bench2plot_insert_et(saveDir+"/insert_et_wRehash",  saveAs, initSize_wRehash,  limitSize); // with rehash
+	bench2plot_insert_et(saveDir+"/insert_et_preAlloc", saveAs, initSize_preAlloc, limitSize); // pre-allocate
+	//*/
 	// find: find speed [quely/sec]
-	bench_plot_find(saveDir+"/find_wRehash", saveAs, initSize_wRehash, limitSize); // with rehash
-	
+	bench2plot_find(saveDir+"/find_wRehash", saveAs, initSize_wRehash, limitSize); // with rehash
+//	for(uint i=0; i<100; i++){
+//		// Here is under construction.
+//      // XXXXXXXXXXXXXXXXXXXXXXXXXXX
+//      // XXXXXXXXXXXXXXXXXXXXXXXXXXX
+//      // XXXXXXXXXXXXXXXXXXXXXXXXXXX
+//      // XXXXXXXXXXXXXXXXXXXXXXXXXXX
+//      // XXXXXXXXXXXXXXXXXXXXXXXXXXX
+//		bench2csv_find(saveDir+"/find_wRehash", saveAs, initSize_wRehash, limitSize); // with rehash
+//	}
+	/*
 	// find: all lookup is failed
-	bench_plot_find_failedAll(saveDir+"/find_wRehash_failedAll", saveAs, initSize_wRehash, limitSize);
+	bench2plot_find_failedAll(saveDir+"/find_wRehash_failedAll", saveAs, initSize_wRehash, limitSize);
 	
 	// erase
-	bench_plot_erase(saveDir+"/erase_wRehash", saveAs, initSize_wRehash, limitSize); // pre-allocate
+	bench2plot_erase(saveDir+"/erase_wRehash", saveAs, initSize_wRehash, limitSize); // pre-allocate
 	
 	// find -> erase -> insert (reHash occurd)
-	bench_plot_find_erase_insert(saveDir+"/find_erase_insert_pow10_4", saveAs, 10000  ); // find with erasion
-	bench_plot_find_erase_insert(saveDir+"/find_erase_insert_pow10_5", saveAs, 100000 ); // find with erasion
-	bench_plot_find_erase_insert(saveDir+"/find_erase_insert_pow10_6", saveAs, 1000000); // find with erasion
+	bench2plot_find_erase_insert(saveDir+"/find_erase_insert_pow10_4", saveAs, 10000  ); // find with erasion
+	bench2plot_find_erase_insert(saveDir+"/find_erase_insert_pow10_5", saveAs, 100000 ); // find with erasion
+	bench2plot_find_erase_insert(saveDir+"/find_erase_insert_pow10_6", saveAs, 1000000); // find with erasion
 	
-	bench_plot_find_findFailedAll_erase_insert(saveDir+"/find_fainFailedAll_erase_insert_pow10_6", saveAs, 1000000); // find with erasion
+	bench2plot_find_findFailedAll_erase_insert(saveDir+"/find_fainFailedAll_erase_insert_pow10_6", saveAs, 1000000); // find with erasion
 	
 	// max-load factor
-	bench_plot_maxLoadFactor(saveDir+"/maxLoadFactor", saveAs, limitSize);
+	bench2plot_maxLoadFactor(saveDir+"/maxLoadFactor", saveAs, limitSize);
 	//*/
 }
 
