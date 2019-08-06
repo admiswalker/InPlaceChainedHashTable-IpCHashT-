@@ -311,13 +311,17 @@ void bench2csv_find(const std::string& savePath, const std::vector<std::string>&
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	
 	std::vector<std::vector<std::string>> vecHeader = {{"[count]", "uHashT [query/μs]", "cHashT [query/μs]", "iHashT_u8 [query/μs]", "iHashT_u16 [query/μs]", "dHashT [query/μs]", "fHashT [query/μs]"}};
-	std::vector<std::vector<     double>> vvec     = {vvecX[0], vvecY[0], vvecY[1], vvecY[2], vvecY[3], vvecY[4]};
+	std::vector<std::vector<     double>> vvec     = {vvecX[0], vvecY[0], vvecY[1], vvecY[2], vvecY[3], vvecY[4], vvecY[5]};
 	std::vector<std::vector<std::string>> vvec_str = sstd::double2str(sstd::Tr(vvec));
-	std::vector<std::vector<std::string>> vvec_csv = vecHeader << vvec_str;
+
+	printf("imh003\n");
+	std::vector<std::vector<std::string>> vvec_csv = vecHeader << vvec_str; // これって何でダメだんだっけ？（単に実装していないだけ？）
+	//std::vector<std::vector<std::string>> vvec_csv;
+	//vvec_csv <<= vecHeader;
+	//vvec_csv <<= vvec_str;
 	
-	sstd::vvec2csv(R"(./parseCSV.csv)", vvec); // not implimented yet
-	
-//	std::vector<std::vector<std::string>> csv = sstd::csvPath2vvec(R"(./parseCSV.csv)");
+	printf("imh004\n");
+	sstd::vvec2csv(savePath.c_str(), vvec_csv);
 	
 	//      X ,                 Y ,                 Y ,                   Y ,                     Y ,                 Y ,                 Y ,
 	// [count], uHashT [query/μs], cHashT [query/μs], iHashT_u8 [query/μs], iHashT_u16 [query/μs], dHashT [query/μs], fHashT [query/μs],
@@ -326,9 +330,6 @@ void bench2csv_find(const std::string& savePath, const std::vector<std::string>&
 	//     ︙ , 
 	//     ︙ , 
 }
-
-// csvPath2vvec_c(vvec_c, header, path);
-// csvPath2vvec_r(vvec_r, header, path);
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 // find: all lookup is failed
@@ -680,7 +681,7 @@ void RUN_ALL_BENCHS(){
 		// XXXXXXXXXXXXXXXXXXXXXXXXXXX
 		// XXXXXXXXXXXXXXXXXXXXXXXXXXX
 		// XXXXXXXXXXXXXXXXXXXXXXXXXXX
-		bench2csv_find(saveDir+"/find_wRehash", saveAs, initSize_wRehash, limitSize); // with rehash
+		bench2csv_find(saveDir+"/find_wRehash_"+sstd::ssprintf("%03u", i), saveAs, initSize_wRehash, limitSize); // with rehash
 	}
 	/*
 	// find: all lookup is failed
