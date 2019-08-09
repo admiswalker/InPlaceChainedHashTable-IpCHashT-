@@ -313,14 +313,7 @@ void bench2csv_find(const std::string& savePath, const std::vector<std::string>&
 	std::vector<std::vector<std::string>> vecHeader = {{"[count]", "uHashT [query/μs]", "cHashT [query/μs]", "iHashT_u8 [query/μs]", "iHashT_u16 [query/μs]", "dHashT [query/μs]", "fHashT [query/μs]"}};
 	std::vector<std::vector<     double>> vvec     = {vvecX[0], vvecY[0], vvecY[1], vvecY[2], vvecY[3], vvecY[4], vvecY[5]};
 	std::vector<std::vector<std::string>> vvec_str = sstd::double2str(sstd::Tr(vvec));
-
-	printf("imh003\n");
-	std::vector<std::vector<std::string>> vvec_csv = vecHeader << vvec_str; // これって何でダメだんだっけ？（単に実装していないだけ？）
-	//std::vector<std::vector<std::string>> vvec_csv;
-	//vvec_csv <<= vecHeader;
-	//vvec_csv <<= vvec_str;
-	
-	printf("imh004\n");
+	std::vector<std::vector<std::string>> vvec_csv = vecHeader << vvec_str;
 	sstd::vvec2csv(savePath.c_str(), vvec_csv);
 	
 	//      X ,                 Y ,                 Y ,                   Y ,                     Y ,                 Y ,                 Y ,
