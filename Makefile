@@ -4,13 +4,15 @@
 # source files
 SRCS_t   = test_main.cpp FNV_Hash.cpp
 SRCS_bm  = bench_main.cpp FNV_Hash.cpp
+SRCS_sp  = sProc_main.cpp
 HEADS    = CHashT.hpp IpCHashT.hpp
 HEADS_t  = test_CHashT.hpp test_IpCHashT.hpp
 HEADS_bm = bench.hpp
 
 # name of generating file
-TARGET_t  = exe_t  # test
-TARGET_bm = exe_bm # benchmark
+TARGET_t  = exe_test  # test
+TARGET_bm = exe_bench # benchmark
+TARGET_sp = exe_sProc # Statistical processing
 
 # remove files
 RMs = *.stackdump __pycache__ tmpDir
@@ -24,8 +26,9 @@ CFLAGS += -Wall
 #CFLAGS += -Wextra
 CFLAGS += -O3
 
+CFLAGS_t  += -DEBUG
 CFLAGS_bm += -DNDEBUG
-CFLAGS_t   = -DEBUG
+CFLAGS_sp += -DNDEBUG
 
 #------------------------------------------------------------
 
@@ -47,6 +50,14 @@ HeaderLIB_sHash = ./sparsehash-master/src/sparsehash/internal/sparseconfig.h
 
 
 # generate exe file
+$(TARGET_sp): $(TARGET_bm)
+	@echo ""
+	@echo "------------------------------------------------------------"
+	@echo "SRCS_st: \n$(SRCS_sp)\n"
+	@echo "CFLAGS: \n$(CFLAGS)"
+	@echo "------------------------------------------------------------"
+	$(CXX) -o $(TARGET_sp) $(SRCS_sp) $(CFLAGS) $(CFLAGS_sp)
+	@echo ""
 $(TARGET_bm): $(LIB_SSTD) $(LIB_flat) $(LIB_GOOGLETEST) $(HeaderLIB_sHash) $(SRCS_bm) $(TARGET_t) $(HEADS) $(HEADS_bm)
 	@echo ""
 	@echo "------------------------------------------------------------"
@@ -97,6 +108,7 @@ all:
 clean:
 	-rm -rf $(TARGET_t)
 	-rm -rf $(TARGET_bm)
+	-rm -rf $(TARGET_sp)
 	-rm -rf flat_hash_map-master
 	-rm -rf googletest-master
 	-rm -rf sparsehash-master
@@ -117,6 +129,11 @@ backup:
 	@(make)
 # when you need comments for backup, just type
 # $ make backup m=_comment_will_be_inserted_after_the_date
+
+.PHONY: updateLib
+updateLib:
+	wget https://github.com/admiswalker/SubStandardLibrary-SSTD-/archive/master.zip -O SubStandardLibrary-SSTD--master.zip
+	-rm -rf sstd
 
 .PHONY: steps
 steps: $(SRCS_t) $(SRCS_bm) $(HEADS) $(HEADS_t)

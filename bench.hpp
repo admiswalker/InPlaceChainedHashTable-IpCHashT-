@@ -314,7 +314,7 @@ void bench2csv_find(const std::string& savePath, const std::vector<std::string>&
 	std::vector<std::vector<     double>> vvec     = {vvecX[0], vvecY[0], vvecY[1], vvecY[2], vvecY[3], vvecY[4], vvecY[5]};
 	std::vector<std::vector<std::string>> vvec_str = sstd::double2str(sstd::Tr(vvec));
 	std::vector<std::vector<std::string>> vvec_csv = vecHeader << vvec_str;
-	sstd::vvec2csv(savePath.c_str(), vvec_csv);
+	sstd::vvec2csv(savePath, vvec_csv);
 	
 	//      X ,                 Y ,                 Y ,                   Y ,                     Y ,                 Y ,                 Y ,
 	// [count], uHashT [query/μs], cHashT [query/μs], iHashT_u8 [query/μs], iHashT_u16 [query/μs], dHashT [query/μs], fHashT [query/μs],
@@ -674,7 +674,7 @@ void RUN_ALL_BENCHS(){
 		// XXXXXXXXXXXXXXXXXXXXXXXXXXX
 		// XXXXXXXXXXXXXXXXXXXXXXXXXXX
 		// XXXXXXXXXXXXXXXXXXXXXXXXXXX
-		bench2csv_find(saveDir+"/find_wRehash_"+sstd::ssprintf("%03u", i), saveAs, initSize_wRehash, limitSize); // with rehash
+		bench2csv_find(saveDir+"/find_wRehash_"+sstd::ssprintf("%03u", i)+".csv", saveAs, initSize_wRehash, limitSize); // with rehash
 	}
 	/*
 	// find: all lookup is failed
