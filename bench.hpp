@@ -280,10 +280,7 @@ void bench_find(T_hashTable& hashT, const uint64 limitSize, std::vector<double>&
 		if(hashT.size()+interval>limitSize){ break; }
 	}
 }
-void bench2plot_find(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
-	std::vector<std::vector<double>> vvecX, vvecY;
-	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_find);
-	
+void vvec2plot_find(const std::string& savePath, const std::vector<std::string>& saveAs, const sstd::vvec<double>& vvecX, const sstd::vvec<double>& vvecY){
 	const char* xlabel = "Number of elements on the table [conut]";
 	const char* ylabel = "Find speed [query/μs]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
@@ -294,6 +291,12 @@ void bench2plot_find(const std::string& savePath, const std::vector<std::string>
 	const char* funcName = "vvec2graph";
 	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const str, const vec<str>*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
 	vvec2graph(savePath, &saveAs, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
+}
+void bench2plot_find(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
+	std::vector<std::vector<double>> vvecX, vvecY;
+	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_find);
+	
+	vvec2plot_find(savePath, saveAs, vvecX, vvecY);
 }
 
 //  Here is under construction.
