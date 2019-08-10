@@ -3,25 +3,6 @@
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
-int read_csv(const std::string& path){
-	
-//	header = [["[count]" "uHashT [query/μs]" "cHashT [query/μs]" "iHashT_u8 [query/μs]" "iHashT_u16 [query/μs]" "dHashT [query/μs]" "fHashT [query/μs]"]]
-	
-	sstd::vvec<std::string> vvecOrig = sstd::csv2vvec(path);
-	sstd::vvec<std::string> header   = vvecOrig && sstd::slice_mv(sstd::begin(), 1);
-	sstd::vvec<std::string> vvecStr  = vvecOrig && sstd::slice_mv(1, sstd::end());
-	sstd::vvec<     double> vvecD    = sstd::Tr(sstd::str2double(vvecStr));
-	
-	sstd::vvec<double> vvecX = {vvecD[0], vvecD[0], vvecD[0], vvecD[0], vvecD[0], vvecD[0]};
-	sstd::vvec<double> vvecY = {vvecD[1], vvecD[2], vvecD[3], vvecD[4], vvecD[5], vvecD[6]};
-	
-	vvec2plot_find("./a", std::vector<std::string>{".png", ".pdf"}, vvecX, vvecY);
-	
-	return 0;
-}
-
-//-----------------------------------------------------------------------------------------------------------------------------------------------
-
 void vecPath2v_vvecXY(std::vector<sstd::vvec<double>>& vC_vT_vecX_out, std::vector<sstd::vvec<double>>& vC_vT_vecY_out, const std::vector<std::string>& vecPath){
 	vC_vT_vecX_out.resize(vecPath.size());
 	vC_vT_vecY_out.resize(vecPath.size());
@@ -82,7 +63,6 @@ int main(int argc, char** argv){
 	std::string dirPath = "./tmpBench/*";
 	std::vector<std::string> vecPath = sstd::glob(dirPath);
 	std::string path = vecPath[0];
-	// read_csv(path);
 	
 	{
 		const char* savePath = "./b";
