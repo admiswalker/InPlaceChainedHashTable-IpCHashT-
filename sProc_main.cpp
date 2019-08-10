@@ -41,8 +41,11 @@ void vecPath2plot(const char* savePath, const std::vector<std::string>& saveAs, 
 		vvecY[i] = vvec2vecMed(vecY_vC);
 	}
 	
-	vvec2plot_find("./med", std::vector<std::string>{".png", ".pdf"}, vvecX, vvecY);
+	vvec2plot_find(savePath, saveAs, vvecX, vvecY);
 }
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------
+
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -60,12 +63,11 @@ int main(int argc, char** argv){
 	printf("\n");
 	printf("■ measureTime_start---------------\n\n"); time_m timem; sstd::measureTime_start(timem);
 	
-	std::string dirPath = "./tmpBench/*";
-	std::vector<std::string> vecPath = sstd::glob(dirPath);
-	std::string path = vecPath[0];
-	
 	{
-		const char* savePath = "./b";
+		const char* dirPath = "./tmpBench/find_wRehash/*";
+		std::vector<std::string> vecPath = sstd::glob(dirPath);
+		
+		const char* savePath = "./find_wRehash_med";
 		std::vector<std::string> saveAs = {".png", ".pdf"};
 		vecPath2plot(savePath, saveAs, vecPath);
 	}

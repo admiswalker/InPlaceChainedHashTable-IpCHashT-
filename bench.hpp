@@ -43,6 +43,19 @@ typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>    
 	vvecX={vecX_u, vecX_c, vecX_i8, vecX_i16, vecX_d, vecX_f};			\
 	vvecY={vecY_u, vecY_c, vecY_i8, vecY_i16, vecY_d, vecY_f};
 
+#define BENCH_to_CSV(savePath, vvecX, vvecY, vvecHeader)				\
+	sstd::vvec<     double> vvec     = {vvecX[0], vvecY[0], vvecY[1], vvecY[2], vvecY[3], vvecY[4], vvecY[5]}; \
+	sstd::vvec<std::string> vvec_str = sstd::double2str(sstd::Tr(vvec)); \
+	sstd::vvec<std::string> vvec_csv = vvecHeader << vvec_str;			\
+	sstd::vvec2csv(savePath, vvec_csv);
+	
+	// vvecX[0],           vvecY[0],           vvecY[1],              vvecY[2],               vvecY[3],           vvecY[4],          vvecY[5]
+	//  [count], uHashT [query/μs], cHashT [query/μs], iHashT_u8 [query/μs], iHashT_u16 [query/μs], dHashT [query/μs], fHashT [query/μs]
+	//       0 , 
+	//       1 , 
+	//      ︙ , 
+	//      ︙ ,
+
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 // common functions
 // origin
@@ -298,33 +311,12 @@ void bench2plot_find(const std::string& savePath, const std::vector<std::string>
 	
 	vvec2plot_find(savePath, saveAs, vvecX, vvecY);
 }
-
-//  Here is under construction.
-//
-//  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-//  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-//  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-//  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 void bench2csv_find(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
 	std::vector<std::vector<double>> vvecX, vvecY;
 	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_find);
 	
-	const char* xlabel = "Number of elements on the table [conut]";
-	const char* ylabel = "Find speed [query/μs]";
-	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
-	
-	std::vector<std::vector<std::string>> vecHeader = {{"[count]", "uHashT [query/μs]", "cHashT [query/μs]", "iHashT_u8 [query/μs]", "iHashT_u16 [query/μs]", "dHashT [query/μs]", "fHashT [query/μs]"}};
-	std::vector<std::vector<     double>> vvec     = {vvecX[0], vvecY[0], vvecY[1], vvecY[2], vvecY[3], vvecY[4], vvecY[5]};
-	std::vector<std::vector<std::string>> vvec_str = sstd::double2str(sstd::Tr(vvec));
-	std::vector<std::vector<std::string>> vvec_csv = vecHeader << vvec_str;
-	sstd::vvec2csv(savePath, vvec_csv);
-	
-	//      X ,                 Y ,                 Y ,                   Y ,                     Y ,                 Y ,                 Y ,
-	// [count], uHashT [query/μs], cHashT [query/μs], iHashT_u8 [query/μs], iHashT_u16 [query/μs], dHashT [query/μs], fHashT [query/μs],
-	//      0 , 
-	//      1 , 
-	//     ︙ , 
-	//     ︙ , 
+	std::vector<std::vector<std::string>> vvecHeader = {{"[count]", "uHashT [query/μs]", "cHashT [query/μs]", "iHashT_u8 [query/μs]", "iHashT_u16 [query/μs]", "dHashT [query/μs]", "fHashT [query/μs]"}};
+	BENCH_to_CSV(savePath, vvecX, vvecY, vvecHeader);
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -372,7 +364,25 @@ void bench_find_failedAll(T_hashTable& hashT, const uint64 limitSize, std::vecto
 		printf("%lu / %lu = %lf\n", numFound, numFound+numNotFound, (double)numFound/(double)(numFound+numNotFound));
 	}
 }
+void vvec2plot_find_failedAll(const std::string& savePath, const std::vector<std::string>& saveAs, const sstd::vvec<double>& vvecX, const sstd::vvec<double>& vvecY){
+	const char* xlabel = "Number of elements on the table [conut]";
+	const char* ylabel = "Find speed [query/μs]";
+	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
+	
+	// plot2fig
+	const char* tmpDir   = "./tmpDir";
+	const char* fileName = "plots";
+	const char* funcName = "vvec2graph";
+	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const str, const vec<str>*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
+	vvec2graph(savePath, &saveAs, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
+}
 void bench2plot_find_failedAll(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
+	std::vector<std::vector<double>> vvecX, vvecY;
+	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_find_failedAll);
+	
+	vvec2plot_find_failedAll(savePath, saveAs, vvecX, vvecY);
+}
+void bench2csv_find_failedAll(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
 	std::vector<std::vector<double>> vvecX, vvecY;
 	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_find_failedAll);
 	
@@ -386,6 +396,23 @@ void bench2plot_find_failedAll(const std::string& savePath, const std::vector<st
 	const char* funcName = "vvec2graph";
 	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const str, const vec<str>*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
 	vvec2graph(savePath, &saveAs, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
+
+	// here is under construction
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -670,14 +697,11 @@ void RUN_ALL_BENCHS(){
 	//*/
 	// find: find speed [quely/sec]
 //	bench2plot_find(saveDir+"/find_wRehash", saveAs, initSize_wRehash, limitSize); // with rehash
-	for(uint i=0; i<100; i++){
-		// Here is under construction.
-		// XXXXXXXXXXXXXXXXXXXXXXXXXXX
-		// XXXXXXXXXXXXXXXXXXXXXXXXXXX
-		// XXXXXXXXXXXXXXXXXXXXXXXXXXX
-		// XXXXXXXXXXXXXXXXXXXXXXXXXXX
-		// XXXXXXXXXXXXXXXXXXXXXXXXXXX
-		bench2csv_find(saveDir+"/find_wRehash_"+sstd::ssprintf("%03u", i)+".csv", saveAs, initSize_wRehash, limitSize); // with rehash
+	std::string saveDir_fwR = "find_wRehash";
+	sstd::mkdir(saveDir+'/'+saveDir_fwR);
+	for(uint i=0; i<100; i++){ // 17 mins
+		std::string savePath = saveDir+'/'+saveDir_fwR+"/find_wRehash_"+sstd::ssprintf("%03u", i)+".csv";
+		bench2csv_find(savePath, saveAs, initSize_wRehash, limitSize); // with rehash
 	}
 	/*
 	// find: all lookup is failed
