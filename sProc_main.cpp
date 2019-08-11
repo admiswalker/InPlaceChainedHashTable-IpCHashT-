@@ -26,26 +26,21 @@ std::vector<double> vvec2vecMed(const sstd::vvec<double>& rhs){
 	}
 	return ret;
 }
-void vecPath2plot(const char* savePath, const std::vector<std::string>& saveAs, const std::vector<std::string>& vecPath){
+void vecPath2plot(sstd::vvec<double>& vvecX_out, sstd::vvec<double>& vvecY_out, const std::vector<std::string>& vecPath){
 	
 	sstd::vec<sstd::vvec<double>> vC_vT_vecX, vC_vT_vecY; // vecCSV vecType vecVal
 	vecPath2v_vvecXY(vC_vT_vecX, vC_vT_vecY, vecPath);
 	
-	          sstd::vvec<double>       vvecX = vC_vT_vecX[0];
+	vvecX_out                                =          vC_vT_vecX[0];
 	sstd::vec<sstd::vvec<double>> vT_vC_vecY = sstd::Tr(vC_vT_vecY);
 	
 	uint typeNum = vT_vC_vecY.size();
-	sstd::vvec<double> vvecY(typeNum);
+	vvecY_out.resize(typeNum);
 	for(uint i=0; i<typeNum; i++){
 		sstd::vvec<double> vecY_vC = sstd::Tr(vT_vC_vecY[i]);
-		vvecY[i] = vvec2vecMed(vecY_vC);
+		vvecY_out[i] = vvec2vecMed(vecY_vC);
 	}
-	
-	vvec2plot_find(savePath, saveAs, vvecX, vvecY);
 }
-
-//-----------------------------------------------------------------------------------------------------------------------------------------------
-
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -64,12 +59,16 @@ int main(int argc, char** argv){
 	printf("■ measureTime_start---------------\n\n"); time_m timem; sstd::measureTime_start(timem);
 	
 	{
-		const char* dirPath = "./tmpBench/find_wRehash/*";
-		std::vector<std::string> vecPath = sstd::glob(dirPath);
+		sstd::vvec<double> vvecX, vvecY; vecPath2plot(vvecX, vvecY, sstd::glob("./tmpBench/find_wRehash/*"));
 		
-		const char* savePath = "./find_wRehash_med";
-		std::vector<std::string> saveAs = {".png", ".pdf"};
-		vecPath2plot(savePath, saveAs, vecPath);
+		const char* savePath="./tmpBench/find_wRehash_med"; std::vector<std::string> saveAs={".png", ".pdf"};
+		vvec2plot_find(savePath, saveAs, vvecX, vvecY);
+	}
+	{
+		sstd::vvec<double> vvecX, vvecY; vecPath2plot(vvecX, vvecY, sstd::glob("./tmpBench/find_failedAll/*"));
+		
+		const char* savePath="./tmpBench/find_failedAll_med"; std::vector<std::string> saveAs={".png", ".pdf"};
+		vvec2plot_find(savePath, saveAs, vvecX, vvecY);
 	}
 	
 	printf("\n■ measureTime_stop----------------\n"); sstd::measureTime_stop_print(timem);
