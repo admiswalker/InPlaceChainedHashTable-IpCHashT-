@@ -108,10 +108,8 @@ void bench_insert(T_hashTable& hashT, const uint64 limitSize, std::vector<double
 		if(hashT.size()+interval>limitSize){ break; }
 	}
 }
-void bench2plot_insert(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
-	std::vector<std::vector<double>> vvecX, vvecY;
-	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_insert);
-	
+//---
+void vvec2plot_insert(const std::string& savePath, const std::vector<std::string>& saveAs, const sstd::vvec<double>& vvecX, const sstd::vvec<double>& vvecY){
 	const char* xlabel = "Number of elements on the table [conut]";
 	const char* ylabel = "Insertion speed [query/μs]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
@@ -122,6 +120,20 @@ void bench2plot_insert(const std::string& savePath, const std::vector<std::strin
 	const char* funcName = "vvec2graph";
 	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const str, const vec<str>*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
 	vvec2graph(savePath, &saveAs, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
+}
+void bench2plot_insert(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
+	std::vector<std::vector<double>> vvecX, vvecY;
+	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_insert);
+	
+	vvec2plot_insert(savePath, saveAs, vvecX, vvecY);
+}
+//---
+void bench2csv_insert(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
+	std::vector<std::vector<double>> vvecX, vvecY;
+	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_insert);
+	
+	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [query/μs]", "cHashT [query/μs]", "iHashT_u8 [query/μs]", "iHashT_u16 [query/μs]", "dHashT [query/μs]", "fHashT [query/μs]"}};
+	BENCH_to_CSV(savePath, vvecX, vvecY, vvecHeader);
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -155,10 +167,8 @@ void bench_insert_et(T_hashTable& hashT, const uint64 limitSize, std::vector<dou
 		vecY_s   <<= totalTime_sec;
 	}
 }
-void bench2plot_insert_et(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
-	std::vector<std::vector<double>> vvecX, vvecY;
-	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_insert_et);
-	
+//---
+void vvec2plot_insert_et(const std::string& savePath, const std::vector<std::string>& saveAs, const sstd::vvec<double>& vvecX, const sstd::vvec<double>& vvecY){
 	const char* xlabel = "Number of elements on the table [conut]";
 	const char* ylabel = "Elapsed time [sec]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
@@ -169,6 +179,20 @@ void bench2plot_insert_et(const std::string& savePath, const std::vector<std::st
 	const char* funcName = "vvec2graph_et_insert";
 	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const str, const vec<str>*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
 	vvec2graph(savePath, &saveAs, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
+}
+void bench2plot_insert_et(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
+	std::vector<std::vector<double>> vvecX, vvecY;
+	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_insert_et);
+	
+	vvec2plot_insert_et(savePath, saveAs, vvecX, vvecY);
+}
+//---
+void bench2csv_insert_et(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
+	std::vector<std::vector<double>> vvecX, vvecY;
+	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_insert_et);
+	
+	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [sec]", "cHashT [sec]", "iHashT_u8 [sec]", "iHashT_u16 [sec]", "dHashT [sec]", "fHashT [sec]"}};
+	BENCH_to_CSV(savePath, vvecX, vvecY, vvecHeader);
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -293,6 +317,7 @@ void bench_find(T_hashTable& hashT, const uint64 limitSize, std::vector<double>&
 		if(hashT.size()+interval>limitSize){ break; }
 	}
 }
+//---
 void vvec2plot_find(const std::string& savePath, const std::vector<std::string>& saveAs, const sstd::vvec<double>& vvecX, const sstd::vvec<double>& vvecY){
 	const char* xlabel = "Number of elements on the table [conut]";
 	const char* ylabel = "Find speed [query/μs]";
@@ -311,6 +336,7 @@ void bench2plot_find(const std::string& savePath, const std::vector<std::string>
 	
 	vvec2plot_find(savePath, saveAs, vvecX, vvecY);
 }
+//---
 void bench2csv_find(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
 	sstd::vvec<double> vvecX, vvecY;
 	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_find);
@@ -364,6 +390,7 @@ void bench_find_failedAll(T_hashTable& hashT, const uint64 limitSize, std::vecto
 		printf("%lu / %lu = %lf\n", numFound, numFound+numNotFound, (double)numFound/(double)(numFound+numNotFound));
 	}
 }
+//---
 void vvec2plot_find_failedAll(const std::string& savePath, const std::vector<std::string>& saveAs, const sstd::vvec<double>& vvecX, const sstd::vvec<double>& vvecY){
 	const char* xlabel = "Number of elements on the table [conut]";
 	const char* ylabel = "Find speed [query/μs]";
@@ -382,6 +409,7 @@ void bench2plot_find_failedAll(const std::string& savePath, const std::vector<st
 	
 	vvec2plot_find_failedAll(savePath, saveAs, vvecX, vvecY);
 }
+//---
 void bench2csv_find_failedAll(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
 	std::vector<std::vector<double>> vvecX, vvecY;
 	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_find_failedAll);
@@ -592,10 +620,8 @@ void bench_erase(T_hashTable& hashT, const uint64 limitSize, std::vector<double>
 		if(hashT.size()+interval>limitSize){ break; }
 	}
 }
-void bench2plot_erase(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
-	std::vector<std::vector<double>> vvecX, vvecY;
-	RUN_BENCH_withErase(vvecX, vvecY, initSize, limitSize, bench_erase);
-	
+//---
+void vvec2plot_erase(const std::string& savePath, const std::vector<std::string>& saveAs, const sstd::vvec<double>& vvecX, const sstd::vvec<double>& vvecY){
 	const char* xlabel = "Number of elements on the table [conut]\n(This axis is inverted.)";
 	const char* ylabel = "Erasion speed [query/μs]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
@@ -606,6 +632,20 @@ void bench2plot_erase(const std::string& savePath, const std::vector<std::string
 	const char* funcName = "vvec2graph";
 	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const str, const vec<str>*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
 	vvec2graph(savePath, &saveAs, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
+}
+void bench2plot_erase(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
+	std::vector<std::vector<double>> vvecX, vvecY;
+	RUN_BENCH_withErase(vvecX, vvecY, initSize, limitSize, bench_erase);
+	
+	vvec2plot_erase(savePath, saveAs, vvecX, vvecY);
+}
+//---
+void bench2csv_erase(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
+	std::vector<std::vector<double>> vvecX, vvecY;
+	RUN_BENCH_withErase(vvecX, vvecY, initSize, limitSize, bench_erase);
+	
+	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [query/μs]", "cHashT [query/μs]", "iHashT_u8 [query/μs]", "iHashT_u16 [query/μs]", "dHashT [query/μs]", "fHashT [query/μs]"}};
+	BENCH_to_CSV(savePath, vvecX, vvecY, vvecHeader);
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -690,7 +730,7 @@ void RUN_ALL_BENCHS(){
 	bench2plot_maxLoadFactor(saveDir+"/maxLoadFactor", saveAs, limitSize);
 	//*/
 	
-	//---
+	//---------------------------------------------------------------------------------------------------------------------------------------------
 	
 	/*
 	std::string saveDir_fwR = saveDir+"/find_wRehash";
@@ -701,12 +741,43 @@ void RUN_ALL_BENCHS(){
 	}
 	//*/
 	
+	/*
 	std::string saveDir_ffa = saveDir+"/find_failedAll";
 	sstd::mkdir(saveDir_ffa);
 	for(uint i=0; i<100; i++){ // 15 mins
 		std::string savePath = saveDir_ffa+sstd::ssprintf("/find_failedAll_%03u", i)+".csv";
 		bench2csv_find_failedAll(savePath, saveAs, initSize_wRehash, limitSize); // with rehash
 	}
+	//*/
+	
+	/*
+	std::string iwR = "insert_wRehash";
+	sstd::mkdir(saveDir+'/'+iwR);
+	for(uint i=0; i<100; i++){ // 13 mins
+		std::string savePath = saveDir +'/'+iwR +sstd::ssprintf("/%s_%03u", iwR.c_str(), i)+".csv";
+		bench2csv_insert(savePath, saveAs, initSize_wRehash, limitSize); // with rehash
+	}
+	//*/
+	
+	/*
+	std::string iEwR = "insert_et_wRehash";
+	sstd::mkdir(saveDir+'/'+iEwR);
+	for(uint i=0; i<100; i++){ // 13 mins
+		std::string savePath = saveDir +'/'+iEwR +sstd::ssprintf("/%s_%03u", iEwR.c_str(), i)+".csv";
+		bench2csv_insert_et(savePath, saveAs, initSize_wRehash, limitSize); // with rehash
+	}
+	//*/
+
+	//*
+	std::string ewR = "erase_wRehash";
+	sstd::mkdir(saveDir+'/'+ewR);
+	for(uint i=0; i<100; i++){ //  mins
+		std::string savePath = saveDir +'/'+ewR +sstd::ssprintf("/%s_%03u", ewR.c_str(), i)+".csv";
+		bench2csv_erase(savePath, saveAs, initSize_wRehash, limitSize); // pre-allocate
+	}
+	//*/
+	
+	
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------

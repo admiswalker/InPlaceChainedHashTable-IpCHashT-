@@ -26,7 +26,7 @@ std::vector<double> vvec2vecMed(const sstd::vvec<double>& rhs){
 	}
 	return ret;
 }
-void vecPath2plot(sstd::vvec<double>& vvecX_out, sstd::vvec<double>& vvecY_out, const std::vector<std::string>& vecPath){
+void vecPath2vvecXY(sstd::vvec<double>& vvecX_out, sstd::vvec<double>& vvecY_out, const std::vector<std::string>& vecPath){
 	
 	sstd::vec<sstd::vvec<double>> vC_vT_vecX, vC_vT_vecY; // vecCSV vecType vecVal
 	vecPath2v_vvecXY(vC_vT_vecX, vC_vT_vecY, vecPath);
@@ -43,6 +43,23 @@ void vecPath2plot(sstd::vvec<double>& vvecX_out, sstd::vvec<double>& vvecY_out, 
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
+// sstd:: に移す．
+
+template<typename T>
+void sstd__suppress(std::vector<T>& vecLhs, std::vector<T>& vecRhs){
+	uint sizeL = vecLhs.size();
+	uint sizeR = vecRhs.size();
+	if      (sizeL==sizeR){ return;
+	}else if(sizeL< sizeR){ for(uint i=0; i<(sizeR-sizeL); i++){ vecRhs.pop_back(); }
+	}else                 { for(uint i=0; i<(sizeL-sizeR); i++){ vecLhs.pop_back(); }
+	}
+}
+/*
+template<typename T>
+void sstd__padding(std::vector<T>& vecLhs, std::vector<T>& vecRhs){ // zfill の方が一般的？
+}
+//*/
+//-----------------------------------------------------------------------------------------------------------------------------------------------
 
 int main(int argc, char** argv){
 	printf("\n");
@@ -57,18 +74,47 @@ int main(int argc, char** argv){
 	printf("+---------------------------------------------------+\n");
 	printf("\n");
 	printf("■ measureTime_start---------------\n\n"); time_m timem; sstd::measureTime_start(timem);
-	
+	/*
 	{
-		sstd::vvec<double> vvecX, vvecY; vecPath2plot(vvecX, vvecY, sstd::glob("./tmpBench/find_wRehash/*"));
+		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob("./tmpBench/find_wRehash/*"));
 		
 		const char* savePath="./tmpBench/find_wRehash_med"; std::vector<std::string> saveAs={".png", ".pdf"};
 		vvec2plot_find(savePath, saveAs, vvecX, vvecY);
 	}
 	{
-		sstd::vvec<double> vvecX, vvecY; vecPath2plot(vvecX, vvecY, sstd::glob("./tmpBench/find_failedAll/*"));
+		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob("./tmpBench/find_failedAll/*"));
 		
 		const char* savePath="./tmpBench/find_failedAll_med"; std::vector<std::string> saveAs={".png", ".pdf"};
 		vvec2plot_find(savePath, saveAs, vvecX, vvecY);
+	}
+	{
+		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob("./tmpBench/insert_wRehash/*"));
+		
+		const char* savePath="./tmpBench/insert_wRehash_med"; std::vector<std::string> saveAs={".png", ".pdf"};
+		vvec2plot_insert(savePath, saveAs, vvecX, vvecY);
+	}
+	{
+		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob("./tmpBench/insert_et_wRehash/*"));
+		
+		const char* savePath="./tmpBench/insert_et_wRehash_med"; std::vector<std::string> saveAs={".png", ".pdf"};
+		vvec2plot_insert_et(savePath, saveAs, vvecX, vvecY);
+	}//*/
+	{
+		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob("./tmpBench/erase_wRehash/*"));
+		
+//		uint min = ;
+		for(uint i=0; i<vvecX.size(); i++){ // vecType
+//			sstd::suppress(vvecX[i], vvecY[i]); // 不揃いな要素を落とす． <-> padding
+			sstd__suppress(vvecX[i], vvecY[i]); // 不揃いな要素を落とす． <-> padding
+		}
+		
+		sstd::printn(vvecX.size());
+		sstd::printn(vvecX[0].size());
+		sstd::printn(vvecY.size());
+		sstd::printn(vvecY[0].size());
+		
+		const char* savePath="./tmpBench/erase_wRehash_med"; std::vector<std::string> saveAs={".png", ".pdf"};
+		vvec2plot_erase(savePath, saveAs, vvecX, vvecY);
 	}
 	
 	printf("\n■ measureTime_stop----------------\n"); sstd::measureTime_stop_print(timem);
