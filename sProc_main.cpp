@@ -145,13 +145,14 @@ int main(int argc, char** argv){
 	
 	{
 		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob("./tmpBench/maxLoadFactor/*"));
-		//*
+		
 		for(uint i=0; i<vvecX.size(); i++){ // vecType
 			vvecX[i] = sstd__nonzero(vvecX[i]);
+			vvecY[i] = sstd__nonzero(vvecY[i]);
 //			sstd::suppress(vvecX[i], vvecY[i]); // 不揃いな要素を落とす． <-> padding
 			sstd__suppress(vvecX[i], vvecY[i]); // 不揃いな要素を落とす． <-> padding
 		}
-		//*/
+		
 		const char* savePath="./tmpBench/maxLoadFactor_med"; std::vector<std::string> saveAs={".png", ".pdf"};
 		vvec2plot_maxLoadFactor(savePath, saveAs, vvecX, vvecY);
 	}
