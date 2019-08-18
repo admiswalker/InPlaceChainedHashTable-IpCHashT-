@@ -59,6 +59,26 @@ template<typename T>
 void sstd__padding(std::vector<T>& vecLhs, std::vector<T>& vecRhs){ // zfill の方が一般的？
 }
 //*/
+
+/*
+template<typename T>
+void sstd__rm(std::vector<T>& vec, const T& rmVal){
+}
+*/
+
+template<typename T>
+std::vector<T> sstd__nonzero(const std::vector<T>& rhs){
+	std::vector<T> lhs(rhs.size()); lhs.clear();
+	const T zero = (T)0;
+	
+	for(uint i=0; i<rhs.size(); i++){
+		if(rhs[i]==zero){ break; }
+		lhs.push_back( rhs[i] );
+	}
+	
+	return lhs;
+}
+
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
 int main(int argc, char** argv){
@@ -94,15 +114,20 @@ int main(int argc, char** argv){
 		vvec2plot_insert(savePath, saveAs, vvecX, vvecY);
 	}
 	{
+		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob("./tmpBench/insert_et/*"));
+		
+		const char* savePath="./tmpBench/insert_et_med"; std::vector<std::string> saveAs={".png", ".pdf"};
+		vvec2plot_insert_et(savePath, saveAs, vvecX, vvecY);
+	}
+	{
 		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob("./tmpBench/insert_et_wRehash/*"));
 		
 		const char* savePath="./tmpBench/insert_et_wRehash_med"; std::vector<std::string> saveAs={".png", ".pdf"};
 		vvec2plot_insert_et(savePath, saveAs, vvecX, vvecY);
-	}//*/
+	}
 	{
 		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob("./tmpBench/erase_wRehash/*"));
 		
-//		uint min = ;
 		for(uint i=0; i<vvecX.size(); i++){ // vecType
 //			sstd::suppress(vvecX[i], vvecY[i]); // 不揃いな要素を落とす． <-> padding
 			sstd__suppress(vvecX[i], vvecY[i]); // 不揃いな要素を落とす． <-> padding
@@ -115,6 +140,20 @@ int main(int argc, char** argv){
 		
 		const char* savePath="./tmpBench/erase_wRehash_med"; std::vector<std::string> saveAs={".png", ".pdf"};
 		vvec2plot_erase(savePath, saveAs, vvecX, vvecY);
+	}
+	//*/
+	
+	{
+		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob("./tmpBench/maxLoadFactor/*"));
+		//*
+		for(uint i=0; i<vvecX.size(); i++){ // vecType
+			vvecX[i] = sstd__nonzero(vvecX[i]);
+//			sstd::suppress(vvecX[i], vvecY[i]); // 不揃いな要素を落とす． <-> padding
+			sstd__suppress(vvecX[i], vvecY[i]); // 不揃いな要素を落とす． <-> padding
+		}
+		//*/
+		const char* savePath="./tmpBench/maxLoadFactor_med"; std::vector<std::string> saveAs={".png", ".pdf"};
+		vvec2plot_maxLoadFactor(savePath, saveAs, vvecX, vvecY);
 	}
 	
 	printf("\n■ measureTime_stop----------------\n"); sstd::measureTime_stop_print(timem);

@@ -655,24 +655,21 @@ void bench_maxLoadFactor(T_hashTable& hashT, const uint64 limitSize, std::vector
 	
 	std::random_device seed_gen;
 	std::mt19937_64 rand(seed_gen()); // pseudo random number generator
-
-	double lf_prev=0;
+	
+	double lf_prev=0.0;
 	while(hashT.size()<limitSize){
 		uint64 r = rand();
 		hashT[r] = r;
 		double lf = hashT.load_factor();
 		if(lf < lf_prev){
-			vecX_tSize <<= hashT.bucket_count()-1;
+			vecX_tSize <<= (double)hashT.bucket_count()-1.0;
 			vecY_lf    <<= lf_prev;
 		}
 		lf_prev = lf;
 	}
 }
-void bench2plot_maxLoadFactor(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 limitSize){
-	std::vector<std::vector<double>> vvecX, vvecY;
-	const uint64 initSize=0ull;
-	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_maxLoadFactor);
-	
+//---
+void vvec2plot_maxLoadFactor(const std::string& savePath, const std::vector<std::string>& saveAs, const sstd::vvec<double>& vvecX, const sstd::vvec<double>& vvecY){
 	const char* xlabel = "Table size [count]";
 	const char* ylabel = "maximum load factor [%]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
@@ -683,6 +680,22 @@ void bench2plot_maxLoadFactor(const std::string& savePath, const std::vector<std
 	const char* funcName = "vvec2graph_lf";
 	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const str, const vec<str>*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
 	vvec2graph(savePath, &saveAs, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
+}
+void bench2plot_maxLoadFactor(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 limitSize){
+	std::vector<std::vector<double>> vvecX, vvecY;
+	const uint64 initSize=0ull;
+	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_maxLoadFactor);
+	
+	vvec2plot_maxLoadFactor(savePath, saveAs, vvecX, vvecY);
+}
+//---
+void bench2csv_maxLoadFactor(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 limitSize){
+	std::vector<std::vector<double>> vvecX, vvecY;
+	const uint64 initSize=0ull;
+	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_maxLoadFactor);
+	
+	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [%]", "cHashT [%]", "iHashT_u8 [%]", "iHashT_u16 [%]", "dHashT [%]", "fHashT [%]"}};
+	BENCH_to_CSV(savePath, vvecX, vvecY, vvecHeader);
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -758,7 +771,14 @@ void RUN_ALL_BENCHS(){
 		bench2csv_insert(savePath, saveAs, initSize_wRehash, limitSize); // with rehash
 	}
 	//*/
-	
+	/*
+	std::string iE = "insert_et";
+	sstd::mkdir(saveDir+'/'+iE);
+	for(uint i=0; i<100; i++){ // 7 mins
+		std::string savePath = saveDir +'/'+iE +sstd::ssprintf("/%s_%03u", iE.c_str(), i)+".csv";
+		bench2csv_insert_et(savePath, saveAs, initSize_preAlloc, limitSize); // with rehash
+	}
+	//*/
 	/*
 	std::string iEwR = "insert_et_wRehash";
 	sstd::mkdir(saveDir+'/'+iEwR);
@@ -767,8 +787,8 @@ void RUN_ALL_BENCHS(){
 		bench2csv_insert_et(savePath, saveAs, initSize_wRehash, limitSize); // with rehash
 	}
 	//*/
-
-	//*
+	
+	/*
 	std::string ewR = "erase_wRehash";
 	sstd::mkdir(saveDir+'/'+ewR);
 	for(uint i=0; i<100; i++){ //  mins
@@ -777,6 +797,14 @@ void RUN_ALL_BENCHS(){
 	}
 	//*/
 	
+	//*
+	std::string mLF = "maxLoadFactor";
+	sstd::mkdir(saveDir+'/'+mLF);
+	for(uint i=0; i<100; i++){ //  mins
+		std::string savePath = saveDir +'/'+mLF +sstd::ssprintf("/%s_%03u", mLF.c_str(), i)+".csv";
+		bench2csv_maxLoadFactor(savePath, saveAs, limitSize); // pre-allocate
+	}
+	//*/
 	
 }
 
