@@ -2,9 +2,9 @@
 # please set each item
 
 # source files
-SRCS_t   = test_main.cpp FNV_Hash.cpp
-SRCS_bm  = bench_main.cpp FNV_Hash.cpp
-SRCS_sp  = sProc_main.cpp
+SRCS_t   = main_test.cpp FNV_Hash.cpp
+SRCS_bm  = main_bench.cpp FNV_Hash.cpp
+SRCS_sp  = main_sProc.cpp
 HEADS    = CHashT.hpp IpCHashT.hpp
 HEADS_t  = test_CHashT.hpp test_IpCHashT.hpp
 HEADS_bm = bench.hpp
@@ -133,7 +133,7 @@ backup:
 .PHONY: updateLib
 updateLib:
 	wget https://github.com/admiswalker/SubStandardLibrary-SSTD-/archive/master.zip -O SubStandardLibrary-SSTD--master.zip
-	-rm -rf sstd
+	-rm -rf sstd # remove previous versions of sstd
 
 .PHONY: steps
 steps: $(SRCS_t) $(SRCS_bm) $(HEADS) $(HEADS_t)
