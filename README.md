@@ -33,8 +33,9 @@ In a benchmark, assert() will be disabled using -DNDEBUG complie option.
 | Makefile                   | Makefile                                     |        |
 | README.md                  | Read me file                                 |        |
 | bench.hpp                  | Benchmark                                    |        |
-| exe\_bm                    | Binary file for benchmark                    |        |
-| exe\_t                     | Binary file for test of "test\_CHashT.hpp" and "test\_IpCHashT.hpp" |        |
+| exe\_bm                    | Binary file for "main\_bench.cpp"            |        |
+| exe\_sProc                 | Binary file for "main\_sProc.cpp"            |        |
+| exe\_t                     | Binary file for "main\_test.cpp"             |        |
 | flat\_hash\_map-master.zip | Inplimentation of "ska::flat\_hash\_map"     | [github.com/skarupke/flat_hash_map](https://github.com/skarupke/flat_hash_map) |
 | googletest-master.zip      | Google's C++ test framework                  | [github.com/google/googletest](https://github.com/google/googletest) |
 | main\_bench.cpp            | Entry potion for "bench.hpp"                 |        |
