@@ -37,7 +37,7 @@ In a benchmark, assert() will be disabled using -DNDEBUG complie option.
 | exe\_bm                                   | Binary file for "main\_bench.cpp"                            |        |
 | exe\_sProc                                | Binary file for "main\_sProc.cpp"                            |        |
 | exe\_t                                    | Binary file for "main\_test.cpp"                             |        |
-| ```flat\_hash\_map-master.zip```          | Inplimentation of "ska::flat\_hash\_map"                     | [github.com/skarupke/flat_hash_map](https://github.com/skarupke/flat_hash_map) |
+| ```flat_hash_map-master.zip```          | Inplimentation of "ska::flat\_hash\_map"                     | [github.com/skarupke/flat_hash_map](https://github.com/skarupke/flat_hash_map) |
 | ```googletest-master.zip```               | Google's C++ test framework                                  | [github.com/google/googletest](https://github.com/google/googletest) |
 | main\_bench.cpp                           | Entry potion for "bench.hpp"                                 |        |
 | main\_sProc.cpp                           | Entry potion for generating merget graph.                    |        |
