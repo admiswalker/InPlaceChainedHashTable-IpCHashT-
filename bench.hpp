@@ -708,7 +708,7 @@ void RUN_ALL_BENCHS(){
 	
 	const std::string saveDir = "./tmpBench"; sstd::mkdir(saveDir);
 	std::vector<std::string> saveAs = {".pdf", ".png"};
-	/*
+	
 	// bench of used memory size should run first inorder to avoid memory swap by Linux OS.
 	bench2plot_usedMemory(saveDir+"/usedMemory_wRehash_log",  saveAs, initSize_wRehash, limitSize);
 	bench2plot_usedMemory(saveDir+"/usedMemory_preAlloc_log", saveAs, initSize_preAlloc, limitSize);
@@ -722,10 +722,10 @@ void RUN_ALL_BENCHS(){
 	// insert: elapsed time [sec]
 	bench2plot_insert_et(saveDir+"/insert_et_wRehash",  saveAs, initSize_wRehash,  limitSize); // with rehash
 	bench2plot_insert_et(saveDir+"/insert_et_preAlloc", saveAs, initSize_preAlloc, limitSize); // pre-allocate
-	//*/
+	
 	// find: find speed [quely/sec]
-//	bench2plot_find(saveDir+"/find_wRehash", saveAs, initSize_wRehash, limitSize); // with rehash
-	/*
+	bench2plot_find(saveDir+"/find_wRehash", saveAs, initSize_wRehash, limitSize); // with rehash
+	
 	// find: all lookup is failed
 	bench2plot_find_failedAll(saveDir+"/find_wRehash_failedAll", saveAs, initSize_wRehash, limitSize);
 	
@@ -741,71 +741,57 @@ void RUN_ALL_BENCHS(){
 	
 	// max-load factor
 	bench2plot_maxLoadFactor(saveDir+"/maxLoadFactor", saveAs, limitSize);
-	//*/
 	
 	//---------------------------------------------------------------------------------------------------------------------------------------------
 	
-	/*
-	std::string saveDir_fwR = saveDir+"/find_wRehash";
-	sstd::mkdir(saveDir_fwR);
+	std::string fwR = saveDir+"/find_wRehash";
+	sstd::mkdir(saveDir+'/'+fwR);
 	for(uint i=0; i<100; i++){ // 17 mins
-		std::string savePath = saveDir_fwR+sstd::ssprintf("/find_wRehash_%03u", i)+".csv";
+		std::string savePath = saveDir +'/'+fwR +sstd::ssprintf("/find_wRehash_%03u", i)+".csv";
 		bench2csv_find(savePath, saveAs, initSize_wRehash, limitSize); // with rehash
 	}
-	//*/
 	
-	/*
-	std::string saveDir_ffa = saveDir+"/find_failedAll";
-	sstd::mkdir(saveDir_ffa);
+	std::string ffa = saveDir+"/find_failedAll";
+	sstd::mkdir(saveDir+'/'+ffa);
 	for(uint i=0; i<100; i++){ // 15 mins
-		std::string savePath = saveDir_ffa+sstd::ssprintf("/find_failedAll_%03u", i)+".csv";
+		std::string savePath = saveDir +'/'+ffa +sstd::ssprintf("/find_failedAll_%03u", i)+".csv";
 		bench2csv_find_failedAll(savePath, saveAs, initSize_wRehash, limitSize); // with rehash
 	}
-	//*/
 	
-	/*
 	std::string iwR = "insert_wRehash";
 	sstd::mkdir(saveDir+'/'+iwR);
 	for(uint i=0; i<100; i++){ // 13 mins
 		std::string savePath = saveDir +'/'+iwR +sstd::ssprintf("/%s_%03u", iwR.c_str(), i)+".csv";
 		bench2csv_insert(savePath, saveAs, initSize_wRehash, limitSize); // with rehash
 	}
-	//*/
-	/*
+	
 	std::string iE = "insert_et";
 	sstd::mkdir(saveDir+'/'+iE);
 	for(uint i=0; i<100; i++){ // 7 mins
 		std::string savePath = saveDir +'/'+iE +sstd::ssprintf("/%s_%03u", iE.c_str(), i)+".csv";
 		bench2csv_insert_et(savePath, saveAs, initSize_preAlloc, limitSize); // with rehash
 	}
-	//*/
-	/*
+	
 	std::string iEwR = "insert_et_wRehash";
 	sstd::mkdir(saveDir+'/'+iEwR);
 	for(uint i=0; i<100; i++){ // 13 mins
 		std::string savePath = saveDir +'/'+iEwR +sstd::ssprintf("/%s_%03u", iEwR.c_str(), i)+".csv";
 		bench2csv_insert_et(savePath, saveAs, initSize_wRehash, limitSize); // with rehash
 	}
-	//*/
 	
-	/*
 	std::string ewR = "erase_wRehash";
 	sstd::mkdir(saveDir+'/'+ewR);
 	for(uint i=0; i<100; i++){ //  mins
 		std::string savePath = saveDir +'/'+ewR +sstd::ssprintf("/%s_%03u", ewR.c_str(), i)+".csv";
 		bench2csv_erase(savePath, saveAs, initSize_wRehash, limitSize); // pre-allocate
 	}
-	//*/
 	
-	//*
 	std::string mLF = "maxLoadFactor";
 	sstd::mkdir(saveDir+'/'+mLF);
 	for(uint i=0; i<100; i++){ //  mins
 		std::string savePath = saveDir +'/'+mLF +sstd::ssprintf("/%s_%03u", mLF.c_str(), i)+".csv";
 		bench2csv_maxLoadFactor(savePath, saveAs, limitSize); // pre-allocate
 	}
-	//*/
-	
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
