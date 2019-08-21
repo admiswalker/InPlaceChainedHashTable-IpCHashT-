@@ -78,6 +78,85 @@ uint64 size2interval(const uint64 size){
 	}
 }//*/
 //-----------------------------------------------------------------------------------------------------------------------------------------------
+// used memory size
+
+template<typename T_hashTable>
+void bench_usedMemory(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_MB, const double baseSize_MB){
+	std::random_device seed_gen;
+	std::mt19937_64 rand(seed_gen()); // pseudo random number generator
+	
+	vecY_MB  <<= baseSize_MB; // base size of allocated memory
+	vecX_num <<= 0;
+	
+	uint64 splitNum  = 100;
+//	uint64 splitNum  = 1000;
+	uint64 interval  = limitSize/splitNum;
+	uint64 tSize_prev = hashT.bucket_count(); // table size
+	for(uint sn=0; sn<splitNum; sn++){
+		// insert
+		for(uint i=0; i<interval; i++){
+			uint64 r = rand();
+			hashT[r] = r;
+		}
+		
+		double h_MB = sstd::status_VmHWM() / 1024.0;
+		double r_MB = sstd::status_VmRSS() / 1024.0;
+		uint64 tSize = hashT.bucket_count();
+		double MB; if(tSize > tSize_prev){ MB=h_MB; tSize_prev=tSize; }else{ MB=r_MB; }
+		vecY_MB  <<= MB;
+		vecX_num <<= hashT.size();
+	}
+	vecY_MB -= (double)vecY_MB[0];
+}
+void bench2plot_usedMemory(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
+	std::vector<double> vecX_u, vecX_c, vecX_i8, vecX_i16, vecX_d, vecX_f; // memory size [MB]
+	std::vector<double> vecY_u, vecY_c, vecY_i8, vecY_i16, vecY_d, vecY_f; // sec
+	double baseSize_MB = 0.0;
+	
+	baseSize_MB = sstd::status_VmRSS()/1024.0;
+	uHashT hashT_u(initSize);
+	bench_usedMemory(hashT_u, limitSize, vecX_u, vecY_u, baseSize_MB);
+	std::vector<char> buf_u((sstd::status_VmHWM()-sstd::status_VmRSS())*1024); // inorder not to count swap memory region
+	
+	baseSize_MB = sstd::status_VmRSS()/1024.0;
+	cHashT hashT_c(initSize);
+	bench_usedMemory(hashT_c, limitSize, vecX_c, vecY_c, baseSize_MB);
+	std::vector<char> buf_c((sstd::status_VmHWM()-sstd::status_VmRSS())*1024); // inorder not to count swap memory region
+	
+	baseSize_MB = sstd::status_VmRSS()/1024.0;
+	iHashT_u8 hashT_i8(initSize);
+	bench_usedMemory(hashT_i8, limitSize, vecX_i8, vecY_i8, baseSize_MB);
+	std::vector<char> buf_i8((sstd::status_VmHWM()-sstd::status_VmRSS())*1024); // inorder not to count swap memory region
+	
+	baseSize_MB = sstd::status_VmRSS()/1024.0;
+	iHashT_u16 hashT_i16(initSize);
+	bench_usedMemory(hashT_i16, limitSize, vecX_i16, vecY_i16, baseSize_MB);
+	std::vector<char> buf_i16((sstd::status_VmHWM()-sstd::status_VmRSS())*1024); // inorder not to count swap memory region
+	
+	baseSize_MB = sstd::status_VmRSS()/1024.0;
+	dHashT hashT_d(initSize); hashT_d.set_empty_key(0ull); // this meen that 'NULL' will not be able to insert as a key-value.
+	bench_usedMemory(hashT_d, limitSize, vecX_d, vecY_d, baseSize_MB);
+	std::vector<char> buf_d((sstd::status_VmHWM()-sstd::status_VmRSS())*1024); // inorder not to count swap memory region
+	
+	baseSize_MB = sstd::status_VmRSS()/1024.0;
+	fHashT hashT_f(initSize);
+	bench_usedMemory(hashT_f, limitSize, vecX_f, vecY_f, baseSize_MB);
+	
+	const char* xlabel = "Number of elements on the table [conut]";
+	const char* ylabel = "Allocated memory size [MB]";
+	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
+	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i8, vecX_i16, vecX_d, vecX_f}; // memory size [MB]
+	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i8, vecY_i16, vecY_d, vecY_f}; // sec
+	
+	// plot2fig
+	const char* tmpDir   = "./tmpDir";
+	const char* fileName = "plots";
+	const char* funcName = "vvec2graph_memory";
+	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const str, const vec<str>*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
+	vvec2graph(savePath, &saveAs, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------
 // insert
 
 template<typename T_hashTable>
@@ -196,86 +275,7 @@ void bench2csv_insert_et(const std::string& savePath, const std::vector<std::str
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
-// used memory size
-
-template<typename T_hashTable>
-void bench_usedMemory(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_MB, const double baseSize_MB){
-	std::random_device seed_gen;
-	std::mt19937_64 rand(seed_gen()); // pseudo random number generator
-	
-	vecY_MB  <<= baseSize_MB; // base size of allocated memory
-	vecX_num <<= 0;
-	
-	uint64 splitNum  = 100;
-//	uint64 splitNum  = 1000;
-	uint64 interval  = limitSize/splitNum;
-	uint64 tSize_prev = hashT.bucket_count(); // table size
-	for(uint sn=0; sn<splitNum; sn++){
-		// insert
-		for(uint i=0; i<interval; i++){
-			uint64 r = rand();
-			hashT[r] = r;
-		}
-		
-		double h_MB = sstd::status_VmHWM() / 1024.0;
-		double r_MB = sstd::status_VmRSS() / 1024.0;
-		uint64 tSize = hashT.bucket_count();
-		double MB; if(tSize > tSize_prev){ MB=h_MB; tSize_prev=tSize; }else{ MB=r_MB; }
-		vecY_MB  <<= MB;
-		vecX_num <<= hashT.size();
-	}
-	vecY_MB -= (double)vecY_MB[0];
-}
-void bench2plot_usedMemory(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
-	std::vector<double> vecX_u, vecX_c, vecX_i8, vecX_i16, vecX_d, vecX_f; // memory size [MB]
-	std::vector<double> vecY_u, vecY_c, vecY_i8, vecY_i16, vecY_d, vecY_f; // sec
-	double baseSize_MB = 0.0;
-	
-	baseSize_MB = sstd::status_VmRSS()/1024.0;
-	uHashT hashT_u(initSize);
-	bench_usedMemory(hashT_u, limitSize, vecX_u, vecY_u, baseSize_MB);
-	std::vector<char> buf_u((sstd::status_VmHWM()-sstd::status_VmRSS())*1024); // inorder not to count swap memory region
-	
-	baseSize_MB = sstd::status_VmRSS()/1024.0;
-	cHashT hashT_c(initSize);
-	bench_usedMemory(hashT_c, limitSize, vecX_c, vecY_c, baseSize_MB);
-	std::vector<char> buf_c((sstd::status_VmHWM()-sstd::status_VmRSS())*1024); // inorder not to count swap memory region
-	
-	baseSize_MB = sstd::status_VmRSS()/1024.0;
-	iHashT_u8 hashT_i8(initSize);
-	bench_usedMemory(hashT_i8, limitSize, vecX_i8, vecY_i8, baseSize_MB);
-	std::vector<char> buf_i8((sstd::status_VmHWM()-sstd::status_VmRSS())*1024); // inorder not to count swap memory region
-	
-	baseSize_MB = sstd::status_VmRSS()/1024.0;
-	iHashT_u16 hashT_i16(initSize);
-	bench_usedMemory(hashT_i16, limitSize, vecX_i16, vecY_i16, baseSize_MB);
-	std::vector<char> buf_i16((sstd::status_VmHWM()-sstd::status_VmRSS())*1024); // inorder not to count swap memory region
-	
-	baseSize_MB = sstd::status_VmRSS()/1024.0;
-	dHashT hashT_d(initSize); hashT_d.set_empty_key(0ull); // this meen that 'NULL' will not be able to insert as a key-value.
-	bench_usedMemory(hashT_d, limitSize, vecX_d, vecY_d, baseSize_MB);
-	std::vector<char> buf_d((sstd::status_VmHWM()-sstd::status_VmRSS())*1024); // inorder not to count swap memory region
-	
-	baseSize_MB = sstd::status_VmRSS()/1024.0;
-	fHashT hashT_f(initSize);
-	bench_usedMemory(hashT_f, limitSize, vecX_f, vecY_f, baseSize_MB);
-	
-	const char* xlabel = "Number of elements on the table [conut]";
-	const char* ylabel = "Allocated memory size [MB]";
-	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
-	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i8, vecX_i16, vecX_d, vecX_f}; // memory size [MB]
-	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i8, vecY_i16, vecY_d, vecY_f}; // sec
-	
-	// plot2fig
-	const char* tmpDir   = "./tmpDir";
-	const char* fileName = "plots";
-	const char* funcName = "vvec2graph_memory";
-	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const str, const vec<str>*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
-	vvec2graph(savePath, &saveAs, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
-}
-
-//-----------------------------------------------------------------------------------------------------------------------------------------------
-// find
+// find: successful lookup
 
 template<typename T_hashTable>
 void bench_find(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_quely_per_us){
@@ -346,7 +346,7 @@ void bench2csv_find(const std::string& savePath, const std::vector<std::string>&
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
-// find: all lookup is failed
+// find: unsuccessful lookup
 
 template<typename T_hashTable>
 void bench_find_failedAll(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_quely_per_us){
@@ -557,6 +557,8 @@ void RUN_ALL_BENCHS(){
 	const std::string saveDir = "./tmpBench"; sstd::mkdir(saveDir);
 	std::vector<std::string> saveAs = {".pdf", ".png"};
 	
+	//---------------------------------------------------------------------------------------------------------------------------------------------
+	
 	// bench of used memory size should run first inorder to avoid memory swap by Linux OS.
 	bench2plot_usedMemory(saveDir+"/usedMemory_wRehash",  saveAs, initSize_wRehash, limitSize);
 	bench2plot_usedMemory(saveDir+"/usedMemory_preAlloc", saveAs, initSize_preAlloc, limitSize);
@@ -568,10 +570,10 @@ void RUN_ALL_BENCHS(){
 	bench2plot_insert_et(saveDir+"/insert_et_wRehash",  saveAs, initSize_wRehash,  limitSize);
 	bench2plot_insert_et(saveDir+"/insert_et_preAlloc", saveAs, initSize_preAlloc, limitSize);
 	
-	// find: Successful lookup speed [quely/sec]
+	// find: successful lookup speed [quely/sec]
 	bench2plot_find(saveDir+"/find_successful_lookup", saveAs, initSize_wRehash, limitSize);
 	
-	// find: Unsuccessful lookup speed
+	// find: unsuccessful lookup speed
 	bench2plot_find_failedAll(saveDir+"/find_unsuccessful_lookup", saveAs, initSize_wRehash, limitSize);
 	
 	// erase
@@ -603,13 +605,6 @@ void RUN_ALL_BENCHS(){
 		bench2csv_insert(savePath, saveAs, initSize_wRehash, limitSize);
 	}
 	
-	std::string iE = "insert_et";
-	sstd::mkdir(saveDir+'/'+iE);
-	for(uint i=0; i<100; i++){ // 7 mins
-		std::string savePath = saveDir +'/'+iE +sstd::ssprintf("/%s_%03u", iE.c_str(), i)+".csv";
-		bench2csv_insert_et(savePath, saveAs, initSize_preAlloc, limitSize);
-	}
-	
 	std::string iEwR = "insert_et_wRehash";
 	sstd::mkdir(saveDir+'/'+iEwR);
 	for(uint i=0; i<100; i++){ // 13 mins
@@ -617,7 +612,14 @@ void RUN_ALL_BENCHS(){
 		bench2csv_insert_et(savePath, saveAs, initSize_wRehash, limitSize);
 	}
 	
-	std::string ewR = "erase_wRehash";
+	std::string iE = "insert_et_preAlloc";
+	sstd::mkdir(saveDir+'/'+iE);
+	for(uint i=0; i<100; i++){ // 7 mins
+		std::string savePath = saveDir +'/'+iE +sstd::ssprintf("/%s_%03u", iE.c_str(), i)+".csv";
+		bench2csv_insert_et(savePath, saveAs, initSize_preAlloc, limitSize);
+	}
+	
+	std::string ewR = "erase";
 	sstd::mkdir(saveDir+'/'+ewR);
 	for(uint i=0; i<100; i++){ //  mins
 		std::string savePath = saveDir +'/'+ewR +sstd::ssprintf("/%s_%03u", ewR.c_str(), i)+".csv";
