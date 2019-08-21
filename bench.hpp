@@ -558,89 +558,80 @@ void RUN_ALL_BENCHS(){
 	std::vector<std::string> saveAs = {".pdf", ".png"};
 	
 	// bench of used memory size should run first inorder to avoid memory swap by Linux OS.
-	bench2plot_usedMemory(saveDir+"/usedMemory_wRehash_log",  saveAs, initSize_wRehash, limitSize);
-	bench2plot_usedMemory(saveDir+"/usedMemory_preAlloc_log", saveAs, initSize_preAlloc, limitSize);
-	
-	// Warm running, because of the first bench usually returns bad result.
-	bench2plot_insert(saveDir+"/warmRunning", saveAs, initSize_wRehash, limitSize); // pre-allocate
+	bench2plot_usedMemory(saveDir+"/usedMemory_wRehash",  saveAs, initSize_wRehash, limitSize);
+	bench2plot_usedMemory(saveDir+"/usedMemory_preAlloc", saveAs, initSize_preAlloc, limitSize);
 	
 	// insert: insertion speed [query/sec]
-	bench2plot_insert(saveDir+"/insert_wRehash", saveAs, initSize_wRehash, limitSize); // with rehash
+	bench2plot_insert(saveDir+"/insert", saveAs, initSize_wRehash, limitSize);
 	
 	// insert: elapsed time [sec]
-	bench2plot_insert_et(saveDir+"/insert_et_wRehash",  saveAs, initSize_wRehash,  limitSize); // with rehash
-	bench2plot_insert_et(saveDir+"/insert_et_preAlloc", saveAs, initSize_preAlloc, limitSize); // pre-allocate
+	bench2plot_insert_et(saveDir+"/insert_et_wRehash",  saveAs, initSize_wRehash,  limitSize);
+	bench2plot_insert_et(saveDir+"/insert_et_preAlloc", saveAs, initSize_preAlloc, limitSize);
 	
-	// find: find speed [quely/sec]
-	bench2plot_find(saveDir+"/find_wRehash", saveAs, initSize_wRehash, limitSize); // with rehash
+	// find: Successful lookup speed [quely/sec]
+	bench2plot_find(saveDir+"/find_successful_lookup", saveAs, initSize_wRehash, limitSize);
 	
-	// find: all lookup is failed
-	bench2plot_find_failedAll(saveDir+"/find_wRehash_failedAll", saveAs, initSize_wRehash, limitSize);
+	// find: Unsuccessful lookup speed
+	bench2plot_find_failedAll(saveDir+"/find_unsuccessful_lookup", saveAs, initSize_wRehash, limitSize);
 	
 	// erase
-	bench2plot_erase(saveDir+"/erase_wRehash", saveAs, initSize_wRehash, limitSize); // pre-allocate
+	bench2plot_erase(saveDir+"/erase", saveAs, initSize_wRehash, limitSize);
 	
 	// max-load factor
 	bench2plot_maxLoadFactor(saveDir+"/maxLoadFactor", saveAs, limitSize);
 	
 	//---------------------------------------------------------------------------------------------------------------------------------------------
-	/*
-	std::string fwR = saveDir+"/find_wRehash";
+	//*
+	std::string fwR = "/find_successful_lookup";
 	sstd::mkdir(saveDir+'/'+fwR);
 	for(uint i=0; i<100; i++){ // 17 mins
-		std::string savePath = saveDir +'/'+fwR +sstd::ssprintf("/find_wRehash_%03u", i)+".csv";
-		bench2csv_find(savePath, saveAs, initSize_wRehash, limitSize); // with rehash
+		std::string savePath = saveDir +'/'+fwR +sstd::ssprintf("/%s_%03u", fwR.c_str(), i)+".csv";
+		bench2csv_find(savePath, saveAs, initSize_wRehash, limitSize);
 	}
 	
-	std::string ffa = saveDir+"/find_failedAll";
+	std::string ffa = "/find_unsuccessful_lookup";
 	sstd::mkdir(saveDir+'/'+ffa);
 	for(uint i=0; i<100; i++){ // 15 mins
-		std::string savePath = saveDir +'/'+ffa +sstd::ssprintf("/find_failedAll_%03u", i)+".csv";
-		bench2csv_find_failedAll(savePath, saveAs, initSize_wRehash, limitSize); // with rehash
+		std::string savePath = saveDir +'/'+ffa +sstd::ssprintf("/%s_%03u", ffa.c_str(), i)+".csv";
+		bench2csv_find_failedAll(savePath, saveAs, initSize_wRehash, limitSize);
 	}
 	
-	std::string iwR = "insert_wRehash";
+	std::string iwR = "insert";
 	sstd::mkdir(saveDir+'/'+iwR);
 	for(uint i=0; i<100; i++){ // 13 mins
 		std::string savePath = saveDir +'/'+iwR +sstd::ssprintf("/%s_%03u", iwR.c_str(), i)+".csv";
-		bench2csv_insert(savePath, saveAs, initSize_wRehash, limitSize); // with rehash
+		bench2csv_insert(savePath, saveAs, initSize_wRehash, limitSize);
 	}
 	
 	std::string iE = "insert_et";
 	sstd::mkdir(saveDir+'/'+iE);
 	for(uint i=0; i<100; i++){ // 7 mins
 		std::string savePath = saveDir +'/'+iE +sstd::ssprintf("/%s_%03u", iE.c_str(), i)+".csv";
-		bench2csv_insert_et(savePath, saveAs, initSize_preAlloc, limitSize); // with rehash
+		bench2csv_insert_et(savePath, saveAs, initSize_preAlloc, limitSize);
 	}
 	
 	std::string iEwR = "insert_et_wRehash";
 	sstd::mkdir(saveDir+'/'+iEwR);
 	for(uint i=0; i<100; i++){ // 13 mins
 		std::string savePath = saveDir +'/'+iEwR +sstd::ssprintf("/%s_%03u", iEwR.c_str(), i)+".csv";
-		bench2csv_insert_et(savePath, saveAs, initSize_wRehash, limitSize); // with rehash
+		bench2csv_insert_et(savePath, saveAs, initSize_wRehash, limitSize);
 	}
 	
 	std::string ewR = "erase_wRehash";
 	sstd::mkdir(saveDir+'/'+ewR);
 	for(uint i=0; i<100; i++){ //  mins
 		std::string savePath = saveDir +'/'+ewR +sstd::ssprintf("/%s_%03u", ewR.c_str(), i)+".csv";
-		bench2csv_erase(savePath, saveAs, initSize_wRehash, limitSize); // pre-allocate
+		bench2csv_erase(savePath, saveAs, initSize_wRehash, limitSize);
 	}
 	
 	std::string mLF = "maxLoadFactor";
 	sstd::mkdir(saveDir+'/'+mLF);
 	for(uint i=0; i<100; i++){ //  mins
 		std::string savePath = saveDir +'/'+mLF +sstd::ssprintf("/%s_%03u", mLF.c_str(), i)+".csv";
-		bench2csv_maxLoadFactor(savePath, saveAs, limitSize); // pre-allocate
+		bench2csv_maxLoadFactor(savePath, saveAs, limitSize);
 	}
 	//*/
 }
-
-//-----------------------------------------------------------------------------------------------------------------------------------------------
-
-// TODO:
-//  rename: find_wRehash -> successful lookup
-//  rename: find_failedAll -> unsuccessful lookup
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
