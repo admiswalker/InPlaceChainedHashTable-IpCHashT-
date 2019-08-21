@@ -88,15 +88,6 @@ def vvec2graph(savePath, saveAs, xlabel, ylabel, vecLabel, vvecX, vvecY):
     vvec2graph_base(savePath, saveAs, xlabel, ylabel, vecLabel, labelLoc, vvecX, vvecY, vecXlim, vecYlim, xscale, yscale)
     return
 
-def vvec2graph_FEA(savePath, saveAs, xlabel, ylabel, vecLabel, vvecX, vvecY):
-    vecXlim = [0.00009, 1.1]
-    vecYlim = [0.9, 200]
-    xscale = 'log'
-    yscale = 'log'
-    labelLoc = 'upper right'
-    vvec2graph_base(savePath, saveAs, xlabel, ylabel, vecLabel, labelLoc, vvecX, vvecY, vecXlim, vecYlim, xscale, yscale)
-    return 
-
 def vvec2graph_lf(savePath, saveAs, xlabel, ylabel, vecLabel, vvecX, vvecY):
     vecXlim = [0.9, 55000000]
     vecYlim = [0, 1.025]

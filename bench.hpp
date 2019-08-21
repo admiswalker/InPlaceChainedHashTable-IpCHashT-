@@ -320,7 +320,7 @@ void bench_find(T_hashTable& hashT, const uint64 limitSize, std::vector<double>&
 //---
 void vvec2plot_find(const std::string& savePath, const std::vector<std::string>& saveAs, const sstd::vvec<double>& vvecX, const sstd::vvec<double>& vvecY){
 	const char* xlabel = "Number of elements on the table [conut]";
-	const char* ylabel = "Find speed [query/μs]";
+	const char* ylabel = "Successful lookup speed [query/μs]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	
 	// plot2fig
@@ -393,7 +393,7 @@ void bench_find_failedAll(T_hashTable& hashT, const uint64 limitSize, std::vecto
 //---
 void vvec2plot_find_failedAll(const std::string& savePath, const std::vector<std::string>& saveAs, const sstd::vvec<double>& vvecX, const sstd::vvec<double>& vvecY){
 	const char* xlabel = "Number of elements on the table [conut]";
-	const char* ylabel = "Find speed [query/μs]";
+	const char* ylabel = "Unsuccessful lookup speed [query/μs]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	
 	// plot2fig
@@ -416,158 +416,6 @@ void bench2csv_find_failedAll(const std::string& savePath, const std::vector<std
 	
 	std::vector<std::vector<std::string>> vvecHeader = {{"[count]", "uHashT [query/μs]", "cHashT [query/μs]", "iHashT_u8 [query/μs]", "iHashT_u16 [query/μs]", "dHashT [query/μs]", "fHashT [query/μs]"}};
 	BENCH_to_CSV(savePath, vvecX, vvecY, vvecHeader);
-}
-
-//-----------------------------------------------------------------------------------------------------------------------------------------------
-// find-erase-insert cycle
-
-template<typename T_hashTable>
-void bench_find_erase_insert(T_hashTable& hashT, const uint64 initSize, std::vector<double>& vecX_num, std::vector<double>& vecY_quely_per_us){
-	
-	std::random_device seed_gen;
-	
-	std::vector<uint64> vecKeyVal(initSize); vecKeyVal.clear();
-	
-	// insert elements to the num of limitSize
-	std::mt19937_64 rand(seed_gen()); // pseudo random number generator
-	while(hashT.size()<initSize){
-		uint64 r = rand();
-		hashT[r] = r;
-		vecKeyVal <<= r;
-	}
-	
-	// shuffle "vecKeyVal"
-	std::mt19937_64 engine(seed_gen()); // for std::shuffle()
-	std::shuffle(vecKeyVal.begin(), vecKeyVal.end(), engine);
-	
-	double change_per_cycle = 0.05; // [%]
-	double nonChangedRate   = 1.00; // [%]
-	double endRate          = 0.0001; // [%]
-	uint64 changeNum_per_cycle = (double)hashT.size() * change_per_cycle; // [count]
-	while(nonChangedRate > endRate){
-		
-		time_m timem; sstd::measureTime_start(timem);
-		// find (with all elements found)
-		for(uint i=0; i<changeNum_per_cycle; i++){
-			uint64 keyVal = vecKeyVal[i];
-			if(hashT[keyVal] != keyVal){ sstd::pdbg("ERROR: key val is not same."); exit(0); }
-		}
-		// erase change_per_cycle [%]
-		for(uint i=0; i<changeNum_per_cycle; i++){
-			uint64 r = vecKeyVal[vecKeyVal.size()-1];
-			vecKeyVal.pop_back();
-			hashT.erase( r );
-		}
-		// insert change_per_cycle [%]
-		for(uint i=0; i<changeNum_per_cycle; i++){
-			uint64 r = rand();
-			vecKeyVal <<= r;
-			hashT[r] = r;
-		}
-		double nsec = sstd::measureTime_stop_ns(timem);
-		
-		vecY_quely_per_us <<= ((double)changeNum_per_cycle * 1000.0) / (nsec);
-		vecX_num          <<= nonChangedRate;
-		nonChangedRate *= (1.00 - change_per_cycle);
-		
-		// shuffle vecKeyVal
-		std::shuffle(vecKeyVal.begin(), vecKeyVal.end(), engine);
-	}
-}
-void bench2plot_find_erase_insert(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize){
-	std::vector<std::vector<double>> vvecX, vvecY;
-	RUN_BENCH_withErase(vvecX, vvecY, initSize, initSize, bench_find_erase_insert);
-	
-	const char* xlabel = "Non-changed rate [\%]";
-	const char* ylabel = "A speed of one find-erase-insert cycle [query/μs]";
-	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
-	
-	// plot2fig
-	const char* tmpDir   = "./tmpDir";
-	const char* fileName = "plots";
-	const char* funcName = "vvec2graph_FEA";
-	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const str, const vec<str>*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
-	vvec2graph(savePath, &saveAs, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
-}
-
-//-----------------------------------------------------------------------------------------------------------------------------------------------
-// find-findFailed-erase-insert cycle
-
-template<typename T_hashTable>
-void bench_find_findFailedAll_erase_insert(T_hashTable& hashT, const uint64 initSize, std::vector<double>& vecX_num, std::vector<double>& vecY_quely_per_us){
-	
-	std::random_device seed_gen;
-	
-	std::vector<uint64> vecKeyVal(initSize); vecKeyVal.clear();
-	
-	// insert elements to the num of limitSize
-	std::mt19937_64 rand(seed_gen()); // pseudo random number generator
-	while(hashT.size()<initSize){
-		uint64 r = rand();
-		hashT[r] = r;
-		vecKeyVal <<= r;
-	}
-	
-	// shuffle "vecKeyVal"
-	std::mt19937_64 engine(seed_gen()); // for std::shuffle()
-	std::shuffle(vecKeyVal.begin(), vecKeyVal.end(), engine);
-	
-	double change_per_cycle = 0.05; // [%]
-	double nonChangedRate   = 1.00; // [%]
-	double endRate          = 0.0001; // [%]
-	uint64 changeNum_per_cycle = (double)hashT.size() * change_per_cycle; // [count]
-	
-	// rand for find-failed-all
-	std::mt19937_64 randFFA(seed_gen()); // pseudo random number generator
-	while(nonChangedRate > endRate){
-		
-		time_m timem; sstd::measureTime_start(timem);
-		// find (with all elements found)
-		for(uint i=0; i<changeNum_per_cycle; i++){
-			uint64 keyVal = vecKeyVal[i];
-			if(hashT[keyVal] != keyVal){ sstd::pdbg("ERROR: key val is not same."); exit(0); }
-		}
-		// find-failed-all (with all elements found)
-		for(uint i=0; i<changeNum_per_cycle; i++){
-			uint64 keyVal = randFFA();
-			auto itr = hashT.find(keyVal);
-			if(itr != hashT.end()){ sstd::pdbg("ERROR: key val is same."); exit(0); } // there is a bug in sstd::CHashT
-		}
-		// erase change_per_cycle [%]
-		for(uint i=0; i<changeNum_per_cycle; i++){
-			hashT.erase( vecKeyVal[vecKeyVal.size()-1] );
-			vecKeyVal.pop_back();
-		}
-		// insert change_per_cycle [%]
-		for(uint i=0; i<changeNum_per_cycle; i++){
-			uint64 r = rand();
-			hashT[r] = r;
-			vecKeyVal <<= r;
-		}
-		double nsec = sstd::measureTime_stop_ns(timem);
-		
-		vecY_quely_per_us <<= ((double)changeNum_per_cycle * 1000.0) / (nsec);
-		vecX_num          <<= nonChangedRate;
-		nonChangedRate *= (1.00 - change_per_cycle);
-		
-		// shuffle vecKeyVal
-		std::shuffle(vecKeyVal.begin(), vecKeyVal.end(), engine);
-	}
-}
-void bench2plot_find_findFailedAll_erase_insert(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize){
-	std::vector<std::vector<double>> vvecX, vvecY;
-	RUN_BENCH_withErase(vvecX, vvecY, initSize, initSize, bench_find_findFailedAll_erase_insert);
-	
-	const char* xlabel = "Non-changed rate [\%]";
-	const char* ylabel = "A speed of one find-erase-insert cycle [query/μs]";
-	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
-	
-	// plot2fig
-	const char* tmpDir   = "./tmpDir";
-	const char* fileName = "plots";
-	const char* funcName = "vvec2graph_FEA";
-	sstd::c2py<void> vvec2graph(tmpDir, fileName, funcName, "void, const str, const vec<str>*, const char*, const char*, const vec<str>*, const vvec<double>*, const vvec<double>*");
-	vvec2graph(savePath, &saveAs, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -732,18 +580,11 @@ void RUN_ALL_BENCHS(){
 	// erase
 	bench2plot_erase(saveDir+"/erase_wRehash", saveAs, initSize_wRehash, limitSize); // pre-allocate
 	
-	// find -> erase -> insert (reHash occurd)
-	bench2plot_find_erase_insert(saveDir+"/find_erase_insert_pow10_4", saveAs, 10000  ); // find with erasion
-	bench2plot_find_erase_insert(saveDir+"/find_erase_insert_pow10_5", saveAs, 100000 ); // find with erasion
-	bench2plot_find_erase_insert(saveDir+"/find_erase_insert_pow10_6", saveAs, 1000000); // find with erasion
-	
-	bench2plot_find_findFailedAll_erase_insert(saveDir+"/find_fainFailedAll_erase_insert_pow10_6", saveAs, 1000000); // find with erasion
-	
 	// max-load factor
 	bench2plot_maxLoadFactor(saveDir+"/maxLoadFactor", saveAs, limitSize);
 	
 	//---------------------------------------------------------------------------------------------------------------------------------------------
-	
+	/*
 	std::string fwR = saveDir+"/find_wRehash";
 	sstd::mkdir(saveDir+'/'+fwR);
 	for(uint i=0; i<100; i++){ // 17 mins
@@ -792,6 +633,7 @@ void RUN_ALL_BENCHS(){
 		std::string savePath = saveDir +'/'+mLF +sstd::ssprintf("/%s_%03u", mLF.c_str(), i)+".csv";
 		bench2csv_maxLoadFactor(savePath, saveAs, limitSize); // pre-allocate
 	}
+	//*/
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
