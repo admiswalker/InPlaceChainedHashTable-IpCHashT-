@@ -100,7 +100,7 @@ int main(int argc, char** argv){
 		
 		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
 		for(uint i=0; i<vvecX.size(); i++){ // vecType
-			sstd::suppress(vvecX[i], vvecY[i]); // 不揃いな要素を落とす． <-> padding
+			sstd::suppress(vvecX[i], vvecY[i]); // <-> padding
 		}
 		
 		vvec2plot_erase(savePath, saveAs, vvecX, vvecY);
@@ -113,7 +113,7 @@ int main(int argc, char** argv){
 		for(uint i=0; i<vvecX.size(); i++){ // vecType
 			vvecX[i] = sstd::nonzero(vvecX[i]);
 			vvecY[i] = sstd::nonzero(vvecY[i]);
-			sstd::suppress(vvecX[i], vvecY[i]); // 不揃いな要素を落とす． <-> padding
+			sstd::suppress(vvecX[i], vvecY[i]); // <-> padding
 		}
 		
 		vvec2plot_maxLoadFactor(savePath, saveAs, vvecX, vvecY);

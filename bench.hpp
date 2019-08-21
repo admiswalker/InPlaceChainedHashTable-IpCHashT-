@@ -336,6 +336,19 @@ void bench2plot_find(const std::string& savePath, const std::vector<std::string>
 	
 	vvec2plot_find(savePath, saveAs, vvecX, vvecY);
 }
+void i_bench2plot_find(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
+	// here is under construction
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+//	std::vector<std::vector<double>> vvecX, vvecY;
+//	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_find);
+	
+//	vvec2plot_find(savePath, saveAs, vvecX, vvecY);
+}
 //---
 void bench2csv_find(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
 	sstd::vvec<double> vvecX, vvecY;
@@ -558,7 +571,9 @@ void RUN_ALL_BENCHS(){
 	std::vector<std::string> saveAs = {".pdf", ".png"};
 	
 	//---------------------------------------------------------------------------------------------------------------------------------------------
+	// sequential processing (using generated and buffered random number).
 	
+	/*
 	// bench of used memory size should run first inorder to avoid memory swap by Linux OS.
 	bench2plot_usedMemory(saveDir+"/usedMemory_wRehash",  saveAs, initSize_wRehash, limitSize);
 	bench2plot_usedMemory(saveDir+"/usedMemory_preAlloc", saveAs, initSize_preAlloc, limitSize);
@@ -581,9 +596,23 @@ void RUN_ALL_BENCHS(){
 	
 	// max-load factor
 	bench2plot_maxLoadFactor(saveDir+"/maxLoadFactor", saveAs, limitSize);
+	//*/
+	//---------------------------------------------------------------------------------------------------------------------------------------------
+	// intermittent processing (with  generating random number).
+	
+	// find: successful lookup speed [quely/sec]
+	i_bench2plot_find(saveDir+"/i_find_successful_lookup", saveAs, initSize_wRehash, limitSize);
+	
+	// here is under construction
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 	
 	//---------------------------------------------------------------------------------------------------------------------------------------------
-	//*
+	/*
 	std::string fwR = "/find_successful_lookup";
 	sstd::mkdir(saveDir+'/'+fwR);
 	for(uint i=0; i<100; i++){ // 17 mins
@@ -633,6 +662,7 @@ void RUN_ALL_BENCHS(){
 		bench2csv_maxLoadFactor(savePath, saveAs, limitSize);
 	}
 	//*/
+	//---------------------------------------------------------------------------------------------------------------------------------------------
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
