@@ -58,7 +58,7 @@ typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>    
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 // common functions
-// origin
+
 /*
 uint64 size2interval(const uint64 size){
 	uint8 order = (uint8)std::log10((double)size);
@@ -573,7 +573,7 @@ void RUN_ALL_BENCHS(){
 	// find: successful lookup speed [quely/sec]
 	bench2plot_find(saveDir+"/find_successful_lookup", saveAs, initSize_wRehash, limitSize);
 	
-	// find: unsuccessful lookup speed
+	// find: unsuccessful lookup speed [quely/sec]
 	bench2plot_find_failedAll(saveDir+"/find_unsuccessful_lookup", saveAs, initSize_wRehash, limitSize);
 	
 	// erase
