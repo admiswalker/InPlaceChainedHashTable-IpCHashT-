@@ -307,7 +307,58 @@ void bench_find(T_hashTable& hashT, const uint64 limitSize, std::vector<double>&
 		// find (all elements are found)
 		time_m timem; sstd::measureTime_start(timem);
 		for(uint i=0; i<interval; i++){
-			uint64 keyVal = vecR[i];
+//			uint64 keyVal = vecR[i];
+			uint64 keyVal = vecR_toFind[i];
+			if(hashT[keyVal] != keyVal){ sstd::pdbg("ERROR: key val is not same."); exit(-1); }
+		}
+		double nsec = sstd::measureTime_stop_ns(timem);
+		vecY_quely_per_us <<= ((double)interval * 1000.0) / (nsec);
+		
+		interval = size2interval(hashT.size());
+		if(hashT.size()+interval>limitSize){ break; }
+	}
+}
+template<typename T_hashTable>
+void i_bench_find(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_quely_per_us){
+	std::random_device seed_gen;
+	std::mt19937_64 rand       (seed_gen()); // pseudo random number generator
+	std::mt19937_64 rand_toFind(seed_gen()); // pseudo random number generator
+	
+	uint64 interval = 1;
+	std::vector<uint64> vecR(limitSize); vecR.clear();
+	
+	for(;;){
+		// insert
+		for(uint i=0; i<interval; i++){
+			uint64 r = rand();
+			vecR <<= r;
+			hashT[r] = r;
+		}
+		
+		vecX_num <<= hashT.size();
+		//*
+		std::vector<uint64> vecR_toFind(vecR.size());
+		{
+			std::uniform_int_distribution<uint64> range(0, vecR.size()-1); // make randome number between [0, vecR.size()-1].
+			for(uint i=0; i<interval; i++){
+				vecR_toFind[i] = vecR[range(rand_toFind)];
+			}
+		}//*/
+//		std::vector<uint64> vecR_toFind(vecR.size());
+//		std::uniform_int_distribution<uint64> range(0, vecR.size()-1); // make randome number between [0, vecR.size()-1].
+	// here is under construction
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+		
+		// find (all elements are found)
+		time_m timem; sstd::measureTime_start(timem);
+		for(uint i=0; i<interval; i++){
+//			uint64 keyVal = vecR[i];
+			uint64 keyVal = vecR_toFind[i];
 			if(hashT[keyVal] != keyVal){ sstd::pdbg("ERROR: key val is not same."); exit(-1); }
 		}
 		double nsec = sstd::measureTime_stop_ns(timem);
@@ -584,13 +635,13 @@ void RUN_ALL_BENCHS(){
 	// insert: elapsed time [sec]
 	bench2plot_insert_et(saveDir+"/insert_et_wRehash",  saveAs, initSize_wRehash,  limitSize);
 	bench2plot_insert_et(saveDir+"/insert_et_preAlloc", saveAs, initSize_preAlloc, limitSize);
-	
+	//*/
 	// find: successful lookup speed [quely/sec]
 	bench2plot_find(saveDir+"/find_successful_lookup", saveAs, initSize_wRehash, limitSize);
 	
 	// find: unsuccessful lookup speed [quely/sec]
-	bench2plot_find_failedAll(saveDir+"/find_unsuccessful_lookup", saveAs, initSize_wRehash, limitSize);
-	
+//	bench2plot_find_failedAll(saveDir+"/find_unsuccessful_lookup", saveAs, initSize_wRehash, limitSize);
+	/*
 	// erase
 	bench2plot_erase(saveDir+"/erase", saveAs, initSize_wRehash, limitSize);
 	
@@ -601,7 +652,7 @@ void RUN_ALL_BENCHS(){
 	// intermittent processing (with  generating random number).
 	
 	// find: successful lookup speed [quely/sec]
-	i_bench2plot_find(saveDir+"/i_find_successful_lookup", saveAs, initSize_wRehash, limitSize);
+//	i_bench2plot_find(saveDir+"/i_find_successful_lookup", saveAs, initSize_wRehash, limitSize);
 	
 	// here is under construction
 	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
