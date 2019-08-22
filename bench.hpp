@@ -286,6 +286,7 @@ void bench_find(T_hashTable& hashT, const uint64 limitSize, std::vector<double>&
 	uint64 interval = 1;
 	std::vector<uint64> vecR(limitSize); vecR.clear();
 	
+	uint64 numFound=0ull, numNotFound=0ull;
 	for(;;){
 		// insert
 		for(uint i=0; i<interval; i++){
@@ -307,15 +308,20 @@ void bench_find(T_hashTable& hashT, const uint64 limitSize, std::vector<double>&
 		// find (all elements are found)
 		time_m timem; sstd::measureTime_start(timem);
 		for(uint i=0; i<interval; i++){
-//			uint64 keyVal = vecR[i];
-			uint64 keyVal = vecR_toFind[i];
-			if(hashT[keyVal] != keyVal){ sstd::pdbg("ERROR: key val is not same."); exit(-1); }
+//			uint64 keyVal = vecR_toFind[i];
+//			if(hashT[keyVal] != keyVal){ sstd::pdbg("ERROR: key val is not same."); exit(-1); } // using operator[] will slow down google::dense_hash_map and std::unordered_map
+			auto itr = hashT.find( vecR_toFind[i] );
+			if(itr!=hashT.end()){ numFound++; }else{ numNotFound++; }
 		}
 		double nsec = sstd::measureTime_stop_ns(timem);
 		vecY_quely_per_us <<= ((double)interval * 1000.0) / (nsec);
 		
 		interval = size2interval(hashT.size());
 		if(hashT.size()+interval>limitSize){ break; }
+	}
+	if(numNotFound!=0ull){
+		printf("ERROR: ");
+		printf("%lu / %lu = %lf\n", numFound, numFound+numNotFound, (double)numFound/(double)(numFound+numNotFound));
 	}
 }
 template<typename T_hashTable>
@@ -426,8 +432,8 @@ void bench_find_failedAll(T_hashTable& hashT, const uint64 limitSize, std::vecto
 		// insert
 		for(uint i=0; i<interval; i++){
 			uint64 r = rand();
-			hashT[r] = r;
 			vecR <<= r;
+			hashT[r] = r;
 		}
 		
 		vecX_num <<= hashT.size();
@@ -663,14 +669,14 @@ void RUN_ALL_BENCHS(){
 	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 	
 	//---------------------------------------------------------------------------------------------------------------------------------------------
-	/*
+	//*
 	std::string fwR = "/find_successful_lookup";
 	sstd::mkdir(saveDir+'/'+fwR);
 	for(uint i=0; i<100; i++){ // 17 mins
 		std::string savePath = saveDir +'/'+fwR +sstd::ssprintf("/%s_%03u", fwR.c_str(), i)+".csv";
 		bench2csv_find(savePath, saveAs, initSize_wRehash, limitSize);
 	}
-	
+	/*
 	std::string ffa = "/find_unsuccessful_lookup";
 	sstd::mkdir(saveDir+'/'+ffa);
 	for(uint i=0; i<100; i++){ // 15 mins

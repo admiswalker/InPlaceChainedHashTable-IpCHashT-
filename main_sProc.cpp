@@ -60,12 +60,12 @@ int main(int argc, char** argv){
 	
 	std::vector<std::string> saveAs={".png", ".pdf"};
 	{
-		const char* csvPath  = "./tmpBench/find_wRehash/*";
-		const char* savePath = "./tmpBench/find_wRehash_med";
+		const char* csvPath  = "./tmpBench/find_successful_lookup/*";
+		const char* savePath = "./tmpBench/find_successful_lookup_med";
 		
 		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
 		vvec2plot_find(savePath, saveAs, vvecX, vvecY);
-	}
+	}/*
 	{
 		const char* csvPath  = "./tmpBench/find_failedAll/*";
 		const char* savePath = "./tmpBench/find_failedAll_med";
@@ -118,7 +118,7 @@ int main(int argc, char** argv){
 		
 		vvec2plot_maxLoadFactor(savePath, saveAs, vvecX, vvecY);
 	}
-	
+	//*/
 	printf("\n■ measureTime_stop----------------\n"); sstd::measureTime_stop_print(timem);
 	return 0;
 }
