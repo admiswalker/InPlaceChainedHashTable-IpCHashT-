@@ -324,56 +324,6 @@ void bench_find(T_hashTable& hashT, const uint64 limitSize, std::vector<double>&
 		printf("%lu / %lu = %lf\n", numFound, numFound+numNotFound, (double)numFound/(double)(numFound+numNotFound));
 	}
 }
-template<typename T_hashTable>
-void i_bench_find(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_quely_per_us){
-	std::random_device seed_gen;
-	std::mt19937_64 rand       (seed_gen()); // pseudo random number generator
-	std::mt19937_64 rand_toFind(seed_gen()); // pseudo random number generator
-	
-	uint64 interval = 1;
-	std::vector<uint64> vecR(limitSize); vecR.clear();
-	
-	for(;;){
-		// insert
-		for(uint i=0; i<interval; i++){
-			uint64 r = rand();
-			vecR <<= r;
-			hashT[r] = r;
-		}
-		
-		vecX_num <<= hashT.size();
-		//*
-		std::vector<uint64> vecR_toFind(vecR.size());
-		{
-			std::uniform_int_distribution<uint64> range(0, vecR.size()-1); // make randome number between [0, vecR.size()-1].
-			for(uint i=0; i<interval; i++){
-				vecR_toFind[i] = vecR[range(rand_toFind)];
-			}
-		}//*/
-//		std::vector<uint64> vecR_toFind(vecR.size());
-//		std::uniform_int_distribution<uint64> range(0, vecR.size()-1); // make randome number between [0, vecR.size()-1].
-	// here is under construction
-	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-		
-		// find (all elements are found)
-		time_m timem; sstd::measureTime_start(timem);
-		for(uint i=0; i<interval; i++){
-//			uint64 keyVal = vecR[i];
-			uint64 keyVal = vecR_toFind[i];
-			if(hashT[keyVal] != keyVal){ sstd::pdbg("ERROR: key val is not same."); exit(-1); }
-		}
-		double nsec = sstd::measureTime_stop_ns(timem);
-		vecY_quely_per_us <<= ((double)interval * 1000.0) / (nsec);
-		
-		interval = size2interval(hashT.size());
-		if(hashT.size()+interval>limitSize){ break; }
-	}
-}
 //---
 void vvec2plot_find(const std::string& savePath, const std::vector<std::string>& saveAs, const sstd::vvec<double>& vvecX, const sstd::vvec<double>& vvecY){
 	const char* xlabel = "Number of elements on the table [conut]";
@@ -392,19 +342,6 @@ void bench2plot_find(const std::string& savePath, const std::vector<std::string>
 	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_find);
 	
 	vvec2plot_find(savePath, saveAs, vvecX, vvecY);
-}
-void i_bench2plot_find(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
-	// here is under construction
-	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-//	std::vector<std::vector<double>> vvecX, vvecY;
-//	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_find);
-	
-//	vvec2plot_find(savePath, saveAs, vvecX, vvecY);
 }
 //---
 void bench2csv_find(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
@@ -628,8 +565,6 @@ void RUN_ALL_BENCHS(){
 	std::vector<std::string> saveAs = {".pdf", ".png"};
 	
 	//---------------------------------------------------------------------------------------------------------------------------------------------
-	// sequential processing (using generated and buffered random number).
-	
 	/*
 	// bench of used memory size should run first inorder to avoid memory swap by Linux OS.
 	bench2plot_usedMemory(saveDir+"/usedMemory_wRehash",  saveAs, initSize_wRehash, limitSize);
@@ -654,20 +589,6 @@ void RUN_ALL_BENCHS(){
 	// max-load factor
 	bench2plot_maxLoadFactor(saveDir+"/maxLoadFactor", saveAs, limitSize);
 	//*/
-	//---------------------------------------------------------------------------------------------------------------------------------------------
-	// intermittent processing (with  generating random number).
-	
-	// find: successful lookup speed [quely/sec]
-//	i_bench2plot_find(saveDir+"/i_find_successful_lookup", saveAs, initSize_wRehash, limitSize);
-	
-	// here is under construction
-	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	
 	//---------------------------------------------------------------------------------------------------------------------------------------------
 	//*
 	std::string fwR = "/find_successful_lookup";
