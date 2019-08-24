@@ -12,8 +12,9 @@
 
 typedef std::unordered_map<uint64,uint64>                                            uHashT;
 typedef sstd::CHashT<uint64,uint64>                                                  cHashT;
-typedef sstd::IpCHashT<uint64,uint64>                                                iHashT_u8;
-typedef sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16> iHashT_u16;
+typedef sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint8,  sstd::IpCHashT_opt::maxLF50 > iHashT_u8_50;
+typedef sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint8,  sstd::IpCHashT_opt::maxLF100> iHashT_u8;
+typedef sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16, sstd::IpCHashT_opt::maxLF100> iHashT_u16;
 typedef google::dense_hash_map<uint64,uint64>                                        dHashT;
 typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>         fHashT;
 

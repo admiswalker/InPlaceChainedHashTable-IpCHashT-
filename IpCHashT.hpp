@@ -19,12 +19,17 @@
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
 namespace sstd{
+	namespace IpCHashT_opt{
+		class maxLF50 { private: public: maxLF50 (){}; ~maxLF50 (){}; };
+		class maxLF100{ private: public: maxLF100(){}; ~maxLF100(){}; };
+	}
+	
 	template <class T_key,
 			  class T_val,
 			  class T_hash   = std::hash<T_key>,
 			  class T_key_eq = std::equal_to<T_key>,
-			  typename T_shift = uint8
-//			  typename T_shift = uint16
+			  typename T_shift = uint8, // or uint16
+			  typename T_maxLF = sstd::IpCHashT_opt::maxLF50 // or sstd::IpCHashT_opt::maxLF100
 			  >
 	class IpCHashT; // chained hash table
 }
@@ -145,6 +150,8 @@ public:
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
 // in order to reduce the calling time of function, macro expansion will be used.
+#define isMaxLF_m(elems, elems_maxLF)			\
+	elems>elems_maxLF
 #define isEmpty_m(ELEM)							\
 	(ELEM.prev==maxShift)
 #define isHead_m(ELEM)							\
@@ -255,7 +262,7 @@ public:
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
 class sstd::IpCHashT{
 private:
 	void IpCHashT_constructor(const uint64& tableSize);
@@ -269,6 +276,7 @@ private:
 	uint64 pSize;           // padding size of the table
 	uint64 ttSize;          // total table size. This is a seek limit size. ( ttSize == tSize + pSize ).
 	uint64 elems;           // number of elements on the table
+	uint64 elems_maxLF;     // number of elements when tha table is maxLF.
 	T_hash* pHashFn;        // pointer to the hash function
 	struct elem_m* pT;      // pointer to the table
 	
@@ -276,8 +284,8 @@ private:
 	T_shift maxShift;
 	T_shift seekLimit;
 	
-	void move_hashT2vecKV(std::vector<elem_KV_m>& vecKV, sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>& hashT);
-	void failSafe_of_rehashing(sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>& hashT_new);
+	void move_hashT2vecKV(std::vector<elem_KV_m>& vecKV, sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>& hashT);
+	void failSafe_of_rehashing(sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>& hashT_new);
 	
 public:
 	IpCHashT();
@@ -311,7 +319,7 @@ public:
 		return itr_m(maxShift, ttSize, pT, itr_end_m);
 	}
 	inline struct itr_m end() const { return itr_m(maxShift, ttSize, pT, itr_end_m); }
-	inline const uint64      size(){ return elems; }
+	inline const uint64         size(){ return elems; }
 	inline const uint64    tableSize(){ return tSize; }
 	inline const uint64 bucket_count(){ return tSize; }
 	inline const double load_factor() const { return (double)elems/(double)ttSize; }
@@ -396,8 +404,13 @@ public:
 	maxShift  = ~maxShift; /* 'maxShift' will be filled with '1'. */	\
 	seekLimit = maxShift - 1;
 
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT_constructor(const uint64& tableSize){
+inline double get_maxLF(const sstd::IpCHashT_opt::maxLF50 & rhs){ return 0.50; }
+inline double get_maxLF(const sstd::IpCHashT_opt::maxLF100& rhs){ return 1.00; }
+
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
+inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::IpCHashT_constructor(const uint64& tableSize){
+	elems_maxLF = ttSize * get_maxLF(T_maxLF());
+	
 	#ifdef use_prime_table
 	get_tSizeL_idx(tSizeL_idx); tSize = sstd_IpCHashT::tSizeL[tSizeL_idx];
 	#else
@@ -410,14 +423,14 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT_co
 	#endif
 	constructorBase_init_m();
 }
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift> inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT(                      ){ IpCHashT_constructor(   512   ); }
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift> inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT(const uint64 tableSize){ IpCHashT_constructor(tableSize); }
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF> inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::IpCHashT(                      ){ IpCHashT_constructor(   512   ); }
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF> inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::IpCHashT(const uint64 tableSize){ IpCHashT_constructor(tableSize); }
 
 //---
 
 #ifdef use_prime_table
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT(const uint8 tableSizeL_idx, const uint64 tableSize){ // allocate same size of tableSize. for rehashing. (select size from prime table, never form the others).
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
+inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::IpCHashT(const uint8 tableSizeL_idx, const uint64 tableSize){ // allocate same size of tableSize. for rehashing. (select size from prime table, never form the others).
 	tSizeL_idx = tableSizeL_idx;
 	tSize      = sstd_CHashT::tSizeL[tSizeL_idx];
 	constructorBase_init_pSize_m();
@@ -428,8 +441,8 @@ inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT(const u
 	constructorBase_init_m();
 }
 #else
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT(const uint64 tableSize_minus1, const uint64 tableSize){ // allocate same size of tableSize. for rehashing. (select size of power 2, never form the others).
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
+inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::IpCHashT(const uint64 tableSize_minus1, const uint64 tableSize){ // allocate same size of tableSize. for rehashing. (select size of power 2, never form the others).
 	tSize_m1   = tableSize_minus1;
 	tSize      = tableSize;
 	
@@ -449,16 +462,16 @@ inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::IpCHashT(const u
 
 //---
 
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::~IpCHashT(){
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
+inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::~IpCHashT(){
 	delete[] pT;
 	delete pHashFn;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-void swap_hashT(sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>& lhs, sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>& rhs){
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
+void swap_hashT(sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>& lhs, sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>& rhs){
 	// "using std::swap;" is defined, in order to preferentially call overloaded function of swap<T>() for type T. (Ref: https://cpprefjp.github.io/reference/utility/swap.html)
 	// In here, scope of using is limited by "{}", this means that scope of using is same as a usual value.
 	using std::swap;
@@ -477,14 +490,14 @@ void swap_hashT(sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>& lhs, ss
 	swap(lhs._elems(),      rhs._elems()     );
 }
 
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::move_hashT2vecKV(std::vector<elem_KV_m>& vecKV, sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>& hashT){
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
+void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::move_hashT2vecKV(std::vector<elem_KV_m>& vecKV, sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>& hashT){
 	for(auto itr=hashT.begin(); itr!=hashT.end(); ++itr){
 		vecKV.push_back( elem_KV_m(std::move(itr.first_RW()), std::move(itr.second_RW())) );
 	}
 }
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::failSafe_of_rehashing(sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>& hashT){
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
+void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::failSafe_of_rehashing(sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>& hashT){
 	// "using std::swap;" is defined, in order to preferentially call overloaded function of swap<T>() for type T. (Ref: https://cpprefjp.github.io/reference/utility/swap.html)
 	// In here, scope of using is limited by "{}", this means that scope of using is same as a usual value.
 	using std::swap;
@@ -495,9 +508,9 @@ void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::failSafe_of_rehash
 	move_hashT2vecKV(vecKV, hashT);
 	{
 		#ifdef use_prime_table
-		sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(hashT._tSizeL_idx()+1, sstd_CHashT::tSizeL[hashT._tSizeL_idx()+1]); // twice size of tSize will be allocated.
+		sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF> hashT_new(hashT._tSizeL_idx()+1, sstd_CHashT::tSizeL[hashT._tSizeL_idx()+1]); // twice size of tSize will be allocated.
 		#else
-		sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(hashT.tableSize()*2-1, hashT.tableSize()*2); // twice size of tSize will be allocated.
+		sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF> hashT_new(hashT.tableSize()*2-1, hashT.tableSize()*2); // twice size of tSize will be allocated.
 		#endif
 		swap_hashT(hashT, hashT_new);
 	}
@@ -533,16 +546,16 @@ void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::failSafe_of_rehash
 		vecKV.pop_back(); // erase the tail element
 	}
 }
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::rehash(){
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
+inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::rehash(){
 	// "using std::swap;" is defined, in order to preferentially call overloaded function of swap<T>() for type T. (Ref: https://cpprefjp.github.io/reference/utility/swap.html)
 	// In here, scope of using is limited by "{}", this means that scope of using is same as a usual value.
 	using std::swap;
 	
 	#ifdef use_prime_table
-	sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(tSizeL_idx+1, sstd_CHashT::tSizeL[tSizeL_idx+1]); // twice size of tSize will be allocated.
+	sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF> hashT_new(tSizeL_idx+1, sstd_CHashT::tSizeL[tSizeL_idx+1]); // twice size of tSize will be allocated.
 	#else
-	sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift> hashT_new(tSize*2-1, tSize*2); // twice size of tSize will be allocated.
+	sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF> hashT_new(tSize*2-1, tSize*2); // twice size of tSize will be allocated.
 	#endif
 	
 	for(auto itr=this->begin(); itr!=this->end(); ){
@@ -587,12 +600,12 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::rehash(){
 		if(   pT[idx].next == (T_shift)0    ){ return itr_m(maxShift, ttSize, pT, itr_end_m); } /* key is not found. */ \
 		idx += pT[idx].next;											\
 	}
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-inline struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::find(const T_key& key_in, uint64 idx){
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
+inline struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::find(const T_key& key_in, uint64 idx){
 	findBase_m();
 }
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-inline struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::find(const T_key& key_in){
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
+inline struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::find(const T_key& key_in){
 	uint64 idx; key2tableIdx_m(idx, key_in); // get table index
 	findBase_m();
 }
@@ -600,8 +613,8 @@ inline struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::fin
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::_insertBase_soft(T_key&& key_in, T_val&& val_in, uint64 idx){
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
+struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::_insertBase_soft(T_key&& key_in, T_val&& val_in, uint64 idx){
 	
 	// "using std::swap;" is defined, in order to preferentially call overloaded function of swap<T>() for type T. (Ref: https://cpprefjp.github.io/reference/utility/swap.html)
 	// in here, scope of using is limited by "{}", this means that scope of using is same as a usual value.
@@ -739,7 +752,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::_insertBas
 	for(;;){															\
 		/* there is not the key-value pair on the table. */				\
 		struct itr_m itrI = this->_insertBase_soft(std::move(key), std::move(val), idx); \
-		if(itrI._needRehash()){											\
+		if(itrI._needRehash() || isMaxLF_m(elems, elems_maxLF)){		\
 			rehash();													\
 			key2tableIdx_m(idx, key_in); /* get table index */			\
 			continue;													\
@@ -747,20 +760,20 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::_insertBas
 		elems++;														\
 		return itrI;													\
 	}
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::insert_soft(const T_key& key_in, const T_val& val_in){ // copy key and value.
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
+struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert_soft(const T_key& key_in, const T_val& val_in){ // copy key and value.
 	uint64 idx; key2tableIdx_m(idx, key_in);
 	insert_soft_cc_m();
 }
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::insert_soft(const T_key&  key_in, const T_val&  val_in, uint64 idx){
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
+struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert_soft(const T_key&  key_in, const T_val&  val_in, uint64 idx){
 	insert_soft_cc_m();
 } // copy key and value.
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::_insertBase_hard(T_key&& key_in, T_val&& val_in, uint64 idx){
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
+struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::_insertBase_hard(T_key&& key_in, T_val&& val_in, uint64 idx){
 	
 	// "using std::swap;" is defined, in order to preferentially call overloaded function of swap<T>() for type T. (Ref: https://cpprefjp.github.io/reference/utility/swap.html)
 	// in here, scope of using is limited by "{}", this means that scope of using is same as a usual value.
@@ -1123,7 +1136,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::_insertBas
 	for(;;){															\
 		/* there is not the key-value pair on the table. */				\
 		struct itr_m itrI = this->_insertBase_hard(std::move(key), std::move(val), idx); \
-		if(itrI._needRehash()){											\
+		if(itrI._needRehash() || isMaxLF_m(elems, elems_maxLF)){		\
 			rehash();													\
 			key2tableIdx_m(idx, key_in); /* get table index */			\
 			continue;													\
@@ -1131,42 +1144,42 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::_insertBas
 		elems++;														\
 		return itrI;													\
 	}
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::insert_hard(const T_key& key_in, const T_val& val_in){ // copy key and value.
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
+struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert_hard(const T_key& key_in, const T_val& val_in){ // copy key and value.
 	uint64 idx; key2tableIdx_m(idx, key_in); // get table index
 	insert_hard_cc_m();
 }
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::insert_hard(const T_key&  key_in, const T_val&  val_in, uint64 idx){
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
+struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert_hard(const T_key&  key_in, const T_val&  val_in, uint64 idx){
 	insert_hard_cc_m();
 } // copy key and value.
-//template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift> void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::insert(      T_key&& key_in, const T_val&  val_in){} // swap key.           (Callable by "sstd::CHashT<T_key, T_val> hashT; hashT.add(std::move(key),           val );".)
-//template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift> void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::insert(const T_key&  key_in,       T_val&& val_in){} // swap value.         (Callable by "sstd::CHashT<T_key, T_val> hashT; hashT.add(          key , std::move(val));".)
-//template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift> void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::insert(      T_key&& key_in,       T_val&& val_in){} // swap key and value. (Callable by "sstd::CHashT<T_key, T_val> hashT; hashT.add(std::move(key), std::move(val));".)
+//template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF> void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert(      T_key&& key_in, const T_val&  val_in){} // swap key.           (Callable by "sstd::CHashT<T_key, T_val> hashT; hashT.add(std::move(key),           val );".)
+//template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF> void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert(const T_key&  key_in,       T_val&& val_in){} // swap value.         (Callable by "sstd::CHashT<T_key, T_val> hashT; hashT.add(          key , std::move(val));".)
+//template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF> void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert(      T_key&& key_in,       T_val&& val_in){} // swap key and value. (Callable by "sstd::CHashT<T_key, T_val> hashT; hashT.add(std::move(key), std::move(val));".)
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
 #ifdef use_insert_soft
 
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::insert(const T_key& key_in, const T_val& val_in){ // copy key and value.
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
+struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert(const T_key& key_in, const T_val& val_in){ // copy key and value.
 	uint64 idx; key2tableIdx_m(idx, key_in);
 	insert_soft_cc_m();
 }
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::insert(const T_key&  key_in, const T_val&  val_in, uint64 idx){ // copy key and value.
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
+struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert(const T_key&  key_in, const T_val&  val_in, uint64 idx){ // copy key and value.
 	insert_soft_cc_m();
 }
 
 #else
 
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::insert(const T_key& key_in, const T_val& val_in){ // copy key and value.
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
+struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert(const T_key& key_in, const T_val& val_in){ // copy key and value.
 	uint64 idx; key2tableIdx_m(idx, key_in);
 	insert_hard_cc_m();
 }
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::insert(const T_key&  key_in, const T_val&  val_in, uint64 idx){ // copy key and value.
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
+struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert(const T_key&  key_in, const T_val&  val_in, uint64 idx){ // copy key and value.
 	insert_hard_cc_m();
 }
 
@@ -1174,8 +1187,8 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::insert(con
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-inline T_val& sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::operator[](const T_key& key_in){
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
+inline T_val& sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::operator[](const T_key& key_in){
 	uint64 idx; key2tableIdx_m(idx, key_in); // get table index
 	auto itrF = find(key_in, idx);
 	if(itrF!=this->end()){ return itrF.second_RW(); }
@@ -1189,11 +1202,11 @@ inline T_val& sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::operator[
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
-//template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-//void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::erase(const T_key& key_in, uint64 idx);
+//template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
+//void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::erase(const T_key& key_in, uint64 idx);
 
-template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift>
-void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::erase(const T_key& key_in){
+template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
+void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::erase(const T_key& key_in){
 	
 	// "using std::swap;" is defined, in order to preferentially call overloaded function of swap<T>() for type T. (Ref: https://cpprefjp.github.io/reference/utility/swap.html)
 	// in here, scope of using is limited by "{}", this means that scope of using is same as a usual value.
@@ -1269,6 +1282,7 @@ void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift>::erase(const T_key&
 #undef isTail_m
 #undef isHead_m
 #undef isEmpty_m
+#undef isMaxLF_m
 
 #undef itr_needRehash_m
 #undef itr_end_m
