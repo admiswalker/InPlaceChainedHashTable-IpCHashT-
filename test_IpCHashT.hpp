@@ -1218,7 +1218,7 @@ TEST(sstd_IpCHashT, multiple_rehasing_padding0_hard){
 	bool ret = stressTest_oneCycle_hard(seed, limitSize);
 	if(ret==false){ sstd::printn(seed); }
 	ASSERT_TRUE( ret );
-}/*
+}
 TEST(sstd_IpCHashT, stressTest_hard){
 	// this is a stress test of chained hash table
 	std::random_device rnd;
@@ -1284,8 +1284,8 @@ TEST(sstd_IpCHashT, stressTest__failSafe_of_rehashing__hard){
 	// this is a stress test of chained hash table
 	std::random_device rnd;
 	for(uint limitSize=0; limitSize<10000; limitSize+=500){
-//		for(uint i=0; i<1000; i++){
-		for(uint i=0; i<10; i++){
+		for(uint i=0; i<1000; i++){
+//		for(uint i=0; i<10; i++){
 			uint64 seed = rnd();
 			bool ret = stressTest_oneCycle__failSafe_of_rehashing__hard(seed, limitSize);
 			if(ret==false){ sstd::printn(seed); }
@@ -1313,7 +1313,7 @@ TEST(sstd_IpCHashT, OPE_bracket){
 	}
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------------
-//*/
+
 
 
 

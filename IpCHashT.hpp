@@ -29,7 +29,7 @@ namespace sstd{
 			  class T_hash   = std::hash<T_key>,
 			  class T_key_eq = std::equal_to<T_key>,
 			  typename T_shift = uint8, // or uint16
-			  typename T_maxLF = sstd::IpCHashT_opt::maxLF50 // or sstd::IpCHashT_opt::maxLF100
+			  typename T_maxLF = sstd::IpCHashT_opt::maxLF100 // or sstd::IpCHashT_opt::maxLF100
 			  >
 	class IpCHashT; // chained hash table
 }
