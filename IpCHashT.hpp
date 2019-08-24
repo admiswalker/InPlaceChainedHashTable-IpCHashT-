@@ -29,8 +29,7 @@ namespace sstd{
 			  class T_hash   = std::hash<T_key>,
 			  class T_key_eq = std::equal_to<T_key>,
 			  typename T_shift = uint8, // or uint16
-			  typename T_maxLF = sstd::IpCHashT_opt::maxLF100 // or sstd::IpCHashT_opt::maxLF100
-//			  typename T_maxLF = sstd::IpCHashT_opt::maxLF50 // or sstd::IpCHashT_opt::maxLF100
+			  typename T_maxLF = sstd::IpCHashT_opt::maxLF50 // or sstd::IpCHashT_opt::maxLF100
 			  >
 	class IpCHashT; // chained hash table
 }
@@ -252,7 +251,7 @@ public:
 	
 	#ifdef SSTD_IpCHashT_DEBUG
 	inline void print_dbg(){
-		std::cout << " idx: " <<          idx << std::endl;
+		std::cout << " idx: " <<    idx       << std::endl;
 		std::cout << " key: " << pT[idx].key  << std::endl;
 		std::cout << " val: " << pT[idx].val  << std::endl;
 		std::cout << "prev: " << pT[idx].prev << std::endl;
@@ -437,7 +436,7 @@ inline sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::IpCHash
 	constructorBase_init_pSize_m();
 	
 	#ifdef SSTD_IpCHashT_DEBUG
-	if(use_pSize_dbg){ pSize=(uint64)pSize_dbg; } // over write pSize for debug
+	if(use_pSize_db)g{ pSize=(uint64)pSize_dbg; } // over write pSize for debug
 	#endif
 	constructorBase_init_m();
 }
@@ -747,6 +746,8 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::_
 		}
 	}
 }
+#define insert_soft_init_m()							\
+	if(isOverMaxLF_m(elems, elems_maxLF)){ rehash(); }
 #define insert_soft_cc_m()												\
 																		\
 	T_key key = key_in; /* copy -> COPY_OR_NOP <- when impliment as a define */	\
@@ -754,7 +755,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::_
 	for(;;){															\
 		/* there is not the key-value pair on the table. */				\
 		struct itr_m itrI = this->_insertBase_soft(std::move(key), std::move(val), idx); \
-		if(itrI._needRehash() || isOverMaxLF_m(elems, elems_maxLF)){	\
+		if(itrI._needRehash()){											\
 			rehash();													\
 			key2tableIdx_m(idx, key_in); /* get table index */			\
 			continue;													\
@@ -764,11 +765,13 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::_
 	}
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
 struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert_soft(const T_key& key_in, const T_val& val_in){ // copy key and value.
+	insert_soft_init_m();
 	uint64 idx; key2tableIdx_m(idx, key_in);
 	insert_soft_cc_m();
 }
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
 struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert_soft(const T_key&  key_in, const T_val&  val_in, uint64 idx){
+	insert_soft_init_m();
 	insert_soft_cc_m();
 } // copy key and value.
 
@@ -1129,7 +1132,11 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::_
 
 //---
 
+#define insert_hard_init_m()							\
+	{ if(isOverMaxLF_m(elems, elems_maxLF)){ printf("elems / elems_maxLF == %lu / %lu  |", elems, elems_maxLF); rehash(); printf("-> %lu / %lu\n", elems, elems_maxLF); } }
+//	{ if(isOverMaxLF_m(elems, elems_maxLF)){ rehash(); } }
 #define insert_hard_cc_m()												\
+																		\
 	struct itr_m itrF = this->find(key_in, idx);						\
 	if(itrF!=this->end()){ itrF.second_RW()=val_in; return itrF; }		\
 																		\
@@ -1138,7 +1145,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::_
 	for(;;){															\
 		/* there is not the key-value pair on the table. */				\
 		struct itr_m itrI = this->_insertBase_hard(std::move(key), std::move(val), idx); \
-		if(itrI._needRehash() || isOverMaxLF_m(elems, elems_maxLF)){	\
+		if(itrI._needRehash()){											\
 			rehash();													\
 			key2tableIdx_m(idx, key_in); /* get table index */			\
 			continue;													\
@@ -1148,11 +1155,13 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::_
 	}
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
 struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert_hard(const T_key& key_in, const T_val& val_in){ // copy key and value.
+	insert_hard_init_m();
 	uint64 idx; key2tableIdx_m(idx, key_in); // get table index
 	insert_hard_cc_m();
 }
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
 struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert_hard(const T_key&  key_in, const T_val&  val_in, uint64 idx){
+	insert_hard_init_m();
 	insert_hard_cc_m();
 } // copy key and value.
 //template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF> void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert(      T_key&& key_in, const T_val&  val_in){} // swap key.           (Callable by "sstd::CHashT<T_key, T_val> hashT; hashT.add(std::move(key),           val );".)
@@ -1165,11 +1174,13 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::i
 
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
 struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert(const T_key& key_in, const T_val& val_in){ // copy key and value.
+	insert_soft_init_m();
 	uint64 idx; key2tableIdx_m(idx, key_in);
 	insert_soft_cc_m();
 }
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
 struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert(const T_key&  key_in, const T_val&  val_in, uint64 idx){ // copy key and value.
+	insert_soft_init_m();
 	insert_soft_cc_m();
 }
 
@@ -1177,11 +1188,13 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::i
 
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
 struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert(const T_key& key_in, const T_val& val_in){ // copy key and value.
+	insert_hard_init_m();
 	uint64 idx; key2tableIdx_m(idx, key_in);
 	insert_hard_cc_m();
 }
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
 struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert(const T_key&  key_in, const T_val&  val_in, uint64 idx){ // copy key and value.
+	insert_hard_init_m();
 	insert_hard_cc_m();
 }
 
@@ -1277,7 +1290,9 @@ void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::erase(con
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
 #undef insert_hard_cc_m
+#undef insert_hard_init_m
 #undef insert_soft_cc_m
+#undef insert_soft_init_m
 
 #undef key2tableIdx_m
 #undef seek2emptyIndex_m
