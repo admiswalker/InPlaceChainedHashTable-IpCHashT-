@@ -223,11 +223,13 @@ public:
 	inline iterator(const T_shift maxShift_in, const uint64 totalTableSize, struct elem_m* pT_in, const uint64 idx_in) : maxShift(maxShift_in), ttSize(totalTableSize) { pT=pT_in; idx=idx_in; }
 	inline ~iterator(){}
 	
-	inline const T_key & first    () const { return pT[idx].key; }
-	inline       T_key & first_RW () const { return pT[idx].key; }
-	inline const T_val & second   () const { return pT[idx].val; }
-	inline       T_val & second_RW()       { return pT[idx].val; }
-	inline const uint64& index    () const { return idx; }
+	inline const T_key  & first    () const { return pT[idx].key;  }
+	inline       T_key  & first_RW () const { return pT[idx].key;  }
+	inline const T_val  & second   () const { return pT[idx].val;  }
+	inline       T_val  & second_RW()       { return pT[idx].val;  }
+	inline const uint64 & index    () const { return idx;          }
+	inline const T_shift& prev     () const { return pT[idx].prev; } // for debug
+	inline const T_shift& next     () const { return pT[idx].next; } // for debug
 	
 	inline bool _needRehash(){ return idx==itr_needRehash_m; }
 	
@@ -596,6 +598,7 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::re
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
 #define findBase_m()													\
+	if( isEmpty_m(pT[idx]) ){ return itr_m(maxShift, ttSize, pT, itr_end_m); } /* key is not found. */ \
 	for(;;){															\
 		if( T_key_eq()(pT[idx].key, key_in) ){ return itr_m(maxShift, ttSize, pT,       idx); } /* key is found. */ \
 		if(   pT[idx].next == (T_shift)0    ){ return itr_m(maxShift, ttSize, pT, itr_end_m); } /* key is not found. */ \
@@ -1133,8 +1136,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::_
 //---
 
 #define insert_hard_init_m()							\
-	{ if(isOverMaxLF_m(elems, elems_maxLF)){ printf("elems / elems_maxLF == %lu / %lu  |", elems, elems_maxLF); rehash(); printf("-> %lu / %lu\n", elems, elems_maxLF); } }
-//	{ if(isOverMaxLF_m(elems, elems_maxLF)){ rehash(); } }
+	if(isOverMaxLF_m(elems, elems_maxLF)){ rehash(); }
 #define insert_hard_cc_m()												\
 																		\
 	struct itr_m itrF = this->find(key_in, idx);						\

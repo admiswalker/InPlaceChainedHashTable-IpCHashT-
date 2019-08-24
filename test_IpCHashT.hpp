@@ -1181,15 +1181,8 @@ bool stressTest_oneCycle_hard(const uint64 seed, const uint64 limitSize){
 		for(uint64 i=0; i<limitSize; i++){
 			uint64 r = mt();
 			hashT.insert_hard(r, r);
-			printf("hashT.size() = %lu, num = %lu\n", hashT.size(), i+1);
 		}
-		if(!( hashT.size()==limitSize )){ sstd::pdbg("ERROR: stressTest_oneCycle_hard\n"); sstd::printn( limitSize ); sstd::printn( hashT.size() );
-			uint count=0;
-			for(auto itr=hashT.begin(); itr!=hashT.end(); ++itr){
-				count++;
-			}
-			sstd::printn(count);
-			return false; }
+		if(!( hashT.size()==limitSize )){ sstd::pdbg("ERROR: stressTest_oneCycle_hard\n"); sstd::printn( limitSize ); sstd::printn( hashT.size() ); return false; }
 	}
 //	printTable_all(hashT);
 	
