@@ -1142,7 +1142,7 @@ bool stressTest_oneCycle_soft(const uint64 seed, const uint64 limitSize){
 	}
 	return true;
 }
-TEST(sstd_IpCHashT, multiple_rehasing_padding0_soft){
+TEST(sstd_IpCHashT, multiple_rehashing_padding0_soft){
 	// test of multiple rehasing while rehasing (this is a case of 0 passings for initial table size)
 	uint64 seed = 4163762552;
 	uint64 limitSize = 100;

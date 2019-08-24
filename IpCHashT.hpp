@@ -29,7 +29,8 @@ namespace sstd{
 			  class T_hash   = std::hash<T_key>,
 			  class T_key_eq = std::equal_to<T_key>,
 			  typename T_shift = uint8, // or uint16
-			  typename T_maxLF = sstd::IpCHashT_opt::maxLF50 // or sstd::IpCHashT_opt::maxLF100
+			  typename T_maxLF = sstd::IpCHashT_opt::maxLF100 // or sstd::IpCHashT_opt::maxLF100
+//			  typename T_maxLF = sstd::IpCHashT_opt::maxLF50 // or sstd::IpCHashT_opt::maxLF100
 			  >
 	class IpCHashT; // chained hash table
 }
@@ -150,8 +151,8 @@ public:
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
 // in order to reduce the calling time of function, macro expansion will be used.
-#define isMaxLF_m(elems, elems_maxLF)			\
-	elems>elems_maxLF
+#define isOverMaxLF_m(elems, elems_maxLF)		\
+	(elems>elems_maxLF)
 #define isEmpty_m(ELEM)							\
 	(ELEM.prev==maxShift)
 #define isHead_m(ELEM)							\
@@ -306,6 +307,7 @@ public:
 	inline uint64& _pSize(){ return pSize; }
 	inline uint64& _ttSize(){ return ttSize; }
 	inline uint64& _elems (){ return elems; }
+	inline uint64& _elems_maxLF(){ return elems_maxLF; }
 	inline T_hash*& _pHashFn(){ return pHashFn; }
 	inline struct elem_m*& _pT(){ return pT; }
 	inline const T_shift& _maxShift() const { return maxShift; }
@@ -373,6 +375,9 @@ public:
 	tSize=2;									\
 	while(tSize<tableSize){ tSize*=2; }
 
+inline double get_maxLF(const sstd::IpCHashT_opt::maxLF50 & rhs){ return 0.50; }
+inline double get_maxLF(const sstd::IpCHashT_opt::maxLF100& rhs){ return 1.00; }
+
 #define constructorBase_init_pSize_m()									\
 	/* pSize = (1/a) * tSize + b                      */				\
 	/*                                                */				\
@@ -396,21 +401,17 @@ public:
 	if(pSize>254){ pSize=254ull; } /* when using T_shift=uint8, 0xFF-1==254 is the max-shift. */
 
 #define constructorBase_init_m()										\
-	ttSize    = tSize + pSize; /* while "#define use_prime_table" is disabled, ttSize must be satisfied ttSize>=tSize+1. Because (hashVal & tSize) will [0, tSize], not [0, tSize). (when using prime table, hashVal % tSize be satisfied [0, tSize).) */ \
-	pT        = new struct elem_m[ttSize];								\
-	pHashFn   = new T_hash();											\
-	elems     = 0ull;													\
-	maxShift  = (T_shift)0;												\
-	maxShift  = ~maxShift; /* 'maxShift' will be filled with '1'. */	\
-	seekLimit = maxShift - 1;
-
-inline double get_maxLF(const sstd::IpCHashT_opt::maxLF50 & rhs){ return 0.50; }
-inline double get_maxLF(const sstd::IpCHashT_opt::maxLF100& rhs){ return 1.00; }
+	ttSize      = tSize + pSize; /* while "#define use_prime_table" is disabled, ttSize must be satisfied ttSize>=tSize+1. Because (hashVal & tSize) will [0, tSize], not [0, tSize). (when using prime table, hashVal % tSize be satisfied [0, tSize).) */ \
+	pT          = new struct elem_m[ttSize];							\
+	pHashFn     = new T_hash();											\
+	elems       = 0ull;													\
+	elems_maxLF = ttSize * get_maxLF(T_maxLF());						\
+	maxShift    = (T_shift)0;											\
+	maxShift    = ~maxShift; /* 'maxShift' will be filled with '1'. */	\
+	seekLimit   = maxShift - 1;
 
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
 inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::IpCHashT_constructor(const uint64& tableSize){
-	elems_maxLF = ttSize * get_maxLF(T_maxLF());
-	
 	#ifdef use_prime_table
 	get_tSizeL_idx(tSizeL_idx); tSize = sstd_IpCHashT::tSizeL[tSizeL_idx];
 	#else
@@ -477,17 +478,18 @@ void swap_hashT(sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>
 	using std::swap;
 	
 	#ifdef use_prime_table
-	swap(lhs._tSizeL_idx(), rhs._tSizeL_idx());
+	swap(lhs._tSizeL_idx(),  rhs._tSizeL_idx() );
 	#else
-	swap(lhs._tSize_m1(),   rhs._tSize_m1()  );
+	swap(lhs._tSize_m1(),    rhs._tSize_m1()   );
 	#endif
 	
-	swap(lhs._tSize(),      rhs._tSize()     );
-	swap(lhs._pSize(),      rhs._pSize()     );
-	swap(lhs._ttSize(),     rhs._ttSize()    );
-	swap(lhs._pHashFn(),    rhs._pHashFn()   );
-	swap(lhs._pT(),         rhs._pT()        );
-	swap(lhs._elems(),      rhs._elems()     );
+	swap(lhs._tSize(),       rhs._tSize()      );
+	swap(lhs._pSize(),       rhs._pSize()      );
+	swap(lhs._ttSize(),      rhs._ttSize()     );
+	swap(lhs._pHashFn(),     rhs._pHashFn()    );
+	swap(lhs._pT(),          rhs._pT()         );
+	swap(lhs._elems(),       rhs._elems()      );
+	swap(lhs._elems_maxLF(), rhs._elems_maxLF());
 }
 
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
@@ -752,7 +754,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::_
 	for(;;){															\
 		/* there is not the key-value pair on the table. */				\
 		struct itr_m itrI = this->_insertBase_soft(std::move(key), std::move(val), idx); \
-		if(itrI._needRehash() || isMaxLF_m(elems, elems_maxLF)){		\
+		if(itrI._needRehash() || isOverMaxLF_m(elems, elems_maxLF)){	\
 			rehash();													\
 			key2tableIdx_m(idx, key_in); /* get table index */			\
 			continue;													\
@@ -1136,7 +1138,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::_
 	for(;;){															\
 		/* there is not the key-value pair on the table. */				\
 		struct itr_m itrI = this->_insertBase_hard(std::move(key), std::move(val), idx); \
-		if(itrI._needRehash() || isMaxLF_m(elems, elems_maxLF)){		\
+		if(itrI._needRehash() || isOverMaxLF_m(elems, elems_maxLF)){	\
 			rehash();													\
 			key2tableIdx_m(idx, key_in); /* get table index */			\
 			continue;													\
@@ -1282,7 +1284,7 @@ void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::erase(con
 #undef isTail_m
 #undef isHead_m
 #undef isEmpty_m
-#undef isMaxLF_m
+#undef isOverMaxLF_m
 
 #undef itr_needRehash_m
 #undef itr_end_m
