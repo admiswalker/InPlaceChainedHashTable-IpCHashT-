@@ -58,8 +58,8 @@ def vvec2graph_base(savePath, saveAs, xlabel, ylabel, vecLabel, labelLoc, vvecX,
     
     #cmap = plt.get_cmap("tab10")
     darkred = '#640A1E' # 'crimson'
-    vColor=['black', 'blue', 'red', darkred, 'green', 'darkorange']
-    vLineStyle = ['solid', 'dashed', 'dashed', 'dashdot', 'dotted', 'dotted'] # solid, dashed, dashdot, dotted
+    vColor=['black', 'blue', 'fuchsia', 'red', darkred, 'green', 'darkorange']
+    vLineStyle = ['solid', 'dashed', 'dashed', 'dashed', 'dashdot', 'dotted', 'dotted'] # solid, dashed, dashdot, dotted
     for i in range(len(vecLabel)):
         #ax1.plot(vvecX[i], vvecY[i], linewidth=1, color=cmap(i), label=vecLabel[i])
         ax1.plot(vvecX[i], vvecY[i], linewidth=1, color=vColor[i], linestyle=vLineStyle[i], label=vecLabel[i])
