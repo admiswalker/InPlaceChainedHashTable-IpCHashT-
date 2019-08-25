@@ -1323,8 +1323,7 @@ void dump(T_hashTable& hashT){
 }
 
 template<typename T_hashTable>
-void test_bench_find(T_hashTable& hashT, const uint64 limitSize, uint64 seed1, uint64 seed2){
-//	std::random_device seed_gen;
+bool test_bench_find(T_hashTable& hashT, const uint64 limitSize, uint64 seed1, uint64 seed2){
 	std::mt19937_64 rand       (seed1); // pseudo random number generator
 	std::mt19937_64 rand_toFind(seed2); // pseudo random number generator
 	
@@ -1353,21 +1352,7 @@ void test_bench_find(T_hashTable& hashT, const uint64 limitSize, uint64 seed1, u
 		for(uint i=0; i<interval; i++){
 			auto itr = hashT.find( vecR_toFind[i] );
 			count++;
-//			if(count==29){
-//				dump(hashT);
-//			}
-			if(itr!=hashT.end()){
-				numFound++;
-			}else{
-				numNotFound++;
-				printf("ERROR: count: %lu, key: %lu\n", count, vecR_toFind[i]);
-				printf("       index: %lu\n", itr.index() );
-				printf("       first: %lu\n", itr.first() );
-				printf("      second: %lu\n", itr.second());
-				printf("        prev: %lu\n", itr.prev() );
-				printf("        next: %lu\n", itr.next() );
-				goto Exit;
-			}
+			if(itr!=hashT.end()){ numFound++; }else{ numNotFound++; goto Exit; }
 		}
 		
 		interval = size2interval(hashT.size());
@@ -1379,185 +1364,28 @@ void test_bench_find(T_hashTable& hashT, const uint64 limitSize, uint64 seed1, u
 		printf("       sizeByItr: %lu\n", get_sizeByItr(hashT));
 		printf("        tSize   : %lu\n", hashT._tSize());
 		printf("        tSize_m1: %lu\n", hashT._tSize_m1());
+		dump(hashT);
+		return false;
 	}
-	dump(hashT);
-
-// index:     5, first: 14585236187850776549, second: 14585236187850776549, prev: 0, next: 1
-// index:     6, first: 10707758311045660037, second: 10707758311045660037, prev: 1, next: 1
-// index:     7, first:  6384325208867731269, second:  6384325208867731269, prev: 1, next: 11
-// index:    18, first: 17893225171506404821, second: 17893225171506404821, prev: 11, next: 0
-	{
-		auto itr = hashT.find( 10707758311045660037ull );
-		if(itr!=hashT.end()){
-			printf("found\n");
-			printf("       index: %lu\n", itr.index() );
-			printf("       first: %lu\n", itr.first() );
-			printf("      second: %lu\n", itr.second());
-			printf("        prev: %lu\n", itr.prev() );
-			printf("        next: %lu\n", itr.next() );
-		}else{
-			printf("not found\n");
-		}
-		
-	}
-	{
-		auto itr = hashT.find( 6384325208867731269ull );
-		if(itr!=hashT.end()){
-			printf("found\n");
-			printf("       index: %lu\n", itr.index() );
-			printf("       first: %lu\n", itr.first() );
-			printf("      second: %lu\n", itr.second());
-			printf("        prev: %lu\n", itr.prev() );
-			printf("        next: %lu\n", itr.next() );
-		}else{
-			printf("not found\n");
-		}
-		
-	}
-	{
-		auto itr = hashT.find( 17893225171506404821ull ); // ここでも BUG 自体は再現する．
-		if(itr!=hashT.end()){
-			printf("found\n");
-		}else{
-			printf("not found\n");
-		}
-		
-	}
+	return true;
 }
 TEST(sstd_IpCHashT, stressTest__for__maxLF50){
 	std::random_device seed_gen;
-//	uint64 seed1 = seed_gen();
-//	uint64 seed2 = seed_gen();
-	uint64 seed1 = 2781098060;
-	uint64 seed2 = 2899935815;
-	printf("seed1: %lu, seed2: %lu\n", seed1, seed2);
+	uint64 seed1 = seed_gen();
+	uint64 seed2 = seed_gen();
+//	uint64 seed1 = 2781098060;
+//	uint64 seed2 = 2899935815;
 	
 	const uint64 initSize_wRehash  = 0ull;
-//	const uint64 limitSize = 5000000;
-	const uint64 limitSize = 100;
+	const uint64 limitSize = 5000000;
 	
 	sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint8,  sstd::IpCHashT_opt::maxLF50> hashT(initSize_wRehash);
-//	std::vector<double> vecX, vecY;
-//	test_bench_find(hashT, limitSize, vecX,  vecY );
-	test_bench_find(hashT, limitSize, seed1, seed2);
+	bool ret = test_bench_find(hashT, limitSize, seed1, seed2);
+	if(!ret){
+		printf("seed1: %lu, seed2: %lu\n", seed1, seed2);
+	}
+	ASSERT_TRUE( ret );
 }
-/*
-seed1: 2781098060, seed2: 2899935815
-ERROR: count: 30
-ERROR: count: 822
-ERROR: count: 1860
-ERROR: count: 274265
-ERROR: count: 627963
-ERROR: count: 1402998
-ERROR: count: 1512209
-ERROR: 4999993 / 5000000 = 0.999999
-*/
-/*
-seed1: 1276401658, seed2: 1055862328
-ERROR: count: 57
-ERROR: count: 63
-ERROR: count: 203
-ERROR: count: 550
-ERROR: count: 41484
-ERROR: 4999995 / 5000000 = 0.999999
-*/
-/*
-・LF が高すぎておかしい．
-
-[ RUN      ] sstd_IpCHashT.stressTest__for__maxLF50
-seed1: 2781098060, seed2: 2899935815
-ERROR: count: 30, key: 17893225171506404821
-       index: 18446744073709551615
-       first: 11335139274777759571
-      second: 1649
-        prev: 68
-        next: 0
-ERROR: 29 / 30 = 0.966667
-       sizeByItr: 30
-        tSize   : 32
-        tSize_m1: 31
-index:     1, first:  8596618200419360705, second:  8596618200419360705, prev: 0, next: 0
-index:     4, first:   911234258104906372, second:   911234258104906372, prev: 0, next: 13
-index:     5, first: 14585236187850776549, second: 14585236187850776549, prev: 0, next: 1
-index:     6, first: 10707758311045660037, second: 10707758311045660037, prev: 1, next: 1
-index:     7, first:  6384325208867731269, second:  6384325208867731269, prev: 1, next: 11
-index:     8, first: 15962849803833513640, second: 15962849803833513640, prev: 0, next: 11
-index:     9, first:  3699385600812599401, second:  3699385600812599401, prev: 0, next: 1
-index:    10, first:  5811571849429494377, second:  5811571849429494377, prev: 1, next: 0
-index:    11, first:   131431920618971435, second:   131431920618971435, prev: 0, next: 11
-index:    12, first: 17299270109802177932, second: 17299270109802177932, prev: 0, next: 0
-index:    13, first:  7869857772470329581, second:  7869857772470329581, prev: 0, next: 0
-index:    14, first: 12006417007132740814, second: 12006417007132740814, prev: 0, next: 0
-index:    15, first:  5522268443264076559, second:  5522268443264076559, prev: 0, next: 0
-index:    16, first:  1084565186329439600, second:  1084565186329439600, prev: 0, next: 0
-index:    17, first:  1463533546044861092, second:  1463533546044861092, prev: 13, next: 3
-index:    18, first: 17893225171506404821, second: 17893225171506404821, prev: 11, next: 0
-index:    19, first: 15648380518536945896, second: 15648380518536945896, prev: 11, next: 0
-index:    20, first:  5905435821962334244, second:  5905435821962334244, prev: 3, next: 0
-index:    21, first:  2615635118055950933, second:  2615635118055950933, prev: 0, next: 0
-index:    22, first: 11702818792580078155, second: 11702818792580078155, prev: 11, next: 0
-index:    23, first:  8687868105187263991, second:  8687868105187263991, prev: 0, next: 2
-index:    24, first:  9461090906660549080, second:  9461090906660549080, prev: 0, next: 0
-index:    25, first: 10870349682992197431, second: 10870349682992197431, prev: 2, next: 0
-index:    27, first:  9536263989597399387, second:  9536263989597399387, prev: 0, next: 0
-index:    28, first:  2702687717073120828, second:  2702687717073120828, prev: 0, next: 4
-index:    29, first:  1672799338478759933, second:  1672799338478759933, prev: 0, next: 4
-index:    30, first:  1051253290402977566, second:  1051253290402977566, prev: 0, next: 0
-index:    31, first: 15732599906570573887, second: 15732599906570573887, prev: 0, next: 0
-index:    32, first: 12443527153509988220, second: 12443527153509988220, prev: 4, next: 0
-index:    33, first: 13308684498082019005, second: 13308684498082019005, prev: 4, next: 0
-[       OK ] sstd_IpCHashT.stressTest__for__maxLF50 (0 ms)
-*/
-
-/*
-#include <iostream>
-#include <functional>
-#include <cstdint>
-
-// index:     5, first: 14585236187850776549, second: 14585236187850776549, prev: 0, next: 1
-// index:     6, first: 10707758311045660037, second: 10707758311045660037, prev: 1, next: 1
-// index:     7, first:  6384325208867731269, second:  6384325208867731269, prev: 1, next: 11
-// index:    18, first: 17893225171506404821, second: 17893225171506404821, prev: 11, next: 0
-
-int main(){
-	// your code goes here
-	uint64_t val1 = (uint64_t)14585236187850776549ull;
-	uint64_t val2 = (uint64_t)10707758311045660037ull;
-	uint64_t val3 = (uint64_t) 6384325208867731269ull;
-	uint64_t val4 = (uint64_t)17893225171506404821ull;
-	std::hash<uint64_t>* pHashFn = new std::hash<uint64_t>();
-	
-	printf("%lu\n", val1 & (32ull-1ull));
-	printf("%lu\n", val2 & (32ull-1ull));
-	printf("%lu\n", val3 & (32ull-1ull));
-	printf("%lu\n", val4 & (32ull-1ull));
-
-	return 0;
-}
-
-// 5
-// 5
-// 5
-// 21
-*/
-
-
-// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-// under construction
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 TEST(sstd_IpCHashT, OPE_bracket){

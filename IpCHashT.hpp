@@ -568,7 +568,6 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::re
 		#else
 		uint64 idx; key2tableIdx_wDivisor_m(idx, itr.first(), hashT_new._tSize_m1());
 		#endif
-		if(itr.first()==17893225171506404821ull){ printf("--> idx: %lu, first: %lu\n", idx, itr.first()); } // for dbg
 		
 		#ifdef use_insert_soft
 		auto itrRet = hashT_new._insertBase_soft(std::move(itr.first_RW()), std::move(itr.second_RW()), idx);
@@ -599,7 +598,6 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::re
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
 #define findBase_m()													\
-	if( key_in==10707758311045660037ull || key_in==6384325208867731269ull || key_in==17893225171506404821ull ){ printf("In findBase_m: idx: %lu, key_in: %lu, tSize: %lu, tSize_m1: %lu\n", idx, key_in, tSize, tSize_m1); } \
 	if( isEmpty_m(pT[idx]) ){ return itr_m(maxShift, ttSize, pT, itr_end_m); } /* key is not found. */ \
 	for(;;){															\
 		if( T_key_eq()(pT[idx].key, key_in) ){ return itr_m(maxShift, ttSize, pT,       idx); } /* key is found. */ \
@@ -751,7 +749,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::_
 		}
 	}
 }
-#define insert_soft_init_m()							\
+#define insert_init_m()							\
 	if(isOverMaxLF_m(elems, elems_maxLF)){ rehash(); }
 #define insert_soft_cc_m()												\
 																		\
@@ -770,13 +768,13 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::_
 	}
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
 struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert_soft(const T_key& key_in, const T_val& val_in){ // copy key and value.
-	insert_soft_init_m();
+	insert_init_m();
 	uint64 idx; key2tableIdx_m(idx, key_in);
 	insert_soft_cc_m();
 }
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
 struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert_soft(const T_key&  key_in, const T_val&  val_in, uint64 idx){
-	insert_soft_init_m();
+	insert_init_m();
 	insert_soft_cc_m();
 } // copy key and value.
 
@@ -1137,8 +1135,6 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::_
 
 //---
 
-#define insert_hard_init_m()							\
-	if(isOverMaxLF_m(elems, elems_maxLF)){ rehash(); }
 #define insert_hard_cc_m()												\
 																		\
 	struct itr_m itrF = this->find(key_in, idx);						\
@@ -1159,13 +1155,13 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::_
 	}
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
 struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert_hard(const T_key& key_in, const T_val& val_in){ // copy key and value.
-	insert_hard_init_m();
+	insert_init_m();
 	uint64 idx; key2tableIdx_m(idx, key_in); // get table index
 	insert_hard_cc_m();
 }
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
 struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert_hard(const T_key&  key_in, const T_val&  val_in, uint64 idx){
-	insert_hard_init_m();
+	insert_init_m();
 	insert_hard_cc_m();
 } // copy key and value.
 //template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF> void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert(      T_key&& key_in, const T_val&  val_in){} // swap key.           (Callable by "sstd::CHashT<T_key, T_val> hashT; hashT.add(std::move(key),           val );".)
@@ -1178,13 +1174,13 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::i
 
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
 struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert(const T_key& key_in, const T_val& val_in){ // copy key and value.
-	insert_soft_init_m();
+	insert_init_m();
 	uint64 idx; key2tableIdx_m(idx, key_in);
 	insert_soft_cc_m();
 }
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
 struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert(const T_key&  key_in, const T_val&  val_in, uint64 idx){ // copy key and value.
-	insert_soft_init_m();
+	insert_init_m();
 	insert_soft_cc_m();
 }
 
@@ -1192,13 +1188,13 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::i
 
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
 struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert(const T_key& key_in, const T_val& val_in){ // copy key and value.
-	insert_hard_init_m();
+	insert_init_m();
 	uint64 idx; key2tableIdx_m(idx, key_in);
 	insert_hard_cc_m();
 }
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
 struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::insert(const T_key&  key_in, const T_val&  val_in, uint64 idx){ // copy key and value.
-	insert_hard_init_m();
+	insert_init_m();
 	insert_hard_cc_m();
 }
 
@@ -1208,7 +1204,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::i
 
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
 inline T_val& sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::operator[](const T_key& key_in){
-	insert_soft_init_m();
+	insert_init_m();
 	uint64 idx; key2tableIdx_m(idx, key_in); // get table index
 	auto itrF = find(key_in, idx);
 	if(itrF!=this->end()){ return itrF.second_RW(); }
@@ -1295,9 +1291,8 @@ void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::erase(con
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
 #undef insert_hard_cc_m
-#undef insert_hard_init_m
 #undef insert_soft_cc_m
-#undef insert_soft_init_m
+#undef insert_init_m
 
 #undef key2tableIdx_m
 #undef seek2emptyIndex_m
