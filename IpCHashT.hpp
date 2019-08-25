@@ -568,6 +568,7 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::re
 		#else
 		uint64 idx; key2tableIdx_wDivisor_m(idx, itr.first(), hashT_new._tSize_m1());
 		#endif
+		if(itr.first()==17893225171506404821ull){ printf("--> idx: %lu, first: %lu\n", idx, itr.first()); } // for dbg
 		
 		#ifdef use_insert_soft
 		auto itrRet = hashT_new._insertBase_soft(std::move(itr.first_RW()), std::move(itr.second_RW()), idx);
@@ -598,6 +599,7 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::re
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
 #define findBase_m()													\
+	if( key_in==10707758311045660037ull || key_in==6384325208867731269ull || key_in==17893225171506404821ull ){ printf("In findBase_m: idx: %lu, key_in: %lu, tSize: %lu, tSize_m1: %lu\n", idx, key_in, tSize, tSize_m1); } \
 	if( isEmpty_m(pT[idx]) ){ return itr_m(maxShift, ttSize, pT, itr_end_m); } /* key is not found. */ \
 	for(;;){															\
 		if( T_key_eq()(pT[idx].key, key_in) ){ return itr_m(maxShift, ttSize, pT,       idx); } /* key is found. */ \
