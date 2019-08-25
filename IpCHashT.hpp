@@ -1208,6 +1208,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::i
 
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
 inline T_val& sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::operator[](const T_key& key_in){
+	insert_soft_init_m();
 	uint64 idx; key2tableIdx_m(idx, key_in); // get table index
 	auto itrF = find(key_in, idx);
 	if(itrF!=this->end()){ return itrF.second_RW(); }
