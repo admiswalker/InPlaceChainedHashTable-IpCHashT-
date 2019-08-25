@@ -1294,6 +1294,119 @@ TEST(sstd_IpCHashT, stressTest__failSafe_of_rehashing__hard){
 	}
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------------
+
+uint64 size2interval(const uint64 size){
+	uint8 order = (uint8)std::log10((double)size);
+	uint64 interval = (uint64)std::pow(10, order);
+	if      (order<1){ return interval;
+	}else if(order<2){ return interval/2;
+	}else if(order<3){ return interval/4;
+	}else if(order<5){ return interval/10;
+	}else            { return interval/10;
+	}
+}
+template<typename T_hashTable>
+void test_bench_find(T_hashTable& hashT, const uint64 limitSize, uint64 seed1, uint64 seed2){
+//	std::random_device seed_gen;
+	std::mt19937_64 rand       (seed1); // pseudo random number generator
+	std::mt19937_64 rand_toFind(seed2); // pseudo random number generator
+	
+	uint64 interval = 1;
+	std::vector<uint64> vecR(limitSize); vecR.clear();
+	
+	uint64 numFound=0ull, numNotFound=0ull;
+	uint64 count=0ull; // dor dbg
+	for(;;){
+		// insert
+		for(uint i=0; i<interval; i++){
+			uint64 r = rand();
+			vecR <<= r;
+			hashT[r] = r;
+		}
+		
+		std::vector<uint64> vecR_toFind(vecR.size());
+		{
+			std::uniform_int_distribution<uint64> range(0, vecR.size()-1); // make randome number between [0, vecR.size()-1].
+			for(uint i=0; i<interval; i++){
+				vecR_toFind[i] = vecR[range(rand_toFind)];
+			}
+		}
+		
+		// find (all elements are found)
+		for(uint i=0; i<interval; i++){
+			auto itr = hashT.find( vecR_toFind[i] );
+			count++;
+			if(itr!=hashT.end()){
+				numFound++;
+			}else{
+				numNotFound++;
+				printf("ERROR: count: %lu\n", count);
+			}
+		}
+		
+		interval = size2interval(hashT.size());
+		if(hashT.size()+interval>limitSize){ break; }
+	}
+	if(numNotFound!=0ull){
+		printf("ERROR: ");
+		printf("%lu / %lu = %lf\n", numFound, numFound+numNotFound, (double)numFound/(double)(numFound+numNotFound));
+	}
+}
+TEST(sstd_IpCHashT, stressTest__for__maxLF50){
+	std::random_device seed_gen;
+//	uint64 seed1 = seed_gen();
+//	uint64 seed2 = seed_gen();
+	uint64 seed1 = 1276401658;
+	uint64 seed2 = 1055862328;
+	printf("seed1: %lu, seed2: %lu\n", seed1, seed2);
+	
+	const uint64 initSize_wRehash  = 0ull;
+//	const uint64 limitSize = 5000000;
+	const uint64 limitSize = 100;
+	
+	sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint8,  sstd::IpCHashT_opt::maxLF50> hashT(initSize_wRehash);
+//	std::vector<double> vecX, vecY;
+//	test_bench_find(hashT, limitSize, vecX,  vecY );
+	test_bench_find(hashT, limitSize, seed1, seed2);
+}
+/*
+seed1: 2781098060, seed2: 2899935815
+ERROR: count: 30
+ERROR: count: 822
+ERROR: count: 1860
+ERROR: count: 274265
+ERROR: count: 627963
+ERROR: count: 1402998
+ERROR: count: 1512209
+ERROR: 4999993 / 5000000 = 0.999999
+*/
+/*
+seed1: 1276401658, seed2: 1055862328
+ERROR: count: 57
+ERROR: count: 63
+ERROR: count: 203
+ERROR: count: 550
+ERROR: count: 41484
+ERROR: 4999995 / 5000000 = 0.999999
+*/
+// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+// under construction
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------
 TEST(sstd_IpCHashT, OPE_bracket){
 	// []
 	
