@@ -33,17 +33,18 @@ typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>    
 	vvecY={vecY_u, vecY_c, vecY_i8h, vecY_i8, vecY_i16, vecY_d, vecY_f};
 
 #define RUN_BENCH_withErase(vvecX, vvecY, initSize, limitSize, Fnc)		\
-	std::vector<double> vecX_u, vecX_c, vecX_i8, vecX_i16, vecX_d, vecX_f; \
-	std::vector<double> vecY_u, vecY_c, vecY_i8, vecY_i16, vecY_d, vecY_f; \
+	std::vector<double> vecX_u, vecX_c, vecX_i8h, vecX_i8, vecX_i16, vecX_d, vecX_f; \
+	std::vector<double> vecY_u, vecY_c, vecY_i8h, vecY_i8, vecY_i16, vecY_d, vecY_f; \
 	{ uHashT       hashT(initSize); Fnc(hashT, limitSize, vecX_u,   vecY_u  ); } \
 	{ cHashT       hashT(initSize); Fnc(hashT, limitSize, vecX_c,   vecY_c  ); } \
+	{ iHashT_u8h   hashT(initSize); Fnc(hashT, limitSize, vecX_i8h, vecY_i8h); } \
 	{ iHashT_u8    hashT(initSize); Fnc(hashT, limitSize, vecX_i8,  vecY_i8 ); } \
 	{ iHashT_u16   hashT(initSize); Fnc(hashT, limitSize, vecX_i16, vecY_i16); } \
 	{ dHashT       hashT(initSize); hashT.set_empty_key(0ull); hashT.set_deleted_key(1ull); /* this meen that 'NULL' and '1' will not be able to insert as a key-value. */ \
-	                              Fnc(hashT, limitSize, vecX_d,   vecY_d  ); } \
+	                                Fnc(hashT, limitSize, vecX_d,   vecY_d  ); } \
 	{ fHashT       hashT(initSize); Fnc(hashT, limitSize, vecX_f,   vecY_f  ); } \
-	vvecX={vecX_u, vecX_c, vecX_i8, vecX_i16, vecX_d, vecX_f};			\
-	vvecY={vecY_u, vecY_c, vecY_i8, vecY_i16, vecY_d, vecY_f};
+	vvecX={vecX_u, vecX_c, vecX_i8h, vecX_i8, vecX_i16, vecX_d, vecX_f}; \
+	vvecY={vecY_u, vecY_c, vecY_i8h, vecY_i8, vecY_i16, vecY_d, vecY_f};
 
 #define BENCH_to_CSV(savePath, vvecX, vvecY, vvecHeader)				\
 	sstd::vvec<     double> vvec     = {vvecX[0]}; for(uint i=0;i<vvecY.size();i++){ vvec <<= {vvecY[i]}; } \
@@ -56,7 +57,7 @@ typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>    
 	//       0 , 
 	//       1 , 
 	//      ︙ , 
-	//      ︙ ,
+	//      ︙ , 
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 // common functions
@@ -330,7 +331,7 @@ void bench_find(T_hashTable& hashT, const uint64 limitSize, std::vector<double>&
 void vvec2plot_find(const std::string& savePath, const std::vector<std::string>& saveAs, const sstd::vvec<double>& vvecX, const sstd::vvec<double>& vvecY){
 	const char* xlabel = "Number of elements on the table [conut]";
 	const char* ylabel = "Successful lookup speed [query/μs]";
-	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint8,sstd::IpCHashT_opt::maxLF100>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16,sstd::IpCHashT_opt::maxLF100>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
+	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64> (as uint8 and maxLF50)", "sstd::IpCHashT<uint64,uint64> (as uint8 and maxLF100)", "sstd::IpCHashT<uint64,uint64> (as uint16 and maxLF100)", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	
 	// plot2fig
 	const char* tmpDir   = "./tmpDir";
@@ -403,7 +404,7 @@ void bench_find_failedAll(T_hashTable& hashT, const uint64 limitSize, std::vecto
 void vvec2plot_find_failedAll(const std::string& savePath, const std::vector<std::string>& saveAs, const sstd::vvec<double>& vvecX, const sstd::vvec<double>& vvecY){
 	const char* xlabel = "Number of elements on the table [conut]";
 	const char* ylabel = "Unsuccessful lookup speed [query/μs]";
-	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
+	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64> (as uint8 and maxLF50)", "sstd::IpCHashT<uint64,uint64> (as uint8 and maxLF100)", "sstd::IpCHashT<uint64,uint64> (as uint16 and maxLF100)", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	
 	// plot2fig
 	const char* tmpDir   = "./tmpDir";
@@ -423,7 +424,7 @@ void bench2csv_find_failedAll(const std::string& savePath, const std::vector<std
 	std::vector<std::vector<double>> vvecX, vvecY;
 	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_find_failedAll);
 	
-	std::vector<std::vector<std::string>> vvecHeader = {{"[count]", "uHashT [query/μs]", "cHashT [query/μs]", "iHashT_u8 [query/μs]", "iHashT_u16 [query/μs]", "dHashT [query/μs]", "fHashT [query/μs]"}};
+	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [query/μs]", "cHashT [query/μs]", "iHashT_u8h [query/μs]", "iHashT_u8 [query/μs]", "iHashT_u16 [query/μs]", "dHashT [query/μs]", "fHashT [query/μs]"}};
 	BENCH_to_CSV(savePath, vvecX, vvecY, vvecHeader);
 }
 
@@ -567,39 +568,39 @@ void RUN_ALL_BENCHS(){
 	std::vector<std::string> saveAs = {".pdf", ".png"};
 	
 	//---------------------------------------------------------------------------------------------------------------------------------------------
-	/*
+	//*
 	// bench of used memory size should run first inorder to avoid memory swap by Linux OS.
-	bench2plot_usedMemory(saveDir+"/usedMemory_wRehash",  saveAs, initSize_wRehash, limitSize);
-	bench2plot_usedMemory(saveDir+"/usedMemory_preAlloc", saveAs, initSize_preAlloc, limitSize);
+//	bench2plot_usedMemory(saveDir+"/usedMemory_wRehash",  saveAs, initSize_wRehash, limitSize);
+//	bench2plot_usedMemory(saveDir+"/usedMemory_preAlloc", saveAs, initSize_preAlloc, limitSize);
 	
 	// insert: insertion speed [query/sec]
-	bench2plot_insert(saveDir+"/insert", saveAs, initSize_wRehash, limitSize);
+//	bench2plot_insert(saveDir+"/insert", saveAs, initSize_wRehash, limitSize);
 	
 	// insert: elapsed time [sec]
-	bench2plot_insert_et(saveDir+"/insert_et_wRehash",  saveAs, initSize_wRehash,  limitSize);
-	bench2plot_insert_et(saveDir+"/insert_et_preAlloc", saveAs, initSize_preAlloc, limitSize);
-	//*/
+//	bench2plot_insert_et(saveDir+"/insert_et_wRehash",  saveAs, initSize_wRehash,  limitSize);
+//	bench2plot_insert_et(saveDir+"/insert_et_preAlloc", saveAs, initSize_preAlloc, limitSize);
+	
 	// find: successful lookup speed [quely/sec]
 	bench2plot_find(saveDir+"/find_successful_lookup", saveAs, initSize_wRehash, limitSize);
 	
 	// find: unsuccessful lookup speed [quely/sec]
-//	bench2plot_find_failedAll(saveDir+"/find_unsuccessful_lookup", saveAs, initSize_wRehash, limitSize);
-	/*
+	bench2plot_find_failedAll(saveDir+"/find_unsuccessful_lookup", saveAs, initSize_wRehash, limitSize);
+	
 	// erase
-	bench2plot_erase(saveDir+"/erase", saveAs, initSize_wRehash, limitSize);
+//	bench2plot_erase(saveDir+"/erase", saveAs, initSize_wRehash, limitSize);
 	
 	// max-load factor
-	bench2plot_maxLoadFactor(saveDir+"/maxLoadFactor", saveAs, limitSize);
+//	bench2plot_maxLoadFactor(saveDir+"/maxLoadFactor", saveAs, limitSize);
 	//*/
 	//---------------------------------------------------------------------------------------------------------------------------------------------
-	//*
+	/*
 	std::string fwR = "/find_successful_lookup";
 	sstd::mkdir(saveDir+'/'+fwR);
-	for(uint i=0; i<100; i++){ // 17 mins
+	for(uint i=0; i<100; i++){ // 17 mins -> 20 mins
 		std::string savePath = saveDir +'/'+fwR +sstd::ssprintf("/%s_%03u", fwR.c_str(), i)+".csv";
 		bench2csv_find(savePath, saveAs, initSize_wRehash, limitSize);
 	}
-	/*
+	
 	std::string ffa = "/find_unsuccessful_lookup";
 	sstd::mkdir(saveDir+'/'+ffa);
 	for(uint i=0; i<100; i++){ // 15 mins
@@ -646,4 +647,5 @@ void RUN_ALL_BENCHS(){
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
+
 

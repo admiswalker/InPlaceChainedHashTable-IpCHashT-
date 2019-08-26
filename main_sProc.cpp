@@ -13,8 +13,8 @@ void vecPath2v_vvecXY(std::vector<sstd::vvec<double>>& vC_vT_vecX_out, std::vect
 		sstd::vvec<std::string> vvecStr  = vvecOrig && sstd::slice_mv(1, sstd::end());
 		sstd::vvec<     double> vvecD    = sstd::Tr(sstd::str2double(vvecStr));
 		
-		sstd::vvec<double> vT_vecX = {vvecD[0], vvecD[0], vvecD[0], vvecD[0], vvecD[0], vvecD[0]}; // depending on csv format
-		sstd::vvec<double> vT_vecY = {vvecD[1], vvecD[2], vvecD[3], vvecD[4], vvecD[5], vvecD[6]}; // depending on csv format
+		sstd::vvec<double> vT_vecX = {vvecD[0], vvecD[0], vvecD[0], vvecD[0], vvecD[0], vvecD[0], vvecD[0]}; // depending on csv format
+		sstd::vvec<double> vT_vecY = {vvecD[1], vvecD[2], vvecD[3], vvecD[4], vvecD[5], vvecD[6], vvecD[7]}; // depending on csv format
 		vC_vT_vecX_out[i] = std::move(vT_vecX);
 		vC_vT_vecY_out[i] = std::move(vT_vecY);
 	}
@@ -59,20 +59,21 @@ int main(int argc, char** argv){
 	printf("■ measureTime_start---------------\n\n"); time_m timem; sstd::measureTime_start(timem);
 	
 	std::vector<std::string> saveAs={".png", ".pdf"};
+	/*
 	{
 		const char* csvPath  = "./tmpBench/find_successful_lookup/*";
 		const char* savePath = "./tmpBench/find_successful_lookup_med";
 		
 		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
 		vvec2plot_find(savePath, saveAs, vvecX, vvecY);
-	}/*
+	}//*/
 	{
-		const char* csvPath  = "./tmpBench/find_failedAll/*";
-		const char* savePath = "./tmpBench/find_failedAll_med";
+		const char* csvPath  = "./tmpBench/find_unsuccessful_lookup/*";
+		const char* savePath = "./tmpBench/find_unsuccessful_lookup_med";
 		
 		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
 		vvec2plot_find(savePath, saveAs, vvecX, vvecY);
-	}
+	}/*
 	{
 		const char* csvPath  = "./tmpBench/insert_wRehash/*";
 		const char* savePath = "./tmpBench/insert_wRehash_med";
