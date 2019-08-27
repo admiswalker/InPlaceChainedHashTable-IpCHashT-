@@ -112,8 +112,8 @@ void bench_usedMemory(T_hashTable& hashT, const uint64 limitSize, std::vector<do
 	vecY_MB -= (double)vecY_MB[0];
 }
 void bench2plot_usedMemory(const std::string& savePath, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
-	std::vector<double> vecX_u, vecX_c, vecX_i8, vecX_i16, vecX_d, vecX_f; // memory size [MB]
-	std::vector<double> vecY_u, vecY_c, vecY_i8, vecY_i16, vecY_d, vecY_f; // sec
+	std::vector<double> vecX_u, vecX_c, vecX_i8h, vecX_i8, vecX_i16, vecX_d, vecX_f; // memory size [MB]
+	std::vector<double> vecY_u, vecY_c, vecY_i8h, vecY_i8, vecY_i16, vecY_d, vecY_f; // sec
 	double baseSize_MB = 0.0;
 	
 	baseSize_MB = sstd::status_VmRSS()/1024.0;
@@ -125,6 +125,11 @@ void bench2plot_usedMemory(const std::string& savePath, const std::vector<std::s
 	cHashT hashT_c(initSize);
 	bench_usedMemory(hashT_c, limitSize, vecX_c, vecY_c, baseSize_MB);
 	std::vector<char> buf_c((sstd::status_VmHWM()-sstd::status_VmRSS())*1024); // inorder not to count swap memory region
+	
+	baseSize_MB = sstd::status_VmRSS()/1024.0;
+	iHashT_u8h hashT_i8h(initSize);
+	bench_usedMemory(hashT_i8h, limitSize, vecX_i8h, vecY_i8h, baseSize_MB);
+	std::vector<char> buf_i8h((sstd::status_VmHWM()-sstd::status_VmRSS())*1024); // inorder not to count swap memory region
 	
 	baseSize_MB = sstd::status_VmRSS()/1024.0;
 	iHashT_u8 hashT_i8(initSize);
@@ -147,9 +152,9 @@ void bench2plot_usedMemory(const std::string& savePath, const std::vector<std::s
 	
 	const char* xlabel = "Number of elements on the table [conut]";
 	const char* ylabel = "Allocated memory size [MB]";
-	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
-	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i8, vecX_i16, vecX_d, vecX_f}; // memory size [MB]
-	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i8, vecY_i16, vecY_d, vecY_f}; // sec
+	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64> (as uint8 and maxLF50)", "sstd::IpCHashT<uint64,uint64> (as uint8 and maxLF100)", "sstd::IpCHashT<uint64,uint64> (as uint16 and maxLF100)", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
+	std::vector<std::vector<double>> vvecX={vecX_u, vecX_c, vecX_i8h, vecX_i8, vecX_i16, vecX_d, vecX_f}; // memory size [MB]
+	std::vector<std::vector<double>> vvecY={vecY_u, vecY_c, vecY_i8h, vecY_i8, vecY_i16, vecY_d, vecY_f}; // sec
 	
 	// plot2fig
 	const char* tmpDir   = "./tmpDir";
@@ -570,7 +575,7 @@ void RUN_ALL_BENCHS(){
 	//---------------------------------------------------------------------------------------------------------------------------------------------
 	//*
 	// bench of used memory size should run first inorder to avoid memory swap by Linux OS.
-//	bench2plot_usedMemory(saveDir+"/usedMemory_wRehash",  saveAs, initSize_wRehash, limitSize);
+	bench2plot_usedMemory(saveDir+"/usedMemory_wRehash",  saveAs, initSize_wRehash, limitSize);
 //	bench2plot_usedMemory(saveDir+"/usedMemory_preAlloc", saveAs, initSize_preAlloc, limitSize);
 	
 	// insert: insertion speed [query/sec]
@@ -581,10 +586,10 @@ void RUN_ALL_BENCHS(){
 //	bench2plot_insert_et(saveDir+"/insert_et_preAlloc", saveAs, initSize_preAlloc, limitSize);
 	
 	// find: successful lookup speed [quely/sec]
-	bench2plot_find(saveDir+"/find_successful_lookup", saveAs, initSize_wRehash, limitSize);
+//	bench2plot_find(saveDir+"/find_successful_lookup", saveAs, initSize_wRehash, limitSize);
 	
 	// find: unsuccessful lookup speed [quely/sec]
-	bench2plot_find_failedAll(saveDir+"/find_unsuccessful_lookup", saveAs, initSize_wRehash, limitSize);
+//	bench2plot_find_failedAll(saveDir+"/find_unsuccessful_lookup", saveAs, initSize_wRehash, limitSize);
 	
 	// erase
 //	bench2plot_erase(saveDir+"/erase", saveAs, initSize_wRehash, limitSize);
