@@ -575,8 +575,8 @@ void RUN_ALL_BENCHS(){
 	//---------------------------------------------------------------------------------------------------------------------------------------------
 	//*
 	// bench of used memory size should run first inorder to avoid memory swap by Linux OS.
-	bench2plot_usedMemory(saveDir+"/usedMemory_wRehash",  saveAs, initSize_wRehash, limitSize);
-//	bench2plot_usedMemory(saveDir+"/usedMemory_preAlloc", saveAs, initSize_preAlloc, limitSize);
+	bench2plot_usedMemory(saveDir+"/usedMemory",          saveAs, initSize_wRehash,  limitSize);
+	bench2plot_usedMemory(saveDir+"/usedMemory_preAlloc", saveAs, initSize_preAlloc, limitSize);
 	
 	// insert: insertion speed [query/sec]
 //	bench2plot_insert(saveDir+"/insert", saveAs, initSize_wRehash, limitSize);
