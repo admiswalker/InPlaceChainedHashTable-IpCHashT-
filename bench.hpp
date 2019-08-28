@@ -199,7 +199,7 @@ void bench_insert(T_hashTable& hashT, const uint64 limitSize, std::vector<double
 void vvec2plot_insert(const std::string& savePath, const std::vector<std::string>& saveAs, const sstd::vvec<double>& vvecX, const sstd::vvec<double>& vvecY){
 	const char* xlabel = "Number of elements on the table [conut]";
 	const char* ylabel = "Insertion speed [query/μs]";
-	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
+	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64> (as uint8 and maxLF50)", "sstd::IpCHashT<uint64,uint64> (as uint8 and maxLF100)", "sstd::IpCHashT<uint64,uint64> (as uint16 and maxLF100)", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	
 	// plot2fig
 	const char* tmpDir   = "./tmpDir";
@@ -219,7 +219,7 @@ void bench2csv_insert(const std::string& savePath, const std::vector<std::string
 	std::vector<std::vector<double>> vvecX, vvecY;
 	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_insert);
 	
-	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [query/μs]", "cHashT [query/μs]", "iHashT_u8 [query/μs]", "iHashT_u16 [query/μs]", "dHashT [query/μs]", "fHashT [query/μs]"}};
+	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [query/μs]", "cHashT [query/μs]", "iHashT_u8h [query/μs]", "iHashT_u8 [query/μs]", "iHashT_u16 [query/μs]", "dHashT [query/μs]", "fHashT [query/μs]"}};
 	BENCH_to_CSV(savePath, vvecX, vvecY, vvecHeader);
 }
 
@@ -258,7 +258,7 @@ void bench_insert_et(T_hashTable& hashT, const uint64 limitSize, std::vector<dou
 void vvec2plot_insert_et(const std::string& savePath, const std::vector<std::string>& saveAs, const sstd::vvec<double>& vvecX, const sstd::vvec<double>& vvecY){
 	const char* xlabel = "Number of elements on the table [conut]";
 	const char* ylabel = "Elapsed time [sec]";
-	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
+	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64> (as uint8 and maxLF50)", "sstd::IpCHashT<uint64,uint64> (as uint8 and maxLF100)", "sstd::IpCHashT<uint64,uint64> (as uint16 and maxLF100)", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	
 	// plot2fig
 	const char* tmpDir   = "./tmpDir";
@@ -278,7 +278,7 @@ void bench2csv_insert_et(const std::string& savePath, const std::vector<std::str
 	std::vector<std::vector<double>> vvecX, vvecY;
 	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_insert_et);
 	
-	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [sec]", "cHashT [sec]", "iHashT_u8 [sec]", "iHashT_u16 [sec]", "dHashT [sec]", "fHashT [sec]"}};
+	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [sec]", "cHashT [sec]", "iHashT_u8h [sec]", "iHashT_u8 [sec]", "iHashT_u16 [sec]", "dHashT [sec]", "fHashT [sec]"}};
 	BENCH_to_CSV(savePath, vvecX, vvecY, vvecHeader);
 }
 
@@ -487,7 +487,7 @@ void bench_erase(T_hashTable& hashT, const uint64 limitSize, std::vector<double>
 void vvec2plot_erase(const std::string& savePath, const std::vector<std::string>& saveAs, const sstd::vvec<double>& vvecX, const sstd::vvec<double>& vvecY){
 	const char* xlabel = "Number of elements on the table [conut]\n(This axis is inverted.)";
 	const char* ylabel = "Erasion speed [query/μs]";
-	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
+	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64> (as uint8 and maxLF50)", "sstd::IpCHashT<uint64,uint64> (as uint8 and maxLF100)", "sstd::IpCHashT<uint64,uint64> (as uint16 and maxLF100)", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	
 	// plot2fig
 	const char* tmpDir   = "./tmpDir";
@@ -507,7 +507,7 @@ void bench2csv_erase(const std::string& savePath, const std::vector<std::string>
 	std::vector<std::vector<double>> vvecX, vvecY;
 	RUN_BENCH_withErase(vvecX, vvecY, initSize, limitSize, bench_erase);
 	
-	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [query/μs]", "cHashT [query/μs]", "iHashT_u8 [query/μs]", "iHashT_u16 [query/μs]", "dHashT [query/μs]", "fHashT [query/μs]"}};
+	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [query/μs]", "cHashT [query/μs]", "iHashT_u8h [query/μs]", "iHashT_u8 [query/μs]", "iHashT_u16 [query/μs]", "dHashT [query/μs]", "fHashT [query/μs]"}};
 	BENCH_to_CSV(savePath, vvecX, vvecY, vvecHeader);
 }
 
@@ -535,7 +535,7 @@ void bench_maxLoadFactor(T_hashTable& hashT, const uint64 limitSize, std::vector
 void vvec2plot_maxLoadFactor(const std::string& savePath, const std::vector<std::string>& saveAs, const sstd::vvec<double>& vvecX, const sstd::vvec<double>& vvecY){
 	const char* xlabel = "Table size [count]";
 	const char* ylabel = "maximum load factor [%]";
-	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16>", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
+	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64> (as uint8 and maxLF50)", "sstd::IpCHashT<uint64,uint64> (as uint8 and maxLF100)", "sstd::IpCHashT<uint64,uint64> (as uint16 and maxLF100)", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	
 	// plot2fig
 	const char* tmpDir   = "./tmpDir";
@@ -557,7 +557,7 @@ void bench2csv_maxLoadFactor(const std::string& savePath, const std::vector<std:
 	const uint64 initSize=0ull;
 	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_maxLoadFactor);
 	
-	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [%]", "cHashT [%]", "iHashT_u8 [%]", "iHashT_u16 [%]", "dHashT [%]", "fHashT [%]"}};
+	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [%]", "cHashT [%]", "iHashT_u8h [%]", "iHashT_u8 [%]", "iHashT_u16 [%]", "dHashT [%]", "fHashT [%]"}};
 	BENCH_to_CSV(savePath, vvecX, vvecY, vvecHeader);
 }
 
@@ -579,23 +579,21 @@ void RUN_ALL_BENCHS(){
 	bench2plot_usedMemory(saveDir+"/usedMemory_preAlloc", saveAs, initSize_preAlloc, limitSize);
 	
 	// insert: insertion speed [query/sec]
-//	bench2plot_insert(saveDir+"/insert", saveAs, initSize_wRehash, limitSize);
+	bench2plot_insert(saveDir+"/insert", saveAs, initSize_wRehash, limitSize);
 	
 	// insert: elapsed time [sec]
-//	bench2plot_insert_et(saveDir+"/insert_et_wRehash",  saveAs, initSize_wRehash,  limitSize);
-//	bench2plot_insert_et(saveDir+"/insert_et_preAlloc", saveAs, initSize_preAlloc, limitSize);
+	bench2plot_insert_et(saveDir+"/insert_et",  saveAs, initSize_wRehash,  limitSize);
+	bench2plot_insert_et(saveDir+"/insert_et_preAlloc", saveAs, initSize_preAlloc, limitSize);
 	
-	// find: successful lookup speed [quely/sec]
-//	bench2plot_find(saveDir+"/find_successful_lookup", saveAs, initSize_wRehash, limitSize);
-	
-	// find: unsuccessful lookup speed [quely/sec]
-//	bench2plot_find_failedAll(saveDir+"/find_unsuccessful_lookup", saveAs, initSize_wRehash, limitSize);
+	// find: lookup speed [quely/sec]
+	bench2plot_find(saveDir+"/find_successful_lookup", saveAs, initSize_wRehash, limitSize);
+	bench2plot_find_failedAll(saveDir+"/find_unsuccessful_lookup", saveAs, initSize_wRehash, limitSize);
 	
 	// erase
-//	bench2plot_erase(saveDir+"/erase", saveAs, initSize_wRehash, limitSize);
+	bench2plot_erase(saveDir+"/erase", saveAs, initSize_wRehash, limitSize);
 	
 	// max-load factor
-//	bench2plot_maxLoadFactor(saveDir+"/maxLoadFactor", saveAs, limitSize);
+	bench2plot_maxLoadFactor(saveDir+"/maxLoadFactor", saveAs, limitSize);
 	//*/
 	//---------------------------------------------------------------------------------------------------------------------------------------------
 	/*
