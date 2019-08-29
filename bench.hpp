@@ -573,7 +573,7 @@ void RUN_ALL_BENCHS(){
 	std::vector<std::string> saveAs = {".pdf", ".png"};
 	
 	//---------------------------------------------------------------------------------------------------------------------------------------------
-	//*
+	/*
 	// bench of used memory size should run first inorder to avoid memory swap by Linux OS.
 	bench2plot_usedMemory(saveDir+"/usedMemory",          saveAs, initSize_wRehash,  limitSize);
 	bench2plot_usedMemory(saveDir+"/usedMemory_preAlloc", saveAs, initSize_preAlloc, limitSize);
@@ -584,11 +584,11 @@ void RUN_ALL_BENCHS(){
 	// insert: elapsed time [sec]
 	bench2plot_insert_et(saveDir+"/insert_et",  saveAs, initSize_wRehash,  limitSize);
 	bench2plot_insert_et(saveDir+"/insert_et_preAlloc", saveAs, initSize_preAlloc, limitSize);
-	
+	//*/
 	// find: lookup speed [quely/sec]
 	bench2plot_find(saveDir+"/find_successful_lookup", saveAs, initSize_wRehash, limitSize);
 	bench2plot_find_failedAll(saveDir+"/find_unsuccessful_lookup", saveAs, initSize_wRehash, limitSize);
-	
+	/*
 	// erase
 	bench2plot_erase(saveDir+"/erase", saveAs, initSize_wRehash, limitSize);
 	
@@ -596,7 +596,7 @@ void RUN_ALL_BENCHS(){
 	bench2plot_maxLoadFactor(saveDir+"/maxLoadFactor", saveAs, limitSize);
 	//*/
 	//---------------------------------------------------------------------------------------------------------------------------------------------
-	//*
+	/*
 	std::string fwR = "/find_successful_lookup";
 	sstd::mkdir(saveDir+'/'+fwR);
 	for(uint i=0; i<100; i++){ // 17 mins -> 20 mins

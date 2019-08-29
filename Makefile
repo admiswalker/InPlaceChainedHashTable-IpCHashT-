@@ -136,7 +136,7 @@ updateLib:
 	-rm -rf sstd # remove previous versions of sstd
 
 .PHONY: steps
-steps: $(SRCS_t) $(SRCS_bm) $(HEADS) $(HEADS_t)
+steps: $(SRCS_t) $(SRCS_bm) $(HEADS) $(HEADS_t) $(HEADS_bm)
 	@echo "$^" | xargs wc -l
 	@echo ""
 	@(cd ./sstd; make steps)
