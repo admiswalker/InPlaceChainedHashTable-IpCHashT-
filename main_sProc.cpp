@@ -59,24 +59,24 @@ int main(int argc, char** argv){
 	printf("■ measureTime_start---------------\n\n"); time_m timem; sstd::measureTime_start(timem);
 	
 	std::vector<std::string> saveAs={".png", ".pdf"};
-	/*
+	//*
 	{
 		const char* csvPath  = "./tmpBench/find_successful_lookup/*";
 		const char* savePath = "./tmpBench/find_successful_lookup_med";
 		
 		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
 		vvec2plot_find(savePath, saveAs, vvecX, vvecY);
-	}//*/
+	}
 	{
 		const char* csvPath  = "./tmpBench/find_unsuccessful_lookup/*";
 		const char* savePath = "./tmpBench/find_unsuccessful_lookup_med";
 		
 		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
 		vvec2plot_find(savePath, saveAs, vvecX, vvecY);
-	}/*
+	}
 	{
-		const char* csvPath  = "./tmpBench/insert_wRehash/*";
-		const char* savePath = "./tmpBench/insert_wRehash_med";
+		const char* csvPath  = "./tmpBench/insert/*";
+		const char* savePath = "./tmpBench/insert_med";
 		
 		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
 		vvec2plot_insert(savePath, saveAs, vvecX, vvecY);
@@ -89,18 +89,20 @@ int main(int argc, char** argv){
 		vvec2plot_insert_et(savePath, saveAs, vvecX, vvecY);
 	}
 	{
-		const char* csvPath  = "./tmpBench/insert_et_wRehash/*";
-		const char* savePath = "./tmpBench/insert_et_wRehash_med";
+		const char* csvPath  = "./tmpBench/insert_et_preAlloc/*";
+		const char* savePath = "./tmpBench/insert_et_preAlloc_med";
 		
 		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
 		vvec2plot_insert_et(savePath, saveAs, vvecX, vvecY);
 	}
 	{
-		const char* csvPath  = "./tmpBench/erase_wRehash/*";
-		const char* savePath = "./tmpBench/erase_wRehash_med";
+		const char* csvPath  = "./tmpBench/erase/*";
+		const char* savePath = "./tmpBench/erase_med";
 		
 		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
 		for(uint i=0; i<vvecX.size(); i++){ // vecType
+			vvecX[i] = sstd::nonzero(vvecX[i]);
+			vvecY[i] = sstd::nonzero(vvecY[i]);
 			sstd::suppress(vvecX[i], vvecY[i]); // <-> padding
 		}
 		

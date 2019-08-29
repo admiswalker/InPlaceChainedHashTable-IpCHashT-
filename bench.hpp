@@ -596,7 +596,7 @@ void RUN_ALL_BENCHS(){
 	bench2plot_maxLoadFactor(saveDir+"/maxLoadFactor", saveAs, limitSize);
 	//*/
 	//---------------------------------------------------------------------------------------------------------------------------------------------
-	/*
+	//*
 	std::string fwR = "/find_successful_lookup";
 	sstd::mkdir(saveDir+'/'+fwR);
 	for(uint i=0; i<100; i++){ // 17 mins -> 20 mins
@@ -618,7 +618,7 @@ void RUN_ALL_BENCHS(){
 		bench2csv_insert(savePath, saveAs, initSize_wRehash, limitSize);
 	}
 	
-	std::string iEwR = "insert_et_wRehash";
+	std::string iEwR = "insert_et";
 	sstd::mkdir(saveDir+'/'+iEwR);
 	for(uint i=0; i<100; i++){ // 13 mins
 		std::string savePath = saveDir +'/'+iEwR +sstd::ssprintf("/%s_%03u", iEwR.c_str(), i)+".csv";
