@@ -33,7 +33,8 @@ namespace sstd{
 			  class T_key_eq = std::equal_to<T_key>,
 			  typename T_shift = uint8, // or uint16
 			  typename T_maxLF = sstd::IpCHashT_opt::maxLF100, // or sstd::IpCHashT_opt::maxLF100
-			  typename T_major = sstd::IpCHashT_opt::unsuccessfulMajor // or sstd::IpCHashT_opt::unsuccessfulMajor
+			  typename T_major = sstd::IpCHashT_opt::successfulMajor // or sstd::IpCHashT_opt::unsuccessfulMajor
+//			  typename T_major = sstd::IpCHashT_opt::unsuccessfulMajor // or sstd::IpCHashT_opt::unsuccessfulMajor
 			  >
 	class IpCHashT; // chained hash table
 }
@@ -599,24 +600,30 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF, T_m
 // While the calculation cost of "T_key_eq()(X, Y)" is low, benefiting unsuccessful is more effective than successful.
 // For example, if the load factor is 50%, 2 of 1 unsuccessful lookup pointting empty element.
 
-// >> [A]. 
-//#define findBase_m()													\
-//	if(! isHead_m(pT[idx]) ){ return itr_m(maxShift, ttSize, pT, itr_end_m); } /* key is not found. */ \
-//	for(;;){															\
-//		if( T_key_eq()(pT[idx].key, key_in) ){ return itr_m(maxShift, ttSize, pT,       idx); } /* key is found. */ \
-//		if(   pT[idx].next == (T_shift)0    ){ return itr_m(maxShift, ttSize, pT, itr_end_m); } /* key is not found. */ \
-//		idx += pT[idx].next;											\
-//	}
+//constexpr bool isSuccessfulMajor(sstd::IpCHashT_opt::successfulMajor   dummy){ return true;  }
+//constexpr bool isSuccessfulMajor(sstd::IpCHashT_opt::unsuccessfulMajor dummy){ return false; }
+bool isSuccessfulMajor(sstd::IpCHashT_opt::successfulMajor   dummy){ return true;  }
+bool isSuccessfulMajor(sstd::IpCHashT_opt::unsuccessfulMajor dummy){ return false; }
 
-// >> [B]. 
 #define findBase_m()													\
-	for(;;){															\
-		if( T_key_eq()(pT[idx].key, key_in) ){							\
-			if( isEmpty_m(pT[idx]) ){ return itr_m(maxShift, ttSize, pT, itr_end_m); } /* key is not found. */ \
-			return itr_m(maxShift, ttSize, pT, idx); /* key is found. */ \
+	if(isSuccessfulMajor(T_major())){									\
+		/* >> [A] */													\
+		if(! isHead_m(pT[idx]) ){ return itr_m(maxShift, ttSize, pT, itr_end_m); } /* key is not found. */ \
+		for(;;){														\
+			if( T_key_eq()(pT[idx].key, key_in) ){ return itr_m(maxShift, ttSize, pT,       idx); } /* key is found. */ \
+			if(   pT[idx].next == (T_shift)0    ){ return itr_m(maxShift, ttSize, pT, itr_end_m); } /* key is not found. */ \
+			idx += pT[idx].next;										\
 		}																\
-		if( pT[idx].next==(T_shift)0 ){ return itr_m(maxShift, ttSize, pT, itr_end_m); } /* key is not found. */ \
-		idx += pT[idx].next;											\
+	}else{																\
+		/* >> [B]. */													\
+		for(;;){														\
+			if( T_key_eq()(pT[idx].key, key_in) ){						\
+				if( isEmpty_m(pT[idx]) ){ return itr_m(maxShift, ttSize, pT, itr_end_m); } /* key is not found. */ \
+				return itr_m(maxShift, ttSize, pT, idx); /* key is found. */ \
+			}															\
+			if( pT[idx].next==(T_shift)0 ){ return itr_m(maxShift, ttSize, pT, itr_end_m); } /* key is not found. */ \
+			idx += pT[idx].next;										\
+		}																\
 	}
 
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF, typename T_major>
