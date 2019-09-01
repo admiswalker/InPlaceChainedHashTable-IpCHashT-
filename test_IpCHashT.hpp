@@ -1316,9 +1316,8 @@ uint64 get_sizeByItr(T_hashTable& hashT){
 }
 template<typename T_hashTable>
 void dump(T_hashTable& hashT){
-	uint64 count=0;
 	for(auto itr=hashT.begin(); itr!=hashT.end(); ++itr){
-		printf("index: %5lu, first: %20lu, second: %20lu, prev: %lu, next: %lu\n", itr.index(), itr.first(), itr.second(), itr.prev(), itr.next());
+		printf("index: %5lu, first: %20lu, second: %20lu, prev: %u, next: %u\n", itr.index(), itr.first(), itr.second(), itr.prev(), itr.next());
 	}
 }
 
