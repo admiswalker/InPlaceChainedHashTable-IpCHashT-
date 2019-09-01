@@ -600,10 +600,8 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF, T_m
 // While the calculation cost of "T_key_eq()(X, Y)" is low, benefiting unsuccessful is more effective than successful.
 // For example, if the load factor is 50%, 2 of 1 unsuccessful lookup pointting empty element.
 
-//constexpr bool isSuccessfulMajor(sstd::IpCHashT_opt::successfulMajor   dummy){ return true;  }
-//constexpr bool isSuccessfulMajor(sstd::IpCHashT_opt::unsuccessfulMajor dummy){ return false; }
-bool isSuccessfulMajor(sstd::IpCHashT_opt::successfulMajor   dummy){ return true;  }
-bool isSuccessfulMajor(sstd::IpCHashT_opt::unsuccessfulMajor dummy){ return false; }
+inline bool isSuccessfulMajor(sstd::IpCHashT_opt::successfulMajor   dummy){ return true;  }
+inline bool isSuccessfulMajor(sstd::IpCHashT_opt::unsuccessfulMajor dummy){ return false; }
 
 #define findBase_m()													\
 	if(isSuccessfulMajor(T_major())){									\
