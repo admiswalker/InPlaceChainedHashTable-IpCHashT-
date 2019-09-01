@@ -589,9 +589,9 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::re
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
-// What i really want to impliment is [A] or [B].
-// And what i really impliment is [C]. for considering the balance between successful lookup and unsuccessful lookup.
-// Some T_key types like to have a high calculation cost of "T_key_eq()(X, Y)", need to use [A] or [B].
+// What i really want to impliment is [A].
+// And what i really impliment is [B]. for considering the balance between successful lookup and unsuccessful lookup.
+// Some T_key types like to have a high calculation cost of "T_key_eq()(X, Y)", need to use [A].
 // While the calculation cost of "T_key_eq()(X, Y)" is low, benefiting unsuccessful is more effective than successful.
 // For example, if the load factor is 50%, 2 of 1 unsuccessful lookup pointting empty element.
 
@@ -605,15 +605,6 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::re
 //	}
 
 // >> [B]. 
-//#define findBase_m()													\
-//	if( isEmpty_m(pT[idx]) ){ return itr_m(maxShift, ttSize, pT, itr_end_m); } /* key is not found. */ \
-//	for(;;){															\
-//		if( T_key_eq()(pT[idx].key, key_in) ){ return itr_m(maxShift, ttSize, pT,       idx); } /* key is found. */ \
-//		if(   pT[idx].next == (T_shift)0    ){ return itr_m(maxShift, ttSize, pT, itr_end_m); } /* key is not found. */ \
-//		idx += pT[idx].next;											\
-//	}
-
-// >> [C]. 
 #define findBase_m()													\
 	for(;;){															\
 		if( T_key_eq()(pT[idx].key, key_in) ){							\
@@ -623,23 +614,6 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::re
 		if( pT[idx].next==(T_shift)0 ){ return itr_m(maxShift, ttSize, pT, itr_end_m); } /* key is not found. */ \
 		idx += pT[idx].next;											\
 	}
-
-// >> [D]. 
-//#define findBase_m()													\
-//	if( (!isHead_m(pT[idx])) || isEmpty_m(pT[idx]) ){ return itr_m(maxShift, ttSize, pT, itr_end_m); } /* key is not found. */ \
-//	for(;;){															\
-//		if( T_key_eq()(pT[idx].key, key_in) ){ return itr_m(maxShift, ttSize, pT,       idx); } /* key is found. */ \
-//		if(   pT[idx].next == (T_shift)0    ){ return itr_m(maxShift, ttSize, pT, itr_end_m); } /* key is not found. */ \
-//		idx += pT[idx].next;											\
-//	}
-
-// >> [E]. 
-//#define findBase_m()													\
-//	for(;;){															\
-//		if( T_key_eq()(pT[idx].key, key_in) && (!isEmpty_m(pT[idx])) ){ return itr_m(maxShift, ttSize, pT, idx); /* key is found. */ } \
-//		if( pT[idx].next==(T_shift)0 ){ return itr_m(maxShift, ttSize, pT, itr_end_m); } /* key is not found. */ \
-//		idx += pT[idx].next;											\
-//	}
 
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF>
 inline struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::find(const T_key& key_in, uint64 idx){
