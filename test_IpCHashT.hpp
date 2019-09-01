@@ -1363,7 +1363,7 @@ bool test_bench_find(T_hashTable& hashT, const uint64 limitSize, uint64 seed1, u
 		printf("ERROR: %lu / %lu = %lf\n", numFound, numFound+numNotFound, (double)numFound/(double)(numFound+numNotFound));
 		printf("       sizeByItr: %lu\n", get_sizeByItr(hashT));
 		printf("        tSize   : %lu\n", hashT._tSize());
-		printf("        tSize_m1: %lu\n", hashT._tSize_m1());
+//		printf("        tSize_m1: %lu\n", hashT._tSize_m1());
 		dump(hashT);
 		return false;
 	}
