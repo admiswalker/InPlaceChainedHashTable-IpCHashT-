@@ -8,7 +8,7 @@
 // compile options
 
 #define use_insert_soft // select soft or hard
-#define use_prime_table
+//#define use_prime_table
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -525,14 +525,10 @@ void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::failSafe_
 		uint64 idx; key2tableIdx_wDivisor_m(idx, vecKV[vecKV.size()-1].key, hashT._tSize_m1());
 		#endif
 		
-		#ifdef use_insert_soft
+		#if defined(use_insert_soft) && (!defined(SSTD_IpCHashT_DEBUG))
 		auto itrRet = hashT._insertBase_soft(std::move(vecKV[vecKV.size()-1].key), std::move(vecKV[vecKV.size()-1].val), idx);
 		#else
-			#ifdef SSTD_IpCHashT_DEBUG
-			auto itrRet = hashT._insertBase_hard(std::move(vecKV[vecKV.size()-1].key), std::move(vecKV[vecKV.size()-1].val), idx); // when rehashing, there is no meaning to use _insertBase_hard() without stress test.
-			#else
-			auto itrRet = hashT._insertBase_soft(std::move(vecKV[vecKV.size()-1].key), std::move(vecKV[vecKV.size()-1].val), idx);
-			#endif
+		auto itrRet = hashT._insertBase_hard(std::move(vecKV[vecKV.size()-1].key), std::move(vecKV[vecKV.size()-1].val), idx); // when rehashing, there is no meaning to use _insertBase_hard() without stress test.
 		#endif
 		
 		if(itrRet.index()==itr_needRehash_m){ goto CONTINUE_sstd_failSafe_of_rehashing; }
@@ -569,14 +565,10 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF>::re
 		uint64 idx; key2tableIdx_wDivisor_m(idx, itr.first(), hashT_new._tSize_m1());
 		#endif
 		
-		#ifdef use_insert_soft
+		#if defined(use_insert_soft) && (!defined(SSTD_IpCHashT_DEBUG))
 		auto itrRet = hashT_new._insertBase_soft(std::move(itr.first_RW()), std::move(itr.second_RW()), idx);
 		#else
-			#ifdef SSTD_IpCHashT_DEBUG
-			auto itrRet = hashT_new._insertBase_hard(std::move(itr.first_RW()), std::move(itr.second_RW()), idx); // when rehashing, there is no meaning to use _insertBase_hard() without stress test.
-			#else
-			auto itrRet = hashT_new._insertBase_soft(std::move(itr.first_RW()), std::move(itr.second_RW()), idx);
-			#endif
+		auto itrRet = hashT_new._insertBase_hard(std::move(itr.first_RW()), std::move(itr.second_RW()), idx); // when rehashing, there is no meaning to use _insertBase_hard() without stress test.
 		#endif
 		
 		if(itrRet.index()==itr_needRehash_m){ failSafe_of_rehashing(hashT_new); continue; } // more rehashing is required while rehashing.
