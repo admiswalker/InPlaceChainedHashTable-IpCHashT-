@@ -33,8 +33,8 @@ namespace sstd{
 			  class T_key_eq = std::equal_to<T_key>,
 			  typename T_shift = uint8, // or uint16
 			  typename T_maxLF = sstd::IpCHashT_opt::maxLF100, // or sstd::IpCHashT_opt::maxLF100
-			  typename T_major = sstd::IpCHashT_opt::successfulMajor // or sstd::IpCHashT_opt::unsuccessfulMajor
-//			  typename T_major = sstd::IpCHashT_opt::unsuccessfulMajor // or sstd::IpCHashT_opt::unsuccessfulMajor
+//			  typename T_major = sstd::IpCHashT_opt::successfulMajor // or sstd::IpCHashT_opt::unsuccessfulMajor
+			  typename T_major = sstd::IpCHashT_opt::unsuccessfulMajor // or sstd::IpCHashT_opt::unsuccessfulMajor
 			  >
 	class IpCHashT; // chained hash table
 }
@@ -45,6 +45,9 @@ namespace sstd_IpCHashT{
 	template <class T_key, class T_val, typename T_shift> struct element;
 	template <class T_key, class T_val>                   struct element_KeyVal;
 	template <class T_key, class T_val, typename T_shift> struct iterator;
+	
+	bool isSuccessfulMajor(sstd::IpCHashT_opt::successfulMajor   dummy);
+	bool isSuccessfulMajor(sstd::IpCHashT_opt::unsuccessfulMajor dummy);
 	
 	#ifdef use_prime_table
 	const uint64 tSizeL[64] = { // table size list. (Smallest prime list larger than power of 2.)
@@ -600,11 +603,11 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF, T_m
 // While the calculation cost of "T_key_eq()(X, Y)" is low, benefiting unsuccessful is more effective than successful.
 // For example, if the load factor is 50%, 2 of 1 unsuccessful lookup pointting empty element.
 
-inline bool isSuccessfulMajor(sstd::IpCHashT_opt::successfulMajor   dummy){ return true;  }
-inline bool isSuccessfulMajor(sstd::IpCHashT_opt::unsuccessfulMajor dummy){ return false; }
+inline bool sstd_IpCHashT::isSuccessfulMajor(sstd::IpCHashT_opt::successfulMajor   dummy){ return true;  }
+inline bool sstd_IpCHashT::isSuccessfulMajor(sstd::IpCHashT_opt::unsuccessfulMajor dummy){ return false; }
 
 #define findBase_m()													\
-	if(isSuccessfulMajor(T_major())){									\
+	if(sstd_IpCHashT::isSuccessfulMajor(T_major())){					\
 		/* >> [A] */													\
 		if(! isHead_m(pT[idx]) ){ return itr_m(maxShift, ttSize, pT, itr_end_m); } /* key is not found. */ \
 		for(;;){														\
@@ -769,7 +772,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF, T_
 		}
 	}
 }
-#define insert_init_m()							\
+#define insert_init_m()									\
 	if(isOverMaxLF_m(elems, elems_maxLF)){ rehash(); }
 #define insert_soft_cc_m()												\
 																		\

@@ -1,0 +1,18 @@
+$ ./exe_bench 
+
++---------------------------------------------------+
+|                                                   |
+|     Welcome to Sub Standard Library (SSTD) !      |
+|                                                   |
+|     > This is an Implementation Plan for          |
+|     > In-placeChainedHashTable (IpCHashT)         |
+|     >   and   ChainedHashTable (  CHashT).        |
+|                                                   |
++---------------------------------------------------+
+
+■ measureTime_start---------------
+
+T_hashTable:cHashT, seed1: 112715602, seed2: 1253638511
+ERROR: in bench_find_failedAll(): 1 / 200000000 = 0.000000
+
+

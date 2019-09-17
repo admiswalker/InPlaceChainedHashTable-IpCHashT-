@@ -1,0 +1,50 @@
+
+
+
+
+/*
+$ ./exe_bench 
+
++---------------------------------------------------+
+|                                                   |
+|     Welcome to Sub Standard Library (SSTD) !      |
+|                                                   |
+|     > This is an Implementation Plan for          |
+|     > In-placeChainedHashTable (IpCHashT)         |
+|     >   and   ChainedHashTable (  CHashT).        |
+|                                                   |
++---------------------------------------------------+
+
+■ measureTime_start---------------
+
+ERROR: 1 / 200000000 = 0.000000
+ERROR: 1 / 200000000 = 0.000000
+ERROR: 1 / 200000000 = 0.000000
+//*/
+
+
+sstd::IpCHashT_opt::successfulMajor について，
+
+- find_successful_lookup  : 100 <- たしか 100 計算していたような？
+- find_unsuccessful_lookup: 100 <- たぶんこれ．
+- insert                  :  95 <- そもそもERROR表示などない．
+
+のいずれかでエラーが発生．
+
+そもそも，
+printf("%lu / %lu = %lf\n", numFound, numFound+numNotFound, (double)numFound/(double)(numFound+numNotFound));
+printf("%lu / %lu = %lf\n", numFound, numFound+numNotFound, (double)numFound/(double)(numFound+numNotFound));
+が両方同じ時点で，見つかってエラーとなるのは
+find_unsuccessful_lookup
+の方．
+
+
+
+
+
+
+
+
+
+
+

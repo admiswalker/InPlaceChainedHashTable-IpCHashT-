@@ -80,7 +80,8 @@ def vvec2graph_base(savePath, saveAs, xlabel, ylabel, vecLabel, labelLoc, vvecX,
 # labelLoc = 'lower left'
 
 def vvec2graph(savePath, saveAs, xlabel, ylabel, vecLabel, vvecX, vvecY):
-    vecXlim = [0.9, 55000000]
+    #vecXlim = [0.9, 55000000]
+    vecXlim = [0.9, 225000000]
     vecYlim = [0.05, 1000]
     xscale = 'log'
     yscale = 'log'
@@ -89,7 +90,8 @@ def vvec2graph(savePath, saveAs, xlabel, ylabel, vecLabel, vvecX, vvecY):
     return
 
 def vvec2graph_lf(savePath, saveAs, xlabel, ylabel, vecLabel, vvecX, vvecY):
-    vecXlim = [0.9, 55000000]
+    #vecXlim = [0.9, 55000000]
+    vecXlim = [0.9, 225000000]
     vecYlim = [0, 1.025]
     xscale = 'log'
     yscale = 'linear'
@@ -98,8 +100,10 @@ def vvec2graph_lf(savePath, saveAs, xlabel, ylabel, vecLabel, vvecX, vvecY):
     return
 
 def vvec2graph_memory(savePath, saveAs, xlabel, ylabel, vecLabel, vvecX, vvecY):
-    xmargin=4*10000; vecXlim = [-xmargin, 5*1000000+xmargin]
-    ymargin=10; vecYlim=[0-ymargin, 600+ymargin]
+#    xmargin=4*10000; vecXlim = [-xmargin, 5*1000000+xmargin] # MB
+#    ymargin=10; vecYlim=[0-ymargin, 600+ymargin]             # MB
+    xmargin=4*4*10000; vecXlim = [-xmargin, 2*10000000+xmargin] # GB
+    ymargin=0.050; vecYlim=[0-ymargin, 2.250+ymargin]         # GB
     xscale = 'linear'
     yscale = 'linear'
     labelLoc = 'upper left'
@@ -107,8 +111,10 @@ def vvec2graph_memory(savePath, saveAs, xlabel, ylabel, vecLabel, vvecX, vvecY):
     return
 
 def vvec2graph_et_insert(savePath, saveAs, xlabel, ylabel, vecLabel, vvecX, vvecY):
-    xmargin=4*10000; vecXlim = [-xmargin, 5*1000000+xmargin]
-    ymargin=0.025; vecYlim=[0-ymargin, 2.5+ymargin]
+#    xmargin=4*10000; vecXlim = [-xmargin, 5*1000000+xmargin]
+    xmargin=4*10000; vecXlim = [-xmargin, 202000000+xmargin]
+#    ymargin=0.025; vecYlim=[0-ymargin, 2.5+ymargin]
+    ymargin=0.025; vecYlim=[0-ymargin, 130+ymargin]
     xscale = 'linear'
     yscale = 'linear'
     labelLoc = 'upper left'
