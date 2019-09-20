@@ -608,9 +608,9 @@ void bench2csv_maxLoadFactor(const std::string& savePath, const uint64 limitSize
 uint fileNum(const std::string& path_wWildCard){ return sstd::glob(path_wWildCard).size(); }
 
 void RUN_ALL_BENCHS(){
-	const uint64 limitSize = 200000000; // limit of memory (on 32 GB RAM PC)
+//	const uint64 limitSize = 200000000; // limit of memory (on 32 GB RAM PC)
 //	const uint64 limitSize = 20000000; // for usedMemory
-//	const uint64 limitSize = 5000000;
+	const uint64 limitSize = 5000000;
 	const uint64 initSize_wRehash  = 0ull;
 	const uint64 initSize_preAlloc = limitSize;
 	
@@ -618,7 +618,7 @@ void RUN_ALL_BENCHS(){
 	std::vector<std::string> saveAs = {".pdf", ".png"};
 	
 	//---------------------------------------------------------------------------------------------------------------------------------------------
-	/*
+	//*
 	// bench of used memory size should run first inorder to avoid memory swap by Linux OS.
 	bench2plot_usedMemory(saveDir+"/usedMemory",          saveAs, initSize_wRehash,  limitSize);
 	bench2plot_usedMemory(saveDir+"/usedMemory_preAlloc", saveAs, initSize_preAlloc, limitSize);
@@ -641,7 +641,7 @@ void RUN_ALL_BENCHS(){
 	bench2plot_maxLoadFactor(saveDir+"/maxLoadFactor", saveAs, limitSize);
 	//*/
 	//---------------------------------------------------------------------------------------------------------------------------------------------
-	/*
+	//*
 	std::string udM = "/usedMemory";
 	sstd::mkdir(saveDir+'/'+udM);
 	for(uint i=fileNum(saveDir+'/'+udM+"/*"); i<1; i++){
