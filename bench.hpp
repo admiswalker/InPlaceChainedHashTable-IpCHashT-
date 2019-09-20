@@ -9,23 +9,23 @@
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 // definitions
-/*
-typedef std::unordered_map<uint64,uint64>                                            uHashT;
-typedef sstd::CHashT<uint64,uint64>                                                  cHashT;
-typedef sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint8, sstd::IpCHashT_opt::maxLF50 ,sstd::IpCHashT_opt::successfulMajor> iHashT_u8h; // max load factor limittign to half
-typedef sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint8, sstd::IpCHashT_opt::maxLF100,sstd::IpCHashT_opt::successfulMajor> iHashT_u8;  // allowing full load factor
-typedef sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16,sstd::IpCHashT_opt::maxLF100,sstd::IpCHashT_opt::successfulMajor> iHashT_u16; // allowing full load factor
-typedef google::dense_hash_map<uint64,uint64>                                        dHashT;
-typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>         fHashT;
-//*/
 //*
-typedef std::unordered_map<uint64,uint64>                                            uHashT;
-typedef sstd::CHashT<uint64,uint64>                                                  cHashT;
-typedef sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint8, sstd::IpCHashT_opt::maxLF50 ,sstd::IpCHashT_opt::unsuccessfulMajor> iHashT_u8h; // max load factor limittign to half
-typedef sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint8, sstd::IpCHashT_opt::maxLF100,sstd::IpCHashT_opt::unsuccessfulMajor> iHashT_u8;  // allowing full load factor
-typedef sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16,sstd::IpCHashT_opt::maxLF100,sstd::IpCHashT_opt::unsuccessfulMajor> iHashT_u16; // allowing full load factor
-typedef google::dense_hash_map<uint64,uint64>                                        dHashT;
-typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>         fHashT;
+typedef std::unordered_map<uint64,uint64>                                    uHashT;
+typedef sstd::CHashT<uint64,uint64>                                          cHashT;
+typedef sstd::IpCHashT_u8hS<uint64,uint64>                                   iHashT_u8h; // uint8, half (maxLoadfactor50), Successful lookup major option
+typedef sstd::IpCHashT_u8fS<uint64,uint64>                                   iHashT_u8f; // uint8, full (maxLoadfactor100), Successful lookup major option
+typedef sstd::IpCHashT_u16S<uint64,uint64>                                   iHashT_u16; // uint16, full (maxLoadfactor100), Successful lookup major option
+typedef google::dense_hash_map<uint64,uint64>                                dHashT;
+typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> fHashT;
+//*/
+/*
+typedef std::unordered_map<uint64,uint64>                                    uHashT;
+typedef sstd::CHashT<uint64,uint64>                                          cHashT;
+typedef sstd::IpCHashT_u8hU<uint64,uint64>                                   iHashT_u8h; // uint8, half (maxLoadfactor50), Unsuccessful lookup major option
+typedef sstd::IpCHashT_u8fU<uint64,uint64>                                   iHashT_u8f; // uint8, full (maxLoadfactor100), Unsuccessful lookup major option
+typedef sstd::IpCHashT_u16U<uint64,uint64>                                   iHashT_u16; // uint16, full (maxLoadfactor100), Unsuccessful lookup major option
+typedef google::dense_hash_map<uint64,uint64>                                dHashT;
+typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> fHashT;
 //*/
 #define RUN_BENCH(vvecX, vvecY, initSize, limitSize, Fnc)				\
 	std::vector<double> vecX_u, vecX_c, vecX_i8h, vecX_i8, vecX_i16, vecX_d, vecX_f; \
@@ -33,7 +33,7 @@ typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>    
 	{ uHashT     hashT(initSize); Fnc(hashT, limitSize, vecX_u,   vecY_u  ); } \
 	{ cHashT     hashT(initSize); Fnc(hashT, limitSize, vecX_c,   vecY_c  ); } \
 	{ iHashT_u8h hashT(initSize); Fnc(hashT, limitSize, vecX_i8h, vecY_i8h); } \
-	{ iHashT_u8  hashT(initSize); Fnc(hashT, limitSize, vecX_i8,  vecY_i8 ); } \
+	{ iHashT_u8f hashT(initSize); Fnc(hashT, limitSize, vecX_i8,  vecY_i8 ); } \
 	{ iHashT_u16 hashT(initSize); Fnc(hashT, limitSize, vecX_i16, vecY_i16); } \
 	{ dHashT     hashT(initSize); hashT.set_empty_key(0ull); /* this meen that 'NULL' will not be able to insert as a key-value. */ \
 	                              Fnc(hashT, limitSize, vecX_d,   vecY_d  ); } \
@@ -47,7 +47,7 @@ typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>    
 	{ uHashT       hashT(initSize); Fnc(hashT, limitSize, vecX_u,   vecY_u  ); } \
 	{ cHashT       hashT(initSize); Fnc(hashT, limitSize, vecX_c,   vecY_c  ); } \
 	{ iHashT_u8h   hashT(initSize); Fnc(hashT, limitSize, vecX_i8h, vecY_i8h); } \
-	{ iHashT_u8    hashT(initSize); Fnc(hashT, limitSize, vecX_i8,  vecY_i8 ); } \
+	{ iHashT_u8f   hashT(initSize); Fnc(hashT, limitSize, vecX_i8,  vecY_i8 ); } \
 	{ iHashT_u16   hashT(initSize); Fnc(hashT, limitSize, vecX_i16, vecY_i16); } \
 	{ dHashT       hashT(initSize); hashT.set_empty_key(0ull); hashT.set_deleted_key(1ull); /* this meen that 'NULL' and '1' will not be able to insert as a key-value. */ \
 	                                Fnc(hashT, limitSize, vecX_d,   vecY_d  ); } \
@@ -61,8 +61,8 @@ typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>    
 	sstd::vvec<std::string> vvec_csv = vvecHeader << vvec_str;			\
 	sstd::vvec2csv(savePath, vvec_csv);
 	
-	// vvecX[0],           vvecY[0],           vvecY[1],              vvecY[2],             vvecY[3],               vvecY[4],           vvecY[5],           vvecY[6]
-	//  [count], uHashT [query/μs], cHashT [query/μs], iHashT_u8 [query/μs], iHashT_u8 [query/μs], iHashT_u16 [query/μs], dHashT [query/μs], fHashT [query/μs]
+	// vvecX[0],           vvecY[0],           vvecY[1],               vvecY[2],              vvecY[3],               vvecY[4],           vvecY[5],           vvecY[6]
+	//  [count], uHashT [query/μs], cHashT [query/μs], iHashT_u8h [query/μs], iHashT_u8f [query/μs], iHashT_u16 [query/μs], dHashT [query/μs], fHashT [query/μs]
 	//       0 , 
 	//       1 , 
 	//      ︙ , 
@@ -71,7 +71,7 @@ typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>    
 std::string hashT2typeStr(const uHashT    & hashT){ return std::string("uHashT"    ); }
 std::string hashT2typeStr(const cHashT    & hashT){ return std::string("cHashT"    ); }
 std::string hashT2typeStr(const iHashT_u8h& hashT){ return std::string("iHashT_u8h"); }
-std::string hashT2typeStr(const iHashT_u8 & hashT){ return std::string("iHashT_u8" ); }
+std::string hashT2typeStr(const iHashT_u8f& hashT){ return std::string("iHashT_u8f"); }
 std::string hashT2typeStr(const iHashT_u16& hashT){ return std::string("iHashT_u16"); }
 std::string hashT2typeStr(const dHashT    & hashT){ return std::string("dHashT"    ); }
 std::string hashT2typeStr(const fHashT    & hashT){ return std::string("fHashT"    ); }
@@ -165,7 +165,7 @@ void bench2vvecXY_usedMemory(sstd::vvec<double>& vvecX_out, sstd::vvec<double>& 
 	std::vector<char> buf_i8h((sstd::status_VmHWM()-sstd::status_VmRSS())*1024); // inorder not to count swap memory region
 	
 	baseSize_GB = sstd::status_VmRSS()/(1024.0*1024.0);
-	iHashT_u8 hashT_i8(initSize);
+	iHashT_u8f hashT_i8(initSize);
 	bench_usedMemory(hashT_i8, limitSize, vecX_i8, vecY_i8, baseSize_GB);
 	std::vector<char> buf_i8((sstd::status_VmHWM()-sstd::status_VmRSS())*1024); // inorder not to count swap memory region
 	
@@ -197,7 +197,7 @@ void bench2csv_usedMomory(const std::string& savePath, const uint64 initSize, co
 	sstd::vvec<double> vvecX, vvecY;
 	bench2vvecXY_usedMemory(vvecX, vvecY, initSize, limitSize);
 	
-	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [GB]", "cHashT [GB]", "iHashT_u8h [GB]", "iHashT_u8 [GB]", "iHashT_u16 [GB]", "dHashT [GB]", "fHashT [GB]"}};
+	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [GB]", "cHashT [GB]", "iHashT_u8h [GB]", "iHashT_u8f [GB]", "iHashT_u16 [GB]", "dHashT [GB]", "fHashT [GB]"}};
 	BENCH_to_CSV(savePath, vvecX, vvecY, vvecHeader);
 }
 
@@ -256,7 +256,7 @@ void bench2csv_insert(const std::string& savePath, const uint64 initSize, const 
 	std::vector<std::vector<double>> vvecX, vvecY;
 	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_insert);
 	
-	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [query/μs]", "cHashT [query/μs]", "iHashT_u8h [query/μs]", "iHashT_u8 [query/μs]", "iHashT_u16 [query/μs]", "dHashT [query/μs]", "fHashT [query/μs]"}};
+	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [query/μs]", "cHashT [query/μs]", "iHashT_u8h [query/μs]", "iHashT_u8f [query/μs]", "iHashT_u16 [query/μs]", "dHashT [query/μs]", "fHashT [query/μs]"}};
 	BENCH_to_CSV(savePath, vvecX, vvecY, vvecHeader);
 }
 
@@ -315,7 +315,7 @@ void bench2csv_insert_et(const std::string& savePath, const uint64 initSize, con
 	std::vector<std::vector<double>> vvecX, vvecY;
 	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_insert_et);
 	
-	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [sec]", "cHashT [sec]", "iHashT_u8h [sec]", "iHashT_u8 [sec]", "iHashT_u16 [sec]", "dHashT [sec]", "fHashT [sec]"}};
+	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [sec]", "cHashT [sec]", "iHashT_u8h [sec]", "iHashT_u8f [sec]", "iHashT_u16 [sec]", "dHashT [sec]", "fHashT [sec]"}};
 	BENCH_to_CSV(savePath, vvecX, vvecY, vvecHeader);
 }
 
@@ -395,7 +395,7 @@ void bench2csv_find(const std::string& savePath, const uint64 initSize, const ui
 	sstd::vvec<double> vvecX, vvecY;
 	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_find);
 	
-	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [query/μs]", "cHashT [query/μs]", "iHashT_u8h [query/μs]", "iHashT_u8 [query/μs]", "iHashT_u16 [query/μs]", "dHashT [query/μs]", "fHashT [query/μs]"}};
+	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [query/μs]", "cHashT [query/μs]", "iHashT_u8h [query/μs]", "iHashT_u8f [query/μs]", "iHashT_u16 [query/μs]", "dHashT [query/μs]", "fHashT [query/μs]"}};
 	BENCH_to_CSV(savePath, vvecX, vvecY, vvecHeader);
 }
 
@@ -471,7 +471,7 @@ void bench2csv_find_failedAll(const std::string& savePath, const uint64 initSize
 	std::vector<std::vector<double>> vvecX, vvecY;
 	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_find_failedAll);
 	
-	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [query/μs]", "cHashT [query/μs]", "iHashT_u8h [query/μs]", "iHashT_u8 [query/μs]", "iHashT_u16 [query/μs]", "dHashT [query/μs]", "fHashT [query/μs]"}};
+	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [query/μs]", "cHashT [query/μs]", "iHashT_u8h [query/μs]", "iHashT_u8f [query/μs]", "iHashT_u16 [query/μs]", "dHashT [query/μs]", "fHashT [query/μs]"}};
 	BENCH_to_CSV(savePath, vvecX, vvecY, vvecHeader);
 }
 
@@ -549,7 +549,7 @@ void bench2csv_erase(const std::string& savePath, const uint64 initSize, const u
 	std::vector<std::vector<double>> vvecX, vvecY;
 	RUN_BENCH_withErase(vvecX, vvecY, initSize, limitSize, bench_erase);
 	
-	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [query/μs]", "cHashT [query/μs]", "iHashT_u8h [query/μs]", "iHashT_u8 [query/μs]", "iHashT_u16 [query/μs]", "dHashT [query/μs]", "fHashT [query/μs]"}};
+	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [query/μs]", "cHashT [query/μs]", "iHashT_u8h [query/μs]", "iHashT_u8f [query/μs]", "iHashT_u16 [query/μs]", "dHashT [query/μs]", "fHashT [query/μs]"}};
 	BENCH_to_CSV(savePath, vvecX, vvecY, vvecHeader);
 }
 
@@ -599,7 +599,7 @@ void bench2csv_maxLoadFactor(const std::string& savePath, const uint64 limitSize
 	const uint64 initSize=0ull;
 	RUN_BENCH(vvecX, vvecY, initSize, limitSize, bench_maxLoadFactor);
 	
-	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [%]", "cHashT [%]", "iHashT_u8h [%]", "iHashT_u8 [%]", "iHashT_u16 [%]", "dHashT [%]", "fHashT [%]"}};
+	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [%]", "cHashT [%]", "iHashT_u8h [%]", "iHashT_u8f [%]", "iHashT_u16 [%]", "dHashT [%]", "fHashT [%]"}};
 	BENCH_to_CSV(savePath, vvecX, vvecY, vvecHeader);
 }
 
@@ -641,7 +641,7 @@ void RUN_ALL_BENCHS(){
 	bench2plot_maxLoadFactor(saveDir+"/maxLoadFactor", saveAs, limitSize);
 	//*/
 	//---------------------------------------------------------------------------------------------------------------------------------------------
-	//*
+	/*
 	std::string udM = "/usedMemory";
 	sstd::mkdir(saveDir+'/'+udM);
 	for(uint i=fileNum(saveDir+'/'+udM+"/*"); i<1; i++){
@@ -650,7 +650,7 @@ void RUN_ALL_BENCHS(){
 	}
 	//*/
 	//---
-	//*
+	/*
 	uint loopNum = 100;
 	
 	std::string fwR = "/find_successful_lookup";

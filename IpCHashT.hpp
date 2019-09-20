@@ -26,7 +26,8 @@ namespace sstd{
 		class   successfulMajor{ private: public:   successfulMajor(){};   ~successfulMajor(){}; };
 		class unsuccessfulMajor{ private: public: unsuccessfulMajor(){}; ~unsuccessfulMajor(){}; };
 	}
-	
+
+	// set default options
 	template <class T_key,
 			  class T_val,
 			  class T_hash   = std::hash<T_key>,
@@ -35,7 +36,26 @@ namespace sstd{
 			  typename T_maxLF = sstd::IpCHashT_opt::maxLF50, // or sstd::IpCHashT_opt::maxLF100
 			  typename T_major = sstd::IpCHashT_opt::successfulMajor // or sstd::IpCHashT_opt::unsuccessfulMajor
 			  >
-	class IpCHashT; // chained hash table
+	class IpCHashT; // in-place chained hash table
+	
+	// set alias for IpCHashT option
+	template<class T_key, class T_val, class T_hash=std::hash<T_key>, class T_key_eq=std::equal_to<T_key>>
+	using IpCHashT_u8hS = IpCHashT<T_key, T_val, T_hash, T_key_eq, uint8, sstd::IpCHashT_opt::maxLF50, sstd::IpCHashT_opt::successfulMajor>; // uint8, half (maxLoadfactor50), Successful lookup major option
+	
+	template<class T_key, class T_val, class T_hash=std::hash<T_key>, class T_key_eq=std::equal_to<T_key>>
+	using IpCHashT_u8fS = IpCHashT<T_key, T_val, T_hash, T_key_eq, uint8, sstd::IpCHashT_opt::maxLF100, sstd::IpCHashT_opt::successfulMajor>; // uint8, full (maxLoadfactor100), Successful lookup major option
+	
+	template<class T_key, class T_val, class T_hash=std::hash<T_key>, class T_key_eq=std::equal_to<T_key>>
+	using IpCHashT_u16S = IpCHashT<T_key, T_val, T_hash, T_key_eq, uint16, sstd::IpCHashT_opt::maxLF100, sstd::IpCHashT_opt::successfulMajor>; // uint16, full (maxLoadfactor100), Successful lookup major option
+	
+	template<class T_key, class T_val, class T_hash=std::hash<T_key>, class T_key_eq=std::equal_to<T_key>>
+	using IpCHashT_u8hU = IpCHashT<T_key, T_val, T_hash, T_key_eq, uint8, sstd::IpCHashT_opt::maxLF50, sstd::IpCHashT_opt::unsuccessfulMajor>; // uint8, half (maxLoadfactor50), Unsuccessful lookup major option
+	
+	template<class T_key, class T_val, class T_hash=std::hash<T_key>, class T_key_eq=std::equal_to<T_key>>
+	using IpCHashT_u8fU = IpCHashT<T_key, T_val, T_hash, T_key_eq, uint8, sstd::IpCHashT_opt::maxLF100, sstd::IpCHashT_opt::unsuccessfulMajor>; // uint8, full (maxLoadfactor100), Unsuccessful lookup major option
+	
+	template<class T_key, class T_val, class T_hash=std::hash<T_key>, class T_key_eq=std::equal_to<T_key>>
+	using IpCHashT_u16U = IpCHashT<T_key, T_val, T_hash, T_key_eq, uint16, sstd::IpCHashT_opt::maxLF100, sstd::IpCHashT_opt::unsuccessfulMajor>; // uint16, full (maxLoadfactor100), Unsuccessful lookup major option
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
