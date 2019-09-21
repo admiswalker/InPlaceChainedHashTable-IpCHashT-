@@ -69,19 +69,19 @@ int main(int argc, char** argv){
 	}//*/
 	//*
 	{
-		const char* csvPath  = "./tmpBench/find_successful_lookup/*";
-		const char* savePath = "./tmpBench/find_successful_lookup_med";
+		const char* csvPath  = "./tmpBench/find_successful_search/*";
+		const char* savePath = "./tmpBench/find_successful_search_med";
 		
 		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
 		vvec2plot_find(savePath, saveAs, vvecX, vvecY);
 	}
 	{
-		const char* csvPath  = "./tmpBench/find_unsuccessful_lookup/*";
-		const char* savePath = "./tmpBench/find_unsuccessful_lookup_med";
+		const char* csvPath  = "./tmpBench/find_unsuccessful_search/*";
+		const char* savePath = "./tmpBench/find_unsuccessful_search_med";
 		
 		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
 		vvec2plot_find_failedAll(savePath, saveAs, vvecX, vvecY);
-	}
+	}/*
 	{
 		const char* csvPath  = "./tmpBench/insert/*";
 		const char* savePath = "./tmpBench/insert_med";

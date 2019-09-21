@@ -12,18 +12,18 @@
 //*
 typedef std::unordered_map<uint64,uint64>                                    uHashT;
 typedef sstd::CHashT<uint64,uint64>                                          cHashT;
-typedef sstd::IpCHashT_u8hS<uint64,uint64>                                   iHashT_u8h; // uint8, half (maxLoadfactor50), Successful lookup major option
-typedef sstd::IpCHashT_u8fS<uint64,uint64>                                   iHashT_u8f; // uint8, full (maxLoadfactor100), Successful lookup major option
-typedef sstd::IpCHashT_u16S<uint64,uint64>                                   iHashT_u16; // uint16, full (maxLoadfactor100), Successful lookup major option
+typedef sstd::IpCHashT_u8hS<uint64,uint64>                                   iHashT_u8h; // uint8, half (maxLoadfactor50), Successful search major option
+typedef sstd::IpCHashT_u8fS<uint64,uint64>                                   iHashT_u8f; // uint8, full (maxLoadfactor100), Successful search major option
+typedef sstd::IpCHashT_u16S<uint64,uint64>                                   iHashT_u16; // uint16, full (maxLoadfactor100), Successful search major option
 typedef google::dense_hash_map<uint64,uint64>                                dHashT;
 typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> fHashT;
 //*/
 /*
 typedef std::unordered_map<uint64,uint64>                                    uHashT;
 typedef sstd::CHashT<uint64,uint64>                                          cHashT;
-typedef sstd::IpCHashT_u8hU<uint64,uint64>                                   iHashT_u8h; // uint8, half (maxLoadfactor50), Unsuccessful lookup major option
-typedef sstd::IpCHashT_u8fU<uint64,uint64>                                   iHashT_u8f; // uint8, full (maxLoadfactor100), Unsuccessful lookup major option
-typedef sstd::IpCHashT_u16U<uint64,uint64>                                   iHashT_u16; // uint16, full (maxLoadfactor100), Unsuccessful lookup major option
+typedef sstd::IpCHashT_u8hU<uint64,uint64>                                   iHashT_u8h; // uint8, half (maxLoadfactor50), Unsuccessful search major option
+typedef sstd::IpCHashT_u8fU<uint64,uint64>                                   iHashT_u8f; // uint8, full (maxLoadfactor100), Unsuccessful search major option
+typedef sstd::IpCHashT_u16U<uint64,uint64>                                   iHashT_u16; // uint16, full (maxLoadfactor100), Unsuccessful search major option
 typedef google::dense_hash_map<uint64,uint64>                                dHashT;
 typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> fHashT;
 //*/
@@ -320,7 +320,7 @@ void bench2csv_insert_et(const std::string& savePath, const uint64 initSize, con
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
-// find: successful lookup
+// find: successful search
 
 template<typename T_hashTable>
 void bench_find(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_quely_per_us){
@@ -374,7 +374,7 @@ void bench_find(T_hashTable& hashT, const uint64 limitSize, std::vector<double>&
 //---
 void vvec2plot_find(const std::string& savePath, const std::vector<std::string>& saveAs, const sstd::vvec<double>& vvecX, const sstd::vvec<double>& vvecY){
 	const char* xlabel = "Number of elements on the table [conut]";
-	const char* ylabel = "Successful lookup speed [query/μs]";
+	const char* ylabel = "Successful search speed [query/μs]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64> (as uint8 and maxLF50)", "sstd::IpCHashT<uint64,uint64> (as uint8 and maxLF100)", "sstd::IpCHashT<uint64,uint64> (as uint16 and maxLF100)", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	
 	// plot2fig
@@ -400,7 +400,7 @@ void bench2csv_find(const std::string& savePath, const uint64 initSize, const ui
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
-// find: unsuccessful lookup
+// find: unsuccessful search
 
 template<typename T_hashTable>
 void bench_find_failedAll(T_hashTable& hashT, const uint64 limitSize, std::vector<double>& vecX_num, std::vector<double>& vecY_quely_per_us){
@@ -450,7 +450,7 @@ void bench_find_failedAll(T_hashTable& hashT, const uint64 limitSize, std::vecto
 //---
 void vvec2plot_find_failedAll(const std::string& savePath, const std::vector<std::string>& saveAs, const sstd::vvec<double>& vvecX, const sstd::vvec<double>& vvecY){
 	const char* xlabel = "Number of elements on the table [conut]";
-	const char* ylabel = "Unsuccessful lookup speed [query/μs]";
+	const char* ylabel = "Unsuccessful search speed [query/μs]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64> (as uint8 and maxLF50)", "sstd::IpCHashT<uint64,uint64> (as uint8 and maxLF100)", "sstd::IpCHashT<uint64,uint64> (as uint16 and maxLF100)", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	
 	// plot2fig
@@ -630,9 +630,9 @@ void RUN_ALL_BENCHS(){
 	bench2plot_insert_et(saveDir+"/insert_et",  saveAs, initSize_wRehash,  limitSize);
 	bench2plot_insert_et(saveDir+"/insert_et_preAlloc", saveAs, initSize_preAlloc, limitSize);
 	
-	// find: lookup speed [quely/sec]
-	bench2plot_find(saveDir+"/find_successful_lookup", saveAs, initSize_wRehash, limitSize);
-	bench2plot_find_failedAll(saveDir+"/find_unsuccessful_lookup", saveAs, initSize_wRehash, limitSize);
+	// find: search speed [quely/sec]
+	bench2plot_find(saveDir+"/find_successful_search", saveAs, initSize_wRehash, limitSize);
+	bench2plot_find_failedAll(saveDir+"/find_unsuccessful_search", saveAs, initSize_wRehash, limitSize);
 	
 	// erase
 	bench2plot_erase(saveDir+"/erase", saveAs, initSize_wRehash, limitSize);
@@ -653,14 +653,14 @@ void RUN_ALL_BENCHS(){
 	/*
 	uint loopNum = 100;
 	
-	std::string fwR = "/find_successful_lookup";
+	std::string fwR = "/find_successful_search";
 	sstd::mkdir(saveDir+'/'+fwR);
 	for(uint i=fileNum(saveDir+'/'+fwR+"/*"); i<loopNum; i++){ // 20 mins
 		std::string savePath = saveDir +'/'+fwR +sstd::ssprintf("/%s_%03u", fwR.c_str(), i)+".csv";
 		bench2csv_find(savePath, initSize_wRehash, limitSize);
 	}
 	
-	std::string ffa = "/find_unsuccessful_lookup";
+	std::string ffa = "/find_unsuccessful_search";
 	sstd::mkdir(saveDir+'/'+ffa);
 	for(uint i=fileNum(saveDir+'/'+ffa+"/*"); i<loopNum; i++){ // 15 mins
 		std::string savePath = saveDir +'/'+ffa +sstd::ssprintf("/%s_%03u", ffa.c_str(), i)+".csv";
