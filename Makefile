@@ -43,14 +43,17 @@ TIME_STAMP   = `date +%Y_%m%d_%H%M`
 # when you need to check the change of files in lib, you need to change file name to a not-existing name like "FORCE_XXX".
 #LIB_SSTD       = FORCE_SSTD
 #LIB_GOOGLETEST = FORCE_GOOGLETEST
-LIB_SSTD        = ./sstd/lib/libsstd.a
-LIB_flat        = ./flat_hash_map-master.h
-LIB_GOOGLETEST  = ./googletest-master/build/lib/libgtest.a
-HeaderLIB_sHash = ./sparsehash-master/src/sparsehash/internal/sparseconfig.h
+LIB_SSTD       = ./sstd/lib/libsstd.a
+LIB_GOOGLETEST = ./googletest-master/build/lib/libgtest.a
+LIB_flat       = ./flat_hash_map-master/flat_hash_map.hpp
+LIB_sparsehash = ./sparsehash-master/src/sparsehash/internal/sparseconfig.h
 
 
 # generate exe file
-$(TARGET_sp): $(TARGET_bm)
+TARGET_all = FORCE_MAKEALL
+$(TARGET_all): $(TARGET_sp) $(TARGET_bm) $(TARGET_t)
+	@echo "make all"
+$(TARGET_sp): $(SRCS_sp)
 	@echo ""
 	@echo "------------------------------------------------------------"
 	@echo "SRCS_st: \n$(SRCS_sp)\n"
@@ -58,7 +61,7 @@ $(TARGET_sp): $(TARGET_bm)
 	@echo "------------------------------------------------------------"
 	$(CXX) -o $(TARGET_sp) $(SRCS_sp) $(CFLAGS) $(CFLAGS_sp)
 	@echo ""
-$(TARGET_bm): $(LIB_SSTD) $(LIB_flat) $(HeaderLIB_sHash) $(SRCS_bm) $(TARGET_t) $(HEADS) $(HEADS_bm)
+$(TARGET_bm): $(LIB_SSTD) $(LIB_GOOGLETEST) $(LIB_flat) $(LIB_sparsehash) $(SRCS_bm) $(HEADS) $(HEADS_bm)
 	@echo ""
 	@echo "------------------------------------------------------------"
 	@echo "SRCS_bm: \n$(SRCS_bm)\n"
@@ -66,7 +69,7 @@ $(TARGET_bm): $(LIB_SSTD) $(LIB_flat) $(HeaderLIB_sHash) $(SRCS_bm) $(TARGET_t) 
 	@echo "------------------------------------------------------------"
 	$(CXX) -o $(TARGET_bm) $(SRCS_bm) $(CFLAGS) $(CFLAGS_bm)
 	@echo ""
-$(TARGET_t): $(LIB_SSTD) $(LIB_flat) $(LIB_GOOGLETEST) $(SRCS_t) $(HEADS) $(HEADS_t)
+$(TARGET_t): $(LIB_SSTD) $(LIB_GOOGLETEST) $(LIB_flat) $(SRCS_t) $(HEADS) $(HEADS_t)
 	@echo ""
 	@echo "------------------------------------------------------------"
 	@echo "SRCS_t: \n$(SRCS_t)\n"
@@ -92,7 +95,7 @@ $(LIB_GOOGLETEST):
 	@unzip -n googletest-master.zip
 	@(cd ./googletest-master; mkdir -p build; cd build; cmake ..; make)
 
-$(HeaderLIB_sHash):
+$(LIB_sparsehash):
 	@echo ""
 	@unzip -n sparsehash-master.zip
 	@(cd ./sparsehash-master; ./configure; make -j)
@@ -106,9 +109,7 @@ all:
 
 .PHONY: clean
 clean:
-	-rm -rf $(TARGET_t)
-	-rm -rf $(TARGET_bm)
-	-rm -rf $(TARGET_sp)
+	-rm -rf $(TARGET_all)
 	-rm -rf flat_hash_map-master
 	-rm -rf googletest-master
 	-rm -rf sparsehash-master
