@@ -58,7 +58,7 @@ $(TARGET_sp): $(TARGET_bm)
 	@echo "------------------------------------------------------------"
 	$(CXX) -o $(TARGET_sp) $(SRCS_sp) $(CFLAGS) $(CFLAGS_sp)
 	@echo ""
-$(TARGET_bm): $(LIB_SSTD) $(LIB_flat) $(LIB_GOOGLETEST) $(HeaderLIB_sHash) $(SRCS_bm) $(TARGET_t) $(HEADS) $(HEADS_bm)
+$(TARGET_bm): $(LIB_SSTD) $(LIB_flat) $(HeaderLIB_sHash) $(SRCS_bm) $(TARGET_t) $(HEADS) $(HEADS_bm)
 	@echo ""
 	@echo "------------------------------------------------------------"
 	@echo "SRCS_bm: \n$(SRCS_bm)\n"

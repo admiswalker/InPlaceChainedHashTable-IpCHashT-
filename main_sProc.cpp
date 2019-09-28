@@ -67,7 +67,14 @@ int main(int argc, char** argv){
 		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
 		vvec2plot_usedMemory(savePath, saveAs, vvecX, vvecY);
 	}//*/
-	//*
+	{
+		const char* csvPath  = "./tmpBench/usedMemory_preAlloc/*";
+		const char* savePath = "./tmpBench/usedMemory_preAlloc";
+		
+		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
+		vvec2plot_usedMemory(savePath, saveAs, vvecX, vvecY);
+	}//*/
+	/*
 	{
 		const char* csvPath  = "./tmpBench/find_successful_search/*";
 		const char* savePath = "./tmpBench/find_successful_search_med";
@@ -81,7 +88,7 @@ int main(int argc, char** argv){
 		
 		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
 		vvec2plot_find_failedAll(savePath, saveAs, vvecX, vvecY);
-	}/*
+	}
 	{
 		const char* csvPath  = "./tmpBench/insert/*";
 		const char* savePath = "./tmpBench/insert_med";

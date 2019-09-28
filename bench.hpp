@@ -641,16 +641,22 @@ void RUN_ALL_BENCHS(){
 	bench2plot_maxLoadFactor(saveDir+"/maxLoadFactor", saveAs, limitSize);
 	//*/
 	//---------------------------------------------------------------------------------------------------------------------------------------------
-	/*
+	//*
 	std::string udM = "/usedMemory";
 	sstd::mkdir(saveDir+'/'+udM);
 	for(uint i=fileNum(saveDir+'/'+udM+"/*"); i<1; i++){
 		std::string savePath = saveDir +'/'+udM +sstd::ssprintf("/%s_%03u", udM.c_str(), i)+".csv";
 		bench2csv_usedMomory(savePath, initSize_wRehash, limitSize);
 	}
+	std::string udM_pA = "/usedMemory_preAlloc";
+	sstd::mkdir(saveDir+'/'+udM_pA);
+	for(uint i=fileNum(saveDir+'/'+udM_pA+"/*"); i<1; i++){
+		std::string savePath = saveDir +'/'+udM_pA +sstd::ssprintf("/%s_%03u", udM_pA.c_str(), i)+".csv";
+		bench2csv_usedMomory(savePath, initSize_preAlloc, limitSize);
+	}
 	//*/
 	//---
-	/*
+	//*
 	uint loopNum = 100;
 	
 	std::string fwR = "/find_successful_search";
