@@ -2,17 +2,19 @@
 # please set each item
 
 # source files
-SRCS_t   = main_test.cpp FNV_Hash.cpp
-SRCS_bm  = main_bench.cpp FNV_Hash.cpp
-SRCS_sp  = main_sProc.cpp
-HEADS    = CHashT.hpp IpCHashT.hpp
-HEADS_t  = test_CHashT.hpp test_IpCHashT.hpp
-HEADS_bm = bench.hpp
+SRCS_t      = main_test.cpp
+SRCS_bm     = main_bench.cpp
+SRCS_bm_uM  = main_bench_usedMemory.cpp
+SRCS_sp     = main_sProc.cpp
+HEADS       = CHashT.hpp IpCHashT.hpp
+HEADS_t     = test_CHashT.hpp test_IpCHashT.hpp
+HEADS_bm    = bench.hpp
 
 # name of generating file
-TARGET_t  = exe_test  # test
-TARGET_bm = exe_bench # benchmark
-TARGET_sp = exe_sProc # Statistical processing
+TARGET_t     = exe_test     # test
+TARGET_bm    = exe_bench    # benchmark
+TARGET_bm_uM = exe_bench_uM # benchmark
+TARGET_sp    = exe_sProc    # Statistical processing
 
 # remove files
 RMs = *.stackdump __pycache__ tmpDir
@@ -51,7 +53,7 @@ LIB_sparsehash = ./sparsehash-master/src/sparsehash/internal/sparseconfig.h
 
 # generate exe file
 TARGET_all = FORCE_MAKEALL
-$(TARGET_all): $(TARGET_sp) $(TARGET_bm) $(TARGET_t)
+$(TARGET_all): $(TARGET_sp) $(TARGET_bm) $(TARGET_bm_uM) $(TARGET_t)
 	@echo "make all"
 $(TARGET_sp): $(SRCS_sp)
 	@echo ""
@@ -68,6 +70,14 @@ $(TARGET_bm): $(LIB_SSTD) $(LIB_GOOGLETEST) $(LIB_flat) $(LIB_sparsehash) $(SRCS
 	@echo "CFLAGS: \n$(CFLAGS)"
 	@echo "------------------------------------------------------------"
 	$(CXX) -o $(TARGET_bm) $(SRCS_bm) $(CFLAGS) $(CFLAGS_bm)
+	@echo ""
+$(TARGET_bm_uM): $(LIB_SSTD) $(LIB_GOOGLETEST) $(LIB_flat) $(LIB_sparsehash) $(SRCS_bm_uM) $(HEADS) $(HEADS_bm)
+	@echo ""
+	@echo "------------------------------------------------------------"
+	@echo "SRCS_bm_uM: \n$(SRCS_bm_uM)\n"
+	@echo "CFLAGS: \n$(CFLAGS)"
+	@echo "------------------------------------------------------------"
+	$(CXX) -o $(TARGET_bm_uM) $(SRCS_bm_uM) $(CFLAGS) $(CFLAGS_bm)
 	@echo ""
 $(TARGET_t): $(LIB_SSTD) $(LIB_GOOGLETEST) $(LIB_flat) $(SRCS_t) $(HEADS) $(HEADS_t)
 	@echo ""
