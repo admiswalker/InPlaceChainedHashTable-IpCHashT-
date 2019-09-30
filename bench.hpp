@@ -131,7 +131,7 @@ void bench_usedMemory(T_hashTable& hashT, const uint64 limitSize, std::vector<do
 	vecY_GB -= (double)vecY_GB[0];
 }
 //---
-/*
+
 void vvec2plot_usedMemory(const std::string& savePath, const std::vector<std::string>& saveAs, const sstd::vvec<double>& vvecX, const sstd::vvec<double>& vvecY){
 	const char* xlabel = "Number of elements on the table [conut]";
 	const char* ylabel = "Allocated memory size [GB]";
@@ -145,6 +145,7 @@ void vvec2plot_usedMemory(const std::string& savePath, const std::vector<std::st
 	vvec2graph(savePath, &saveAs, xlabel, ylabel, &vecLabel, &vvecX, &vvecY);
 }
 //---
+/*
 void bench2vvecXY_usedMemory(sstd::vvec<double>& vvecX_out, sstd::vvec<double>& vvecY_out, const uint64 initSize, const uint64 limitSize){
 	std::vector<double> vecX_u, vecX_c, vecX_i8h, vecX_i8, vecX_i16, vecX_d, vecX_f; // memory size [GB]
 	std::vector<double> vecY_u, vecY_c, vecY_i8h, vecY_i8, vecY_i16, vecY_d, vecY_f; // sec
@@ -242,21 +243,40 @@ void call_from__main_bench_usedMemory(int& argc, char**& argv){
 	bench2csv_usedMomory(savePath, vvecHeader, vecX, vecY);
 }
 //---
-void call__main_bench_usedMemory(const std::string& saveDir, const char* option, const char* xLabel, const char* yLabel, const uint64 initSize, const uint64 limitSize){
-	
-	const std::string savePath = saveDir+'/'+option+".csv";
+void call__main_bench_usedMemory(const std::string& saveDir, const char* num, const char* option, const char* xLabel, const char* yLabel, const uint64 initSize, const uint64 limitSize){
+	const std::string savePath = saveDir+'/'+num+'_'+option+".csv";
 	int ret = sstd::system(sstd::ssprintf("./exe_bench_uM %s %s %d %d %s %s", option, savePath.c_str(), initSize, limitSize, xLabel, yLabel));
 	if(WIFEXITED(ret)<=0){ printf("ERROR:\n"); }
 }
-void bench2plot_usedMemory_replacing(const std::string& saveDir, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
+void bench2plot_usedMemory_runBench(const std::string& saveDir, const uint64 initSize, const uint64 limitSize){
+	call__main_bench_usedMemory(saveDir, "0",     "uHashT", "[count]",     "uHashT [GB]", initSize, limitSize);
+	call__main_bench_usedMemory(saveDir, "1",     "cHashT", "[count]",     "cHashT [GB]", initSize, limitSize);
+	call__main_bench_usedMemory(saveDir, "2", "iHashT_u8h", "[count]", "iHashT_u8h [GB]", initSize, limitSize);
+	call__main_bench_usedMemory(saveDir, "3", "iHashT_u8f", "[count]", "iHashT_u8f [GB]", initSize, limitSize);
+	call__main_bench_usedMemory(saveDir, "4", "iHashT_u16", "[count]", "iHashT_u16 [GB]", initSize, limitSize);
+	call__main_bench_usedMemory(saveDir, "5",     "dHashT", "[count]",     "dHashT [GB]", initSize, limitSize);
+	call__main_bench_usedMemory(saveDir, "6",     "fHashT", "[count]",     "fHashT [GB]", initSize, limitSize);
+}
+void bench2plot_usedMemory_meargeResult(const std::string& saveDir, const std::string& tmpDir){
+	std::string csvPath  = tmpDir+ "/*";
+	std::string savePath = saveDir+ "/usedMemory_merged.csv";
 	
-	call__main_bench_usedMemory(saveDir,     "uHashT", "[count]",     "uHashT [GB]", initSize, limitSize);
-	call__main_bench_usedMemory(saveDir,     "cHashT", "[count]",     "cHashT [GB]", initSize, limitSize);
-	call__main_bench_usedMemory(saveDir, "iHashT_u8h", "[count]", "iHashT_u8h [GB]", initSize, limitSize);
-	call__main_bench_usedMemory(saveDir, "iHashT_u8f", "[count]", "iHashT_u8f [GB]", initSize, limitSize);
-	call__main_bench_usedMemory(saveDir, "iHashT_u16", "[count]", "iHashT_u16 [GB]", initSize, limitSize);
-	call__main_bench_usedMemory(saveDir,     "dHashT", "[count]",     "dHashT [GB]", initSize, limitSize);
-	call__main_bench_usedMemory(saveDir,     "fHashT", "[count]",     "fHashT [GB]", initSize, limitSize);
+	std::vector<std::string> vecPath = sstd::glob(csvPath);
+	sstd::vvec<double> vvecX(vecPath.size()), vvecY(vecPath.size());
+	for(uint i=0; i<vecPath.size(); i++){
+		sstd::vvec<std::string> vvecOrig = sstd::csv2vvec(vecPath[i]);
+		sstd::vvec<std::string> header   = vvecOrig && sstd::slice_mv(sstd::begin(), 1);
+		sstd::vvec<std::string> vvecStr  = vvecOrig && sstd::slice_mv(1, sstd::end());
+		sstd::vvec<     double> vvecD    = sstd::Tr(sstd::str2double(vvecStr));
+		vvecX[i] <<= vvecD[0];
+		vvecY[i] <<= vvecD[1];
+	}
+	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [GB]", "cHashT [GB]", "iHashT_u8h [GB]", "iHashT_u8f [GB]", "iHashT_u16 [GB]", "dHashT [GB]", "fHashT [GB]"}};
+	BENCH_to_CSV(savePath, vvecX, vvecY, vvecHeader);
+}
+void bench2plot_usedMemory_replacing(const std::string& saveDir, const std::string& tmpDir, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
+	bench2plot_usedMemory_runBench(tmpDir, initSize, limitSize);
+	bench2plot_usedMemory_meargeResult(saveDir, tmpDir);
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -676,9 +696,10 @@ void RUN_ALL_BENCHS(){
 	std::vector<std::string> saveAs = {".pdf", ".png"};
 	
 	//---------------------------------------------------------------------------------------------------------------------------------------------
-	std::string udM = "/usedMemory";
+	std::string udM = "usedMemory";
 	sstd::mkdir(saveDir+'/'+udM);
-	bench2plot_usedMemory_replacing(saveDir+'/'+udM, saveAs, initSize_wRehash,  limitSize);
+	sstd::mkdir(saveDir+'/'+udM+"_tmp");
+	bench2plot_usedMemory_replacing(saveDir+'/'+udM, saveDir+'/'+udM+"_tmp", saveAs, initSize_wRehash,  limitSize);
 	/*
 	// bench of used memory size should run first inorder to avoid memory swap by Linux OS.
 	bench2plot_usedMemory(saveDir+"/usedMemory",          saveAs, initSize_wRehash,  limitSize);

@@ -59,6 +59,13 @@ int main(int argc, char** argv){
 	printf("■ measureTime_start---------------\n\n"); time_m timem; sstd::measureTime_start(timem);
 	
 	std::vector<std::string> saveAs={".png", ".pdf"};
+	{
+		const char* csvPath  = "./tmpBench/usedMemory/*";
+		const char* savePath = "./tmpBench/usedMemory";
+		
+		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
+		vvec2plot_usedMemory(savePath, saveAs, vvecX, vvecY);
+	}
 	/*
 	{
 		const char* csvPath  = "./tmpBench/usedMemory/*";
@@ -66,7 +73,7 @@ int main(int argc, char** argv){
 		
 		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
 		vvec2plot_usedMemory(savePath, saveAs, vvecX, vvecY);
-	}//*/
+	}/*
 	{
 		const char* csvPath  = "./tmpBench/usedMemory_preAlloc/*";
 		const char* savePath = "./tmpBench/usedMemory_preAlloc";
