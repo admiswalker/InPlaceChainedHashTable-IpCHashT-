@@ -102,8 +102,10 @@ def vvec2graph_lf(savePath, saveAs, xlabel, ylabel, vecLabel, vvecX, vvecY):
 def vvec2graph_memory(savePath, saveAs, xlabel, ylabel, vecLabel, vvecX, vvecY):
 #    xmargin=4*10000; vecXlim = [-xmargin, 5*1000000+xmargin] # MB
 #    ymargin=10; vecYlim=[0-ymargin, 600+ymargin]             # MB
-    xmargin=4*4*10000; vecXlim = [-xmargin, 2*10000000+xmargin] # GB
-    ymargin=0.050; vecYlim=[0-ymargin, 2.250+ymargin]         # GB
+#    xmargin=4*4*10000; vecXlim = [-xmargin, 2*10000000+xmargin] # GB
+#    ymargin=0.050; vecYlim=[0-ymargin, 2.250+ymargin]         # GB
+    xmargin=4*4*100000; vecXlim = [-xmargin, 2*100000000+xmargin] # GB
+    ymargin=0.250; vecYlim=[0-ymargin, 18.00+ymargin]         # GB
     xscale = 'linear'
     yscale = 'linear'
     labelLoc = 'upper left'

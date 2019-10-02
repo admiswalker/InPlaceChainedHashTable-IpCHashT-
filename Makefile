@@ -53,17 +53,17 @@ LIB_sparsehash = ./sparsehash-master/src/sparsehash/internal/sparseconfig.h
 
 # generate exe file
 TARGET_all = FORCE_MAKEALL
-$(TARGET_all): $(TARGET_sp) $(TARGET_bm) $(TARGET_bm_uM) $(TARGET_t)
+$(TARGET_all): $(LIB_SSTD) $(LIB_GOOGLETEST) $(LIB_sparsehash) $(LIB_flat) $(TARGET_t) $(TARGET_bm) $(TARGET_bm_uM) $(TARGET_sp)
 	@echo "make all"
-$(TARGET_sp): $(SRCS_sp)
+$(TARGET_t): $(SRCS_t) $(HEADS) $(HEADS_t)
 	@echo ""
 	@echo "------------------------------------------------------------"
-	@echo "SRCS_st: \n$(SRCS_sp)\n"
+	@echo "SRCS_t: \n$(SRCS_t)\n"
 	@echo "CFLAGS: \n$(CFLAGS)"
 	@echo "------------------------------------------------------------"
-	$(CXX) -o $(TARGET_sp) $(SRCS_sp) $(CFLAGS) $(CFLAGS_sp)
+	$(CXX) -o $(TARGET_t) $(SRCS_t) $(CFLAGS) $(CFLAGS_t)
 	@echo ""
-$(TARGET_bm): $(LIB_SSTD) $(LIB_GOOGLETEST) $(LIB_flat) $(LIB_sparsehash) $(SRCS_bm) $(HEADS) $(HEADS_bm)
+$(TARGET_bm): $(SRCS_bm) $(HEADS) $(HEADS_bm)
 	@echo ""
 	@echo "------------------------------------------------------------"
 	@echo "SRCS_bm: \n$(SRCS_bm)\n"
@@ -71,7 +71,7 @@ $(TARGET_bm): $(LIB_SSTD) $(LIB_GOOGLETEST) $(LIB_flat) $(LIB_sparsehash) $(SRCS
 	@echo "------------------------------------------------------------"
 	$(CXX) -o $(TARGET_bm) $(SRCS_bm) $(CFLAGS) $(CFLAGS_bm)
 	@echo ""
-$(TARGET_bm_uM): $(LIB_SSTD) $(LIB_GOOGLETEST) $(LIB_flat) $(LIB_sparsehash) $(SRCS_bm_uM) $(HEADS) $(HEADS_bm)
+$(TARGET_bm_uM): $(SRCS_bm_uM) $(HEADS) $(HEADS_bm)
 	@echo ""
 	@echo "------------------------------------------------------------"
 	@echo "SRCS_bm_uM: \n$(SRCS_bm_uM)\n"
@@ -79,13 +79,13 @@ $(TARGET_bm_uM): $(LIB_SSTD) $(LIB_GOOGLETEST) $(LIB_flat) $(LIB_sparsehash) $(S
 	@echo "------------------------------------------------------------"
 	$(CXX) -o $(TARGET_bm_uM) $(SRCS_bm_uM) $(CFLAGS) $(CFLAGS_bm)
 	@echo ""
-$(TARGET_t): $(LIB_SSTD) $(LIB_GOOGLETEST) $(LIB_flat) $(SRCS_t) $(HEADS) $(HEADS_t)
+$(TARGET_sp): $(SRCS_sp)
 	@echo ""
 	@echo "------------------------------------------------------------"
-	@echo "SRCS_t: \n$(SRCS_t)\n"
+	@echo "SRCS_st: \n$(SRCS_sp)\n"
 	@echo "CFLAGS: \n$(CFLAGS)"
 	@echo "------------------------------------------------------------"
-	$(CXX) -o $(TARGET_t) $(SRCS_t) $(CFLAGS) $(CFLAGS_t)
+	$(CXX) -o $(TARGET_sp) $(SRCS_sp) $(CFLAGS) $(CFLAGS_sp)
 	@echo ""
 
 
@@ -119,7 +119,10 @@ all:
 
 .PHONY: clean
 clean:
-	-rm -rf $(TARGET_all)
+	-rm -rf $(TARGET_t)
+	-rm -rf $(TARGET_bm)
+	-rm -rf $(TARGET_bm_uM)
+	-rm -rf $(TARGET_sp)
 	-rm -rf flat_hash_map-master
 	-rm -rf googletest-master
 	-rm -rf sparsehash-master
