@@ -1337,6 +1337,7 @@ void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF, T_major>::
 #undef insert_init_m
 
 #undef key2tableIdx_m
+#undef seek2tail
 #undef seek2emptyIndex_m
 #undef isTail_m
 #undef isHead_m
