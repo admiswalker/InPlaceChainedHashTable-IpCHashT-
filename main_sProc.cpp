@@ -13,8 +13,8 @@ void vecPath2v_vvecXY(std::vector<sstd::vvec<double>>& vC_vT_vecX_out, std::vect
 		sstd::vvec<std::string> vvecStr  = vvecOrig && sstd::slice_mv(1, sstd::end());
 		sstd::vvec<     double> vvecD    = sstd::Tr(sstd::str2double(vvecStr));
 		
-		sstd::vvec<double> vT_vecX = {vvecD[0], vvecD[0], vvecD[0], vvecD[0], vvecD[0], vvecD[0], vvecD[0]}; // depending on csv format
-		sstd::vvec<double> vT_vecY = {vvecD[1], vvecD[2], vvecD[3], vvecD[4], vvecD[5], vvecD[6], vvecD[7]}; // depending on csv format
+		sstd::vvec<double> vT_vecX; for(uint i=0; i<vvecD.size()-1; i++){ vT_vecX<<=vvecD[0]; } // depending on csv format
+		sstd::vvec<double> vT_vecY; for(uint i=1; i<vvecD.size()  ; i++){ vT_vecY<<=vvecD[i]; } // depending on csv format
 		vC_vT_vecX_out[i] = std::move(vT_vecX);
 		vC_vT_vecY_out[i] = std::move(vT_vecY);
 	}
