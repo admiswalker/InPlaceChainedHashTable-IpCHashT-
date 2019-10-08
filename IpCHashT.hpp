@@ -26,7 +26,7 @@ namespace sstd{
 		class   successfulMajor{ private: public:   successfulMajor(){};   ~successfulMajor(){}; };
 		class unsuccessfulMajor{ private: public: unsuccessfulMajor(){}; ~unsuccessfulMajor(){}; };
 	}
-
+	
 	// set default options
 	template <class T_key,
 			  class T_val,
@@ -67,6 +67,15 @@ namespace sstd_IpCHashT{
 	
 	bool isSuccessfulMajor(sstd::IpCHashT_opt::successfulMajor   dummy);
 	bool isSuccessfulMajor(sstd::IpCHashT_opt::unsuccessfulMajor dummy);
+	
+	                         inline bool isUint8 (const   uint8 dummy){ return true;  }
+	template <class T_dummy> inline bool isUint8 (const T_dummy dummy){ return false; }
+	                         inline bool isUint16(const  uint16 dummy){ return true;  }
+	template <class T_dummy> inline bool isUint16(const T_dummy dummy){ return false; }
+	                         inline bool isMaxLF50 (const sstd::IpCHashT_opt::maxLF50  rhs){ return true;  }
+	template <class T_dummy> inline bool isMaxLF50 (const                     T_dummy  rhs){ return false; }
+	                         inline bool isMaxLF100(const sstd::IpCHashT_opt::maxLF100 rhs){ return true;  }
+	template <class T_dummy> inline bool isMaxLF100(const                      T_dummy rhs){ return false; }
 	
 	#ifdef use_prime_table
 	const uint64 tSizeL[64] = { // table size list. (Smallest prime list larger than power of 2.)
@@ -294,7 +303,7 @@ public:
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF, typename T_major>
 class sstd::IpCHashT{
 private:
-	void IpCHashT_constructor(const uint64& tableSize);
+	void IpCHashT_constructor(uint64 tableSize);
 	
 	#ifdef use_prime_table
 	uint8  tSizeL_idx;      // table size list index
@@ -439,7 +448,13 @@ inline double get_maxLF(const sstd::IpCHashT_opt::maxLF100& rhs){ return 1.00; }
 	seekLimit   = maxShift - 1;
 
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF, typename T_major>
-inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF, T_major>::IpCHashT_constructor(const uint64& tableSize){
+inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF, T_major>::IpCHashT_constructor(uint64 tableSize){
+	if      ( sstd_IpCHashT::isUint8 (T_shift()) && sstd_IpCHashT::isMaxLF50 (T_maxLF()) ){ tableSize = tableSize*2;
+	}else if( sstd_IpCHashT::isUint8 (T_shift()) && sstd_IpCHashT::isMaxLF100(T_maxLF()) ){ tableSize = (uint64)(((double)tableSize)*1.333); // with uint8 and maxLT100 option, the load factor will reach a peak at about 0.75. So, 1/0.75 = 1.333.
+	}else if( sstd_IpCHashT::isUint16(T_shift()) && sstd_IpCHashT::isMaxLF50 (T_maxLF()) ){ tableSize = tableSize*2;
+	}else if( sstd_IpCHashT::isUint16(T_shift()) && sstd_IpCHashT::isMaxLF100(T_maxLF()) ){ tableSize = (uint64)(((double)tableSize)*1.026); // with uint16 and maxLT100 option, the load factor will reach a peak at about 0.975. So, 1/0.975 = 1.026.
+	}
+	
 	#ifdef use_prime_table
 	get_tSizeL_idx(tSizeL_idx); tSize = sstd_IpCHashT::tSizeL[tSizeL_idx];
 	#else

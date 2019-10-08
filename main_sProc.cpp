@@ -66,7 +66,7 @@ int main(int argc, char** argv){
 		
 		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
 		vvec2plot_usedMemory(savePath, saveAs, vvecX, vvecY);
-	}/*
+	}
 	{
 		const char* csvPath  = "./tmpBench/usedMemory_preAlloc/*";
 		const char* savePath = "./tmpBench/usedMemory_preAlloc";

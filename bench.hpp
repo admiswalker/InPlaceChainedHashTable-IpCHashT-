@@ -195,9 +195,8 @@ void bench2csv_usedMemory_runBench(const std::string& saveDir, const uint64 init
 	call__main_bench_usedMemory(saveDir, "5",     "dHashT", "[count]",     "dHashT [GB]", initSize, limitSize);
 	call__main_bench_usedMemory(saveDir, "6",     "fHashT", "[count]",     "fHashT [GB]", initSize, limitSize);
 }
-void bench2csv_usedMemory_meargeResult(const std::string& saveDir, const std::string& tmpDir){
+void bench2csv_usedMemory_meargeResult(const std::string& savePath, const std::string& tmpDir){
 	std::string csvPath  = tmpDir+ "/*";
-	std::string savePath = saveDir+ "/usedMemory_merged.csv";
 	
 	std::vector<std::string> vecPath = sstd::glob(csvPath);
 	sstd::vvec<double> vvecX(vecPath.size()), vvecY(vecPath.size());
@@ -212,9 +211,9 @@ void bench2csv_usedMemory_meargeResult(const std::string& saveDir, const std::st
 	sstd::vvec<std::string> vvecHeader = {{"[count]", "uHashT [GB]", "cHashT [GB]", "iHashT_u8h [GB]", "iHashT_u8f [GB]", "iHashT_u16 [GB]", "dHashT [GB]", "fHashT [GB]"}};
 	BENCH_to_CSV(savePath, vvecX, vvecY, vvecHeader);
 }
-void bench2csv_usedMemory(const std::string& saveDir, const std::string& tmpDir, const std::vector<std::string>& saveAs, const uint64 initSize, const uint64 limitSize){
+void bench2csv_usedMemory(const std::string& savePath, const std::string& tmpDir, const uint64 initSize, const uint64 limitSize){
 	bench2csv_usedMemory_runBench(tmpDir, initSize, limitSize);
-	bench2csv_usedMemory_meargeResult(saveDir, tmpDir);
+	bench2csv_usedMemory_meargeResult(savePath, tmpDir);
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -624,9 +623,9 @@ void bench2csv_maxLoadFactor(const std::string& savePath, const uint64 limitSize
 uint fileNum(const std::string& path_wWildCard){ return sstd::glob(path_wWildCard).size(); }
 
 void RUN_ALL_BENCHS(){
-//	const uint64 limitSize = 200000000; // limit of memory (on 32 GB RAM PC)
+	const uint64 limitSize = 200000000; // limit of memory (on 32 GB RAM PC)
 //	const uint64 limitSize = 20000000; // for usedMemory
-	const uint64 limitSize = 5000000;
+//	const uint64 limitSize = 5000000;
 	const uint64 initSize_wRehash  = 0ull;
 	const uint64 initSize_preAlloc = limitSize;
 	
@@ -634,12 +633,6 @@ void RUN_ALL_BENCHS(){
 	std::vector<std::string> saveAs = {".pdf", ".png"};
 	
 	//---------------------------------------------------------------------------------------------------------------------------------------------
-	//*
-	// bench of used memory size should run first inorder to avoid memory swap by Linux OS.
-	std::string udM    = "usedMemory";          sstd::mkdir(saveDir+'/'+udM   ); sstd::mkdir(saveDir+'/'+udM   +"_tmp");
-	std::string udM_pA = "usedMemory_preAlloc"; sstd::mkdir(saveDir+'/'+udM_pA); sstd::mkdir(saveDir+'/'+udM_pA+"_tmp");
-	bench2csv_usedMemory(saveDir+'/'+udM,    saveDir+'/'+udM +"_tmp",   saveAs, initSize_wRehash,  limitSize);
-	bench2csv_usedMemory(saveDir+'/'+udM_pA, saveDir+'/'+udM_pA+"_tmp", saveAs, initSize_preAlloc, limitSize);
 	/*
 	// insert: insertion speed [query/sec]
 	bench2plot_insert(saveDir+"/insert", saveAs, initSize_wRehash, limitSize);
@@ -659,16 +652,16 @@ void RUN_ALL_BENCHS(){
 	bench2plot_maxLoadFactor(saveDir+"/maxLoadFactor", saveAs, limitSize);
 	//*/
 	//---------------------------------------------------------------------------------------------------------------------------------------------
-	/*
-	std::string udM    = "usedMemory";          sstd::mkdir(saveDir+'/'+udM   ); sstd::mkdir(saveDir+'/'+udM   +"_tmp");
-	std::string udM_pA = "usedMemory_preAlloc"; sstd::mkdir(saveDir+'/'+udM_pA); sstd::mkdir(saveDir+'/'+udM_pA+"_tmp");
-	for(uint i=fileNum(saveDir+'/'+udM+"/*"); i<1; i++){
+	//*
+	std::string udM    = "usedMemory";          sstd::mkdir(saveDir+'/'+udM   ); sstd::mkdir(saveDir+"/tmp_"+udM   );
+	std::string udM_pA = "usedMemory_preAlloc"; sstd::mkdir(saveDir+'/'+udM_pA); sstd::mkdir(saveDir+"/tmp_"+udM_pA);
+/*	for(uint i=fileNum(saveDir+'/'+udM+"/*"); i<1; i++){
 		std::string savePath = saveDir +'/'+udM +sstd::ssprintf("/%s_%03u", udM.c_str(), i)+".csv";
-		bench2csv_usedMemory(savePath,  saveDir+'/'+udM +"_tmp", saveAs, initSize_wRehash,  limitSize);
-	}
+		bench2csv_usedMemory(savePath,  saveDir+"/tmp_"+udM, initSize_wRehash, limitSize);
+	}//*/
 	for(uint i=fileNum(saveDir+'/'+udM_pA+"/*"); i<1; i++){
 		std::string savePath = saveDir +'/'+udM_pA +sstd::ssprintf("/%s_%03u", udM_pA.c_str(), i)+".csv";
-		bench2csv_usedMemory(savePath, saveDir+'/'+udM_pA+"_tmp", saveAs, initSize_preAlloc, limitSize);
+		bench2csv_usedMemory(savePath, saveDir+"/tmp_"+udM_pA, initSize_preAlloc, limitSize);
 	}
 	//*/
 	//---
