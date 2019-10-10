@@ -59,84 +59,108 @@ int main(int argc, char** argv){
 	printf("■ measureTime_start---------------\n\n"); time_m timem; sstd::measureTime_start(timem);
 	
 	std::vector<std::string> saveAs={".png", ".pdf"};
-	//*
+	
 	{
 		const char* csvPath  = "./tmpBench/usedMemory/*";
 		const char* savePath = "./tmpBench/usedMemory";
+		std::vector<std::string> vecPath = sstd::glob(csvPath);
 		
-		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
-		vvec2plot_usedMemory(savePath, saveAs, vvecX, vvecY);
+		if(vecPath.size()!=0){
+			sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, vecPath);
+			vvec2plot_usedMemory(savePath, saveAs, vvecX, vvecY);
+		}
 	}
 	{
 		const char* csvPath  = "./tmpBench/usedMemory_preAlloc/*";
 		const char* savePath = "./tmpBench/usedMemory_preAlloc";
+		std::vector<std::string> vecPath = sstd::glob(csvPath);
 		
-		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
-		vvec2plot_usedMemory(savePath, saveAs, vvecX, vvecY);
-	}//*/
-	/*
+		if(vecPath.size()!=0){
+			sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, vecPath);
+			vvec2plot_usedMemory(savePath, saveAs, vvecX, vvecY);
+		}
+	}
 	{
 		const char* csvPath  = "./tmpBench/find_successful_search/*";
 		const char* savePath = "./tmpBench/find_successful_search_med";
+		std::vector<std::string> vecPath = sstd::glob(csvPath);
 		
-		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
-		vvec2plot_find(savePath, saveAs, vvecX, vvecY);
+		if(vecPath.size()!=0){
+			sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, vecPath);
+			vvec2plot_find(savePath, saveAs, vvecX, vvecY);
+		}
 	}
 	{
 		const char* csvPath  = "./tmpBench/find_unsuccessful_search/*";
 		const char* savePath = "./tmpBench/find_unsuccessful_search_med";
+		std::vector<std::string> vecPath = sstd::glob(csvPath);
 		
-		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
-		vvec2plot_find_failedAll(savePath, saveAs, vvecX, vvecY);
+		if(vecPath.size()!=0){
+			sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, vecPath);
+			vvec2plot_find_failedAll(savePath, saveAs, vvecX, vvecY);
+		}
 	}
 	{
 		const char* csvPath  = "./tmpBench/insert/*";
 		const char* savePath = "./tmpBench/insert_med";
+		std::vector<std::string> vecPath = sstd::glob(csvPath);
 		
-		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
-		vvec2plot_insert(savePath, saveAs, vvecX, vvecY);
+		if(vecPath.size()!=0){
+			sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, vecPath);
+			vvec2plot_insert(savePath, saveAs, vvecX, vvecY);
+		}
 	}
 	{
 		const char* csvPath  = "./tmpBench/insert_et/*";
 		const char* savePath = "./tmpBench/insert_et_med";
+		std::vector<std::string> vecPath = sstd::glob(csvPath);
 		
-		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
-		vvec2plot_insert_et(savePath, saveAs, vvecX, vvecY);
+		if(vecPath.size()!=0){
+			sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, vecPath);
+			vvec2plot_insert_et(savePath, saveAs, vvecX, vvecY);
+		}
 	}
 	{
 		const char* csvPath  = "./tmpBench/insert_et_preAlloc/*";
 		const char* savePath = "./tmpBench/insert_et_preAlloc_med";
+		std::vector<std::string> vecPath = sstd::glob(csvPath);
 		
-		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
-		vvec2plot_insert_et(savePath, saveAs, vvecX, vvecY);
+		if(vecPath.size()!=0){
+			sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
+			vvec2plot_insert_et(savePath, saveAs, vvecX, vvecY);
+		}
 	}
 	{
 		const char* csvPath  = "./tmpBench/erase/*";
 		const char* savePath = "./tmpBench/erase_med";
+		std::vector<std::string> vecPath = sstd::glob(csvPath);
 		
-		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
-		for(uint i=0; i<vvecX.size(); i++){ // vecType
-			vvecX[i] = sstd::nonzero(vvecX[i]);
-			vvecY[i] = sstd::nonzero(vvecY[i]);
-			sstd::suppress(vvecX[i], vvecY[i]); // <-> padding
+		if(vecPath.size()!=0){
+			sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, vecPath);
+			for(uint i=0; i<vvecX.size(); i++){ // vecType
+				vvecX[i] = sstd::nonzero(vvecX[i]);
+				vvecY[i] = sstd::nonzero(vvecY[i]);
+				sstd::suppress(vvecX[i], vvecY[i]); // <-> padding
+			}
+			vvec2plot_erase(savePath, saveAs, vvecX, vvecY);
 		}
-		
-		vvec2plot_erase(savePath, saveAs, vvecX, vvecY);
 	}
 	{
 		const char* csvPath  = "./tmpBench/maxLoadFactor/*";
 		const char* savePath = "./tmpBench/maxLoadFactor_med";
+		std::vector<std::string> vecPath = sstd::glob(csvPath);
 		
-		sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, sstd::glob(csvPath));
-		for(uint i=0; i<vvecX.size(); i++){ // vecType
-			vvecX[i] = sstd::nonzero(vvecX[i]);
-			vvecY[i] = sstd::nonzero(vvecY[i]);
-			sstd::suppress(vvecX[i], vvecY[i]); // <-> padding
+		if(vecPath.size()!=0){
+			sstd::vvec<double> vvecX, vvecY; vecPath2vvecXY(vvecX, vvecY, vecPath);
+			for(uint i=0; i<vvecX.size(); i++){ // vecType
+				vvecX[i] = sstd::nonzero(vvecX[i]);
+				vvecY[i] = sstd::nonzero(vvecY[i]);
+				sstd::suppress(vvecX[i], vvecY[i]); // <-> padding
+			}
+			vvec2plot_maxLoadFactor(savePath, saveAs, vvecX, vvecY);
 		}
-		
-		vvec2plot_maxLoadFactor(savePath, saveAs, vvecX, vvecY);
 	}
-	//*/
+	
 	printf("\n■ measureTime_stop----------------\n"); sstd::measureTime_stop_print(timem);
 	return 0;
 }

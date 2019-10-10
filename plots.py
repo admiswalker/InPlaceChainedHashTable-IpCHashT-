@@ -3,8 +3,12 @@ mpl.use('Agg')                  # "QXcbConnection: Could not connect to display"
 import matplotlib.pyplot as plt # "QXcbConnection: Could not connect to display" への対策
 import matplotlib.ticker as tick
 import math
+import itertools
 
 #------------------------------------------------------------------------------------------------------------------------------------------------
+def flatten(rhs):
+    return list(itertools.chain(*rhs))
+
 def float2digits(f):
     if f==0:
         return int(0)
@@ -100,12 +104,16 @@ def vvec2graph_lf(savePath, saveAs, xlabel, ylabel, vecLabel, vvecX, vvecY):
     return
 
 def vvec2graph_memory(savePath, saveAs, xlabel, ylabel, vecLabel, vvecX, vvecY):
-#    xmargin=4*10000; vecXlim = [-xmargin, 5*1000000+xmargin] # MB
-#    ymargin=10; vecYlim=[0-ymargin, 600+ymargin]             # MB
-#    xmargin=4*4*10000; vecXlim = [-xmargin, 2*10000000+xmargin] # GB
-#    ymargin=0.050; vecYlim=[0-ymargin, 2.250+ymargin]         # GB
-    xmargin=4*4*100000; vecXlim = [-xmargin, 2*100000000+xmargin] # GB
-    ymargin=0.250; vecYlim=[0-ymargin, 18.00+ymargin]         # GB
+    x_max = max(flatten(vvecX))
+    margin=1.1
+    xmargin=0; vecXlim=[]
+    ymargin=0; vecYlim=[]
+    if x_max<=5*1000000*margin:
+        xmargin=4*10000; vecXlim=[ -xmargin, 5*1000000+xmargin] # GB
+        ymargin=0.010;   vecYlim=[0-ymargin,       0.6+ymargin] # GB
+    else:
+        xmargin=4*4*100000; vecXlim=[-xmargin, 2*100000000+xmargin] # GB
+        ymargin=0.250;      vecYlim=[0-ymargin,      18.00+ymargin] # GB
     xscale = 'linear'
     yscale = 'linear'
     labelLoc = 'upper left'
@@ -113,10 +121,16 @@ def vvec2graph_memory(savePath, saveAs, xlabel, ylabel, vecLabel, vvecX, vvecY):
     return
 
 def vvec2graph_et_insert(savePath, saveAs, xlabel, ylabel, vecLabel, vvecX, vvecY):
-#    xmargin=4*10000; vecXlim = [-xmargin, 5*1000000+xmargin]
-    xmargin=4*10000; vecXlim = [-xmargin, 202000000+xmargin]
-#    ymargin=0.025; vecYlim=[0-ymargin, 2.5+ymargin]
-    ymargin=0.025; vecYlim=[0-ymargin, 130+ymargin]
+    x_max = max(flatten(vvecX))
+    margin=1.1
+    xmargin=0; vecXlim=[]
+    ymargin=0; vecYlim=[]
+    if x_max<=5*1000000*margin:
+        xmargin=4*10000; vecXlim=[ -xmargin, 5*1000000+xmargin]
+        ymargin=0.025;   vecYlim=[0-ymargin,       2.5+ymargin]
+    else:
+        xmargin=4*10000; vecXlim=[ -xmargin, 202000000+xmargin]
+        ymargin=0.025;   vecYlim=[0-ymargin,       130+ymargin]
     xscale = 'linear'
     yscale = 'linear'
     labelLoc = 'upper left'

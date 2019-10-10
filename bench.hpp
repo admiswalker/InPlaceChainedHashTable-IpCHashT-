@@ -623,9 +623,9 @@ void bench2csv_maxLoadFactor(const std::string& savePath, const uint64 limitSize
 uint fileNum(const std::string& path_wWildCard){ return sstd::glob(path_wWildCard).size(); }
 
 void RUN_ALL_BENCHS(){
-	const uint64 limitSize = 200000000; // limit of memory (on 32 GB RAM PC)
+//	const uint64 limitSize = 200000000; // limit of memory (on 32 GB RAM PC)
 //	const uint64 limitSize = 20000000; // for usedMemory
-//	const uint64 limitSize = 5000000;
+	const uint64 limitSize = 5000000;
 	const uint64 initSize_wRehash  = 0ull;
 	const uint64 initSize_preAlloc = limitSize;
 	
@@ -655,64 +655,64 @@ void RUN_ALL_BENCHS(){
 	//*
 	std::string udM    = "usedMemory";          sstd::mkdir(saveDir+'/'+udM   ); sstd::mkdir(saveDir+"/tmp_"+udM   );
 	std::string udM_pA = "usedMemory_preAlloc"; sstd::mkdir(saveDir+'/'+udM_pA); sstd::mkdir(saveDir+"/tmp_"+udM_pA);
-/*	for(uint i=fileNum(saveDir+'/'+udM+"/*"); i<1; i++){
+	for(uint i=fileNum(saveDir+'/'+udM+"/*"); i<1; i++){
 		std::string savePath = saveDir +'/'+udM +sstd::ssprintf("/%s_%03u", udM.c_str(), i)+".csv";
 		bench2csv_usedMemory(savePath,  saveDir+"/tmp_"+udM, initSize_wRehash, limitSize);
-	}//*/
+	}
 	for(uint i=fileNum(saveDir+'/'+udM_pA+"/*"); i<1; i++){
 		std::string savePath = saveDir +'/'+udM_pA +sstd::ssprintf("/%s_%03u", udM_pA.c_str(), i)+".csv";
 		bench2csv_usedMemory(savePath, saveDir+"/tmp_"+udM_pA, initSize_preAlloc, limitSize);
 	}
 	//*/
 	//---
-	/*
-	uint loopNum = 100;
 	
+	uint loopNum = 100;
+	/*
 	std::string fwR = "/find_successful_search";
 	sstd::mkdir(saveDir+'/'+fwR);
-	for(uint i=fileNum(saveDir+'/'+fwR+"/*"); i<loopNum; i++){ // 20 mins
+	for(uint i=fileNum(saveDir+'/'+fwR+"/*"); i<loopNum; i++){
 		std::string savePath = saveDir +'/'+fwR +sstd::ssprintf("/%s_%03u", fwR.c_str(), i)+".csv";
 		bench2csv_find(savePath, initSize_wRehash, limitSize);
 	}
 	
 	std::string ffa = "/find_unsuccessful_search";
 	sstd::mkdir(saveDir+'/'+ffa);
-	for(uint i=fileNum(saveDir+'/'+ffa+"/*"); i<loopNum; i++){ // 15 mins
+	for(uint i=fileNum(saveDir+'/'+ffa+"/*"); i<loopNum; i++){
 		std::string savePath = saveDir +'/'+ffa +sstd::ssprintf("/%s_%03u", ffa.c_str(), i)+".csv";
 		bench2csv_find_failedAll(savePath, initSize_wRehash, limitSize);
 	}
 	
 	std::string iwR = "insert";
 	sstd::mkdir(saveDir+'/'+iwR);
-	for(uint i=fileNum(saveDir+'/'+iwR+"/*"); i<loopNum; i++){ // 13 mins
+	for(uint i=fileNum(saveDir+'/'+iwR+"/*"); i<loopNum; i++){
 		std::string savePath = saveDir +'/'+iwR +sstd::ssprintf("/%s_%03u", iwR.c_str(), i)+".csv";
 		bench2csv_insert(savePath, initSize_wRehash, limitSize);
 	}
 	
 	std::string iEwR = "insert_et";
 	sstd::mkdir(saveDir+'/'+iEwR);
-	for(uint i=fileNum(saveDir+'/'+iEwR+"/*"); i<loopNum; i++){ // 13 mins
+	for(uint i=fileNum(saveDir+'/'+iEwR+"/*"); i<loopNum; i++){
 		std::string savePath = saveDir +'/'+iEwR +sstd::ssprintf("/%s_%03u", iEwR.c_str(), i)+".csv";
 		bench2csv_insert_et(savePath, initSize_wRehash, limitSize);
 	}
-	
+	//*/
 	std::string iE = "insert_et_preAlloc";
 	sstd::mkdir(saveDir+'/'+iE);
-	for(uint i=fileNum(saveDir+'/'+iE+"/*"); i<loopNum; i++){ // 7 mins
+	for(uint i=fileNum(saveDir+'/'+iE+"/*"); i<loopNum; i++){
 		std::string savePath = saveDir +'/'+iE +sstd::ssprintf("/%s_%03u", iE.c_str(), i)+".csv";
 		bench2csv_insert_et(savePath, initSize_preAlloc, limitSize);
 	}
-	
+	/*
 	std::string ewR = "erase";
 	sstd::mkdir(saveDir+'/'+ewR);
-	for(uint i=fileNum(saveDir+'/'+ewR+"/*"); i<loopNum; i++){ //  mins
+	for(uint i=fileNum(saveDir+'/'+ewR+"/*"); i<loopNum; i++){
 		std::string savePath = saveDir +'/'+ewR +sstd::ssprintf("/%s_%03u", ewR.c_str(), i)+".csv";
 		bench2csv_erase(savePath, initSize_wRehash, limitSize);
 	}
 	
 	std::string mLF = "maxLoadFactor";
 	sstd::mkdir(saveDir+'/'+mLF);
-	for(uint i=fileNum(saveDir+'/'+mLF+"/*"); i<loopNum; i++){ //  mins
+	for(uint i=fileNum(saveDir+'/'+mLF+"/*"); i<loopNum; i++){
 		std::string savePath = saveDir +'/'+mLF +sstd::ssprintf("/%s_%03u", mLF.c_str(), i)+".csv";
 		bench2csv_maxLoadFactor(savePath, limitSize);
 	}
