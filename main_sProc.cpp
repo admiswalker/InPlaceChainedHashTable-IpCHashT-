@@ -23,6 +23,7 @@ std::vector<double> vvec2vecMed(const sstd::vvec<double>& rhs){
 	std::vector<double> ret(rhs.size());
 	for(uint i=0; i<rhs.size(); i++){
 		ret[i] = sstd::med(rhs[i]);
+//		ret[i] = sstd::ave(rhs[i]);
 	}
 	return ret;
 }

@@ -9,7 +9,25 @@
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 // definitions
+/*
+typedef std::unordered_map<uint64,uint64>                                            uHashT;
+typedef sstd::CHashT<uint64,uint64>                                                  cHashT;
+typedef sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint8, sstd::IpCHashT_opt::maxLF50 ,sstd::IpCHashT_opt::successfulMajor> iHashT_u8h; // max load factor limittign to half
+typedef sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint8, sstd::IpCHashT_opt::maxLF100,sstd::IpCHashT_opt::successfulMajor> iHashT_u8f; // allowing full load factor
+typedef sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16,sstd::IpCHashT_opt::maxLF100,sstd::IpCHashT_opt::successfulMajor> iHashT_u16; // allowing full load factor
+typedef google::dense_hash_map<uint64,uint64>                                        dHashT;
+typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>         fHashT;
+//*/
 //*
+typedef std::unordered_map<uint64,uint64>                                            uHashT;
+typedef sstd::CHashT<uint64,uint64>                                                  cHashT;
+typedef sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint8, sstd::IpCHashT_opt::maxLF50 ,sstd::IpCHashT_opt::unsuccessfulMajor> iHashT_u8h; // max load factor limittign to half
+typedef sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint8, sstd::IpCHashT_opt::maxLF100,sstd::IpCHashT_opt::unsuccessfulMajor> iHashT_u8f; // allowing full load factor
+typedef sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16,sstd::IpCHashT_opt::maxLF100,sstd::IpCHashT_opt::unsuccessfulMajor> iHashT_u16; // allowing full load factor
+typedef google::dense_hash_map<uint64,uint64>                                        dHashT;
+typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>         fHashT;
+//*/
+/*
 typedef std::unordered_map<uint64,uint64>                                    uHashT;
 typedef sstd::CHashT<uint64,uint64>                                          cHashT;
 typedef sstd::IpCHashT_u8hS<uint64,uint64>                                   iHashT_u8h; // uint8, half (maxLoadfactor50), Successful search major option
@@ -28,32 +46,32 @@ typedef google::dense_hash_map<uint64,uint64>                                dHa
 typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> fHashT;
 //*/
 #define RUN_BENCH(vvecX, vvecY, initSize, limitSize, Fnc)				\
-	std::vector<double> vecX_u, vecX_c, vecX_i8h, vecX_i8, vecX_i16, vecX_d, vecX_f; \
-	std::vector<double> vecY_u, vecY_c, vecY_i8h, vecY_i8, vecY_i16, vecY_d, vecY_f; \
+	std::vector<double> vecX_u, vecX_c, vecX_i8h, vecX_i8f, vecX_i16, vecX_d, vecX_f; \
+	std::vector<double> vecY_u, vecY_c, vecY_i8h, vecY_i8f, vecY_i16, vecY_d, vecY_f; \
 	{ uHashT     hashT(initSize); Fnc(hashT, limitSize, vecX_u,   vecY_u  ); } \
 	{ cHashT     hashT(initSize); Fnc(hashT, limitSize, vecX_c,   vecY_c  ); } \
 	{ iHashT_u8h hashT(initSize); Fnc(hashT, limitSize, vecX_i8h, vecY_i8h); } \
-	{ iHashT_u8f hashT(initSize); Fnc(hashT, limitSize, vecX_i8,  vecY_i8 ); } \
+	{ iHashT_u8f hashT(initSize); Fnc(hashT, limitSize, vecX_i8f, vecY_i8f); } \
 	{ iHashT_u16 hashT(initSize); Fnc(hashT, limitSize, vecX_i16, vecY_i16); } \
 	{ dHashT     hashT(initSize); hashT.set_empty_key(0ull); /* this meen that 'NULL' will not be able to insert as a key-value. */ \
 	                              Fnc(hashT, limitSize, vecX_d,   vecY_d  ); } \
 	{ fHashT     hashT(initSize); Fnc(hashT, limitSize, vecX_f,   vecY_f  ); } \
-	vvecX={vecX_u, vecX_c, vecX_i8h, vecX_i8, vecX_i16, vecX_d, vecX_f}; \
-	vvecY={vecY_u, vecY_c, vecY_i8h, vecY_i8, vecY_i16, vecY_d, vecY_f};
+	vvecX={vecX_u, vecX_c, vecX_i8h, vecX_i8f, vecX_i16, vecX_d, vecX_f}; \
+	vvecY={vecY_u, vecY_c, vecY_i8h, vecY_i8f, vecY_i16, vecY_d, vecY_f};
 
 #define RUN_BENCH_withErase(vvecX, vvecY, initSize, limitSize, Fnc)		\
-	std::vector<double> vecX_u, vecX_c, vecX_i8h, vecX_i8, vecX_i16, vecX_d, vecX_f; \
-	std::vector<double> vecY_u, vecY_c, vecY_i8h, vecY_i8, vecY_i16, vecY_d, vecY_f; \
+	std::vector<double> vecX_u, vecX_c, vecX_i8h, vecX_i8f, vecX_i16, vecX_d, vecX_f; \
+	std::vector<double> vecY_u, vecY_c, vecY_i8h, vecY_i8f, vecY_i16, vecY_d, vecY_f; \
 	{ uHashT       hashT(initSize); Fnc(hashT, limitSize, vecX_u,   vecY_u  ); } \
 	{ cHashT       hashT(initSize); Fnc(hashT, limitSize, vecX_c,   vecY_c  ); } \
 	{ iHashT_u8h   hashT(initSize); Fnc(hashT, limitSize, vecX_i8h, vecY_i8h); } \
-	{ iHashT_u8f   hashT(initSize); Fnc(hashT, limitSize, vecX_i8,  vecY_i8 ); } \
+	{ iHashT_u8f   hashT(initSize); Fnc(hashT, limitSize, vecX_i8f, vecY_i8f); } \
 	{ iHashT_u16   hashT(initSize); Fnc(hashT, limitSize, vecX_i16, vecY_i16); } \
 	{ dHashT       hashT(initSize); hashT.set_empty_key(0ull); hashT.set_deleted_key(1ull); /* this meen that 'NULL' and '1' will not be able to insert as a key-value. */ \
 	                                Fnc(hashT, limitSize, vecX_d,   vecY_d  ); } \
 	{ fHashT       hashT(initSize); Fnc(hashT, limitSize, vecX_f,   vecY_f  ); } \
-	vvecX={vecX_u, vecX_c, vecX_i8h, vecX_i8, vecX_i16, vecX_d, vecX_f}; \
-	vvecY={vecY_u, vecY_c, vecY_i8h, vecY_i8, vecY_i16, vecY_d, vecY_f};
+	vvecX={vecX_u, vecX_c, vecX_i8h, vecX_i8f, vecX_i16, vecX_d, vecX_f}; \
+	vvecY={vecY_u, vecY_c, vecY_i8h, vecY_i8f, vecY_i16, vecY_d, vecY_f};
 
 #define BENCH_to_CSV(savePath, vvecX, vvecY, vvecHeader)				\
 	sstd::vvec<     double> vvec     = {vvecX[0]}; for(uint i=0;i<vvecY.size();i++){ vvec <<= {vvecY[i]}; } \
@@ -623,9 +641,8 @@ void bench2csv_maxLoadFactor(const std::string& savePath, const uint64 limitSize
 uint fileNum(const std::string& path_wWildCard){ return sstd::glob(path_wWildCard).size(); }
 
 void RUN_ALL_BENCHS(){
-//	const uint64 limitSize = 200000000; // limit of memory (on 32 GB RAM PC)
-//	const uint64 limitSize = 20000000; // for usedMemory
-	const uint64 limitSize = 5000000;
+	const uint64 limitSize = 200000000; // limit of memory (on 32 GB RAM PC)
+//	const uint64 limitSize = 5000000;
 	const uint64 initSize_wRehash  = 0ull;
 	const uint64 initSize_preAlloc = limitSize;
 	
@@ -636,9 +653,9 @@ void RUN_ALL_BENCHS(){
 	/*
 	// insert: insertion speed [query/sec]
 	bench2plot_insert(saveDir+"/insert", saveAs, initSize_wRehash, limitSize);
-	
+	//*/
 	// insert: elapsed time [sec]
-	bench2plot_insert_et(saveDir+"/insert_et",  saveAs, initSize_wRehash,  limitSize);
+	bench2plot_insert_et(saveDir+"/insert_et",          saveAs, initSize_wRehash,  limitSize);/*
 	bench2plot_insert_et(saveDir+"/insert_et_preAlloc", saveAs, initSize_preAlloc, limitSize);
 	
 	// find: search speed [quely/sec]
@@ -652,7 +669,7 @@ void RUN_ALL_BENCHS(){
 	bench2plot_maxLoadFactor(saveDir+"/maxLoadFactor", saveAs, limitSize);
 	//*/
 	//---------------------------------------------------------------------------------------------------------------------------------------------
-	//*
+	/*
 	std::string udM    = "usedMemory";          sstd::mkdir(saveDir+'/'+udM   ); sstd::mkdir(saveDir+"/tmp_"+udM   );
 	std::string udM_pA = "usedMemory_preAlloc"; sstd::mkdir(saveDir+'/'+udM_pA); sstd::mkdir(saveDir+"/tmp_"+udM_pA);
 	for(uint i=fileNum(saveDir+'/'+udM+"/*"); i<1; i++){
@@ -695,14 +712,14 @@ void RUN_ALL_BENCHS(){
 		std::string savePath = saveDir +'/'+iEwR +sstd::ssprintf("/%s_%03u", iEwR.c_str(), i)+".csv";
 		bench2csv_insert_et(savePath, initSize_wRehash, limitSize);
 	}
-	//*/
+	
 	std::string iE = "insert_et_preAlloc";
 	sstd::mkdir(saveDir+'/'+iE);
 	for(uint i=fileNum(saveDir+'/'+iE+"/*"); i<loopNum; i++){
 		std::string savePath = saveDir +'/'+iE +sstd::ssprintf("/%s_%03u", iE.c_str(), i)+".csv";
 		bench2csv_insert_et(savePath, initSize_preAlloc, limitSize);
 	}
-	/*
+	
 	std::string ewR = "erase";
 	sstd::mkdir(saveDir+'/'+ewR);
 	for(uint i=fileNum(saveDir+'/'+ewR+"/*"); i<loopNum; i++){

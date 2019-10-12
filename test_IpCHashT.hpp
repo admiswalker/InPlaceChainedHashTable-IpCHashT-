@@ -1234,7 +1234,7 @@ TEST(sstd_IpCHashT, stressTest_hard){
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 bool stressTest_oneCycle__failSafe_of_rehashing__hard(const uint64 seed, const uint64 limitSize){
-	const uint64 testFSOR_size = 553;
+	const uint64 testFOR_size = 553;
 	
 	sstd::IpCHashT<uint64, uint64> hashT(0);
 	hashT.use_pSize_dbg = true; // enable debug option
@@ -1248,7 +1248,7 @@ bool stressTest_oneCycle__failSafe_of_rehashing__hard(const uint64 seed, const u
 			uint64 r = mt();
 			hashT.insert_hard(r, r);
 			
-			if(i==testFSOR_size){ hashT.use_testFSOR_dbg = true;  }
+			if(i==testFOR_size){ hashT.use_testFOR_dbg = true;  }
 		}
 		
 		if(!( hashT.size()==limitSize )){ sstd::pdbg("ERROR: stressTest_oneCycle_hard\n"); sstd::printn( limitSize ); sstd::printn( hashT.size() ); return false; }

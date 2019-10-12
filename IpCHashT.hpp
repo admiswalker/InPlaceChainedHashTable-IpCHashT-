@@ -30,10 +30,10 @@ namespace sstd{
 	// set default options
 	template <class T_key,
 			  class T_val,
-			  class T_hash   = std::hash<T_key>,
-			  class T_key_eq = std::equal_to<T_key>,
-			  typename T_shift = uint8, // or uint16
-			  typename T_maxLF = sstd::IpCHashT_opt::maxLF50, // or sstd::IpCHashT_opt::maxLF100
+			  class T_hash     = std::hash<T_key>,
+			  class T_key_eq   = std::equal_to<T_key>,
+			  typename T_shift = uint8,                              // or uint16
+			  typename T_maxLF = sstd::IpCHashT_opt::maxLF50,        // or sstd::IpCHashT_opt::maxLF100
 			  typename T_major = sstd::IpCHashT_opt::successfulMajor // or sstd::IpCHashT_opt::unsuccessfulMajor
 			  >
 	class IpCHashT; // in-place chained hash table
@@ -179,8 +179,8 @@ public:
 	}
 	~element_KeyVal(){}
 	
-	T_key key;    // key
-	T_val val;    // value
+	T_key key; // key
+	T_val val; // value
 };
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -390,9 +390,9 @@ public:
 // erase_recursive(); // recursive erasion.
 	
 #ifdef SSTD_IpCHashT_DEBUG
-	bool use_tIdx_dbg     = false; uint64 tIdx_dbg;
-	bool use_pSize_dbg    = false; uint64 pSize_dbg;
-	bool use_testFSOR_dbg = false;
+	bool use_tIdx_dbg    = false; uint64 tIdx_dbg;
+	bool use_pSize_dbg   = false; uint64 pSize_dbg;
+	bool use_testFOR_dbg = false;
 #endif
 	
 	// ---
@@ -575,10 +575,10 @@ void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF, T_major>::
 		
 		if(itrRet.index()==itr_needRehash_m){ goto CONTINUE_sstd_failSafe_of_rehashing; }
 		#ifdef SSTD_IpCHashT_DEBUG
-		if(use_testFSOR_dbg){ // testing failSafe_of_rehashing()
+		if(use_testFOR_dbg){ // testing failSafe_of_rehashing()
 			hashT._elems()++;
 			vecKV.pop_back(); // erase the tail element
-			use_testFSOR_dbg=false;
+			use_testFOR_dbg=false;
 			goto CONTINUE_sstd_failSafe_of_rehashing;
 		}
 		#endif
@@ -615,7 +615,7 @@ inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF, T_m
 		
 		if(itrRet.index()==itr_needRehash_m){ failSafe_of_rehashing(hashT_new); continue; } // more rehashing is required while rehashing.
 		#ifdef SSTD_IpCHashT_DEBUG
-		if(use_testFSOR_dbg){ // testing failSafe_of_rehashing()
+		if(use_testFOR_dbg){ // testing failSafe_of_rehashing()
 			hashT_new._elems()++;
 			++itr;
 			failSafe_of_rehashing(hashT_new);
@@ -642,7 +642,7 @@ inline bool sstd_IpCHashT::isSuccessfulMajor(sstd::IpCHashT_opt::unsuccessfulMaj
 
 #define findBase_m()													\
 	if(sstd_IpCHashT::isSuccessfulMajor(T_major())){					\
-		/* >> [A] */													\
+		/* [A] for Successful Major Option */							\
 		if(! isHead_m(pT[idx]) ){ return itr_m(maxShift, ttSize, pT, itr_end_m); } /* key is not found. */ \
 		for(;;){														\
 			if( T_key_eq()(pT[idx].key, key_in) ){ return itr_m(maxShift, ttSize, pT,       idx); } /* key is found. */ \
@@ -650,7 +650,7 @@ inline bool sstd_IpCHashT::isSuccessfulMajor(sstd::IpCHashT_opt::unsuccessfulMaj
 			idx += pT[idx].next;										\
 		}																\
 	}else{																\
-		/* >> [B]. */													\
+		/* [B] for Unsuccessful Major Option */							\
 		for(;;){														\
 			if( T_key_eq()(pT[idx].key, key_in) ){						\
 				if( isEmpty_m(pT[idx]) ){ return itr_m(maxShift, ttSize, pT, itr_end_m); } /* key is not found. */ \
@@ -678,7 +678,7 @@ template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shi
 struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF, T_major>::_insertBase_soft(T_key&& key_in, T_val&& val_in, uint64 idx){
 	
 	// "using std::swap;" is defined, in order to preferentially call overloaded function of swap<T>() for type T. (Ref: https://cpprefjp.github.io/reference/utility/swap.html)
-	// in here, scope of using is limited by "{}", this means that scope of using is same as a usual value.
+	// in here, scope of "using" is limited by "{}", this means that scope of "using" is same as a usual value.
 	using std::swap;
 	
 	if( isEmpty_m(pT[idx]) ){
@@ -830,7 +830,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF, T_
 	insert_soft_cc_m();
 }
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF, typename T_major>
-struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF, T_major>::insert_soft(const T_key&  key_in, const T_val&  val_in, uint64 idx){
+struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF, T_major>::insert_soft(const T_key& key_in, const T_val&  val_in, uint64 idx){
 	insert_init_m();
 	insert_soft_cc_m();
 } // copy key and value.
@@ -1217,7 +1217,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF, T_
 	insert_hard_cc_m();
 }
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF, typename T_major>
-struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF, T_major>::insert_hard(const T_key&  key_in, const T_val&  val_in, uint64 idx){
+struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF, T_major>::insert_hard(const T_key& key_in, const T_val&  val_in, uint64 idx){
 	insert_init_m();
 	insert_hard_cc_m();
 } // copy key and value.
@@ -1236,7 +1236,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF, T_
 	insert_soft_cc_m();
 }
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF, typename T_major>
-struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF, T_major>::insert(const T_key&  key_in, const T_val&  val_in, uint64 idx){ // copy key and value.
+struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF, T_major>::insert(const T_key& key_in, const T_val&  val_in, uint64 idx){ // copy key and value.
 	insert_init_m();
 	insert_soft_cc_m();
 }
@@ -1250,7 +1250,7 @@ struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF, T_
 	insert_hard_cc_m();
 }
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF, typename T_major>
-struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF, T_major>::insert(const T_key&  key_in, const T_val&  val_in, uint64 idx){ // copy key and value.
+struct itr_m sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF, T_major>::insert(const T_key& key_in, const T_val&  val_in, uint64 idx){ // copy key and value.
 	insert_init_m();
 	insert_hard_cc_m();
 }
