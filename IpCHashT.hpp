@@ -46,7 +46,10 @@ namespace sstd{
 	using IpCHashT_u8fS = IpCHashT<T_key, T_val, T_hash, T_key_eq, uint8, sstd::IpCHashT_opt::maxLF100, sstd::IpCHashT_opt::successfulMajor>; // uint8, full (maxLoadfactor100), Successful lookup major option
 	
 	template<class T_key, class T_val, class T_hash=std::hash<T_key>, class T_key_eq=std::equal_to<T_key>>
-	using IpCHashT_u16S = IpCHashT<T_key, T_val, T_hash, T_key_eq, uint16, sstd::IpCHashT_opt::maxLF100, sstd::IpCHashT_opt::successfulMajor>; // uint16, full (maxLoadfactor100), Successful lookup major option
+	using IpCHashT_u16hS = IpCHashT<T_key, T_val, T_hash, T_key_eq, uint16, sstd::IpCHashT_opt::maxLF50, sstd::IpCHashT_opt::successfulMajor>; // uint16, full (maxLoadfactor100), Successful lookup major option
+	
+	template<class T_key, class T_val, class T_hash=std::hash<T_key>, class T_key_eq=std::equal_to<T_key>>
+	using IpCHashT_u16fS = IpCHashT<T_key, T_val, T_hash, T_key_eq, uint16, sstd::IpCHashT_opt::maxLF100, sstd::IpCHashT_opt::successfulMajor>; // uint16, full (maxLoadfactor100), Successful lookup major option
 	
 	template<class T_key, class T_val, class T_hash=std::hash<T_key>, class T_key_eq=std::equal_to<T_key>>
 	using IpCHashT_u8hU = IpCHashT<T_key, T_val, T_hash, T_key_eq, uint8, sstd::IpCHashT_opt::maxLF50, sstd::IpCHashT_opt::unsuccessfulMajor>; // uint8, half (maxLoadfactor50), Unsuccessful lookup major option
@@ -55,7 +58,10 @@ namespace sstd{
 	using IpCHashT_u8fU = IpCHashT<T_key, T_val, T_hash, T_key_eq, uint8, sstd::IpCHashT_opt::maxLF100, sstd::IpCHashT_opt::unsuccessfulMajor>; // uint8, full (maxLoadfactor100), Unsuccessful lookup major option
 	
 	template<class T_key, class T_val, class T_hash=std::hash<T_key>, class T_key_eq=std::equal_to<T_key>>
-	using IpCHashT_u16U = IpCHashT<T_key, T_val, T_hash, T_key_eq, uint16, sstd::IpCHashT_opt::maxLF100, sstd::IpCHashT_opt::unsuccessfulMajor>; // uint16, full (maxLoadfactor100), Unsuccessful lookup major option
+	using IpCHashT_u16hU = IpCHashT<T_key, T_val, T_hash, T_key_eq, uint16, sstd::IpCHashT_opt::maxLF50, sstd::IpCHashT_opt::unsuccessfulMajor>; // uint16, full (maxLoadfactor100), Unsuccessful lookup major option
+	
+	template<class T_key, class T_val, class T_hash=std::hash<T_key>, class T_key_eq=std::equal_to<T_key>>
+	using IpCHashT_u16fU = IpCHashT<T_key, T_val, T_hash, T_key_eq, uint16, sstd::IpCHashT_opt::maxLF100, sstd::IpCHashT_opt::unsuccessfulMajor>; // uint16, full (maxLoadfactor100), Unsuccessful lookup major option
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------

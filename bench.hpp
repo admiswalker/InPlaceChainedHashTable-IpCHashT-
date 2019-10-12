@@ -10,38 +10,20 @@
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 // definitions
 /*
-typedef std::unordered_map<uint64,uint64>                                            uHashT;
-typedef sstd::CHashT<uint64,uint64>                                                  cHashT;
-typedef sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint8, sstd::IpCHashT_opt::maxLF50 ,sstd::IpCHashT_opt::successfulMajor> iHashT_u8h; // max load factor limittign to half
-typedef sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint8, sstd::IpCHashT_opt::maxLF100,sstd::IpCHashT_opt::successfulMajor> iHashT_u8f; // allowing full load factor
-typedef sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16,sstd::IpCHashT_opt::maxLF100,sstd::IpCHashT_opt::successfulMajor> iHashT_u16; // allowing full load factor
-typedef google::dense_hash_map<uint64,uint64>                                        dHashT;
-typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>         fHashT;
-//*/
-//*
-typedef std::unordered_map<uint64,uint64>                                            uHashT;
-typedef sstd::CHashT<uint64,uint64>                                                  cHashT;
-typedef sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint8, sstd::IpCHashT_opt::maxLF50 ,sstd::IpCHashT_opt::unsuccessfulMajor> iHashT_u8h; // max load factor limittign to half
-typedef sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint8, sstd::IpCHashT_opt::maxLF100,sstd::IpCHashT_opt::unsuccessfulMajor> iHashT_u8f; // allowing full load factor
-typedef sstd::IpCHashT<uint64,uint64,std::hash<uint64>,std::equal_to<uint64>,uint16,sstd::IpCHashT_opt::maxLF100,sstd::IpCHashT_opt::unsuccessfulMajor> iHashT_u16; // allowing full load factor
-typedef google::dense_hash_map<uint64,uint64>                                        dHashT;
-typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>         fHashT;
-//*/
-/*
 typedef std::unordered_map<uint64,uint64>                                    uHashT;
 typedef sstd::CHashT<uint64,uint64>                                          cHashT;
 typedef sstd::IpCHashT_u8hS<uint64,uint64>                                   iHashT_u8h; // uint8, half (maxLoadfactor50), Successful search major option
 typedef sstd::IpCHashT_u8fS<uint64,uint64>                                   iHashT_u8f; // uint8, full (maxLoadfactor100), Successful search major option
-typedef sstd::IpCHashT_u16S<uint64,uint64>                                   iHashT_u16; // uint16, full (maxLoadfactor100), Successful search major option
+typedef sstd::IpCHashT_u16fS<uint64,uint64>                                  iHashT_u16; // uint16, full (maxLoadfactor100), Successful search major option
 typedef google::dense_hash_map<uint64,uint64>                                dHashT;
 typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> fHashT;
 //*/
-/*
+//*
 typedef std::unordered_map<uint64,uint64>                                    uHashT;
 typedef sstd::CHashT<uint64,uint64>                                          cHashT;
 typedef sstd::IpCHashT_u8hU<uint64,uint64>                                   iHashT_u8h; // uint8, half (maxLoadfactor50), Unsuccessful search major option
 typedef sstd::IpCHashT_u8fU<uint64,uint64>                                   iHashT_u8f; // uint8, full (maxLoadfactor100), Unsuccessful search major option
-typedef sstd::IpCHashT_u16U<uint64,uint64>                                   iHashT_u16; // uint16, full (maxLoadfactor100), Unsuccessful search major option
+typedef sstd::IpCHashT_u16fU<uint64,uint64>                                  iHashT_u16; // uint16, full (maxLoadfactor100), Unsuccessful search major option
 typedef google::dense_hash_map<uint64,uint64>                                dHashT;
 typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> fHashT;
 //*/
