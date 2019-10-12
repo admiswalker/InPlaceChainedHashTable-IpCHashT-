@@ -1233,6 +1233,19 @@ TEST(sstd_IpCHashT, stressTest_hard){
 	}
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------------
+// insert for STL compatibility
+
+TEST(sstd_IpCHashT, STL_c_insert_01){
+	// STL insert (1). Ref: https://cpprefjp.github.io/reference/unordered_map/unordered_map/insert.html
+	
+	sstd::IpCHashT<uint64, uint64> hashT;
+	auto itr_TF1 = hashT.insert(std::pair<uint64,uint64>(1,1));
+	ASSERT_TRUE( itr_TF1.second==true  );
+	auto itr_TF2 = hashT.insert(std::pair<uint64,uint64>(1,1));
+	ASSERT_TRUE( itr_TF2.second==false );
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------
 bool stressTest_oneCycle__failSafe_of_rehashing__hard(const uint64 seed, const uint64 limitSize){
 	const uint64 testFOR_size = 553;
 	
@@ -1406,23 +1419,4 @@ TEST(sstd_IpCHashT, OPE_bracket){
 	}
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -239,6 +239,8 @@ private:
 	uint64 elems_onSinglyLinkedList;  // for detailed load factor
 	
 public:
+	typedef std::pair<const T_key, T_val> value_type; // for STL compatibility.
+	
 	CHashT();
 	CHashT(const uint64 tableSize); // nearest size under power of 2 will be allocate.
 	#ifdef use_prime_table
@@ -295,6 +297,7 @@ public:
 	struct itr_m insert(      T_key&& key_in, const T_val&  val_in); // swap key.           (Callable by "sstd::CHashT<T_key, T_val> hashT; hashT.insert(std::move(key),           val );".)
 	struct itr_m insert(const T_key&  key_in,       T_val&& val_in); // swap value.         (Callable by "sstd::CHashT<T_key, T_val> hashT; hashT.insert(          key , std::move(val));".)
 	struct itr_m insert(      T_key&& key_in,       T_val&& val_in); // swap key and value. (Callable by "sstd::CHashT<T_key, T_val> hashT; hashT.insert(std::move(key), std::move(val));".)
+	std::pair<struct itr_m, bool> insert(const value_type& v); // for STL (1). Ref: https://cpprefjp.github.io/reference/unordered_map/unordered_map/insert.html
 	
 	struct itr_m insert(struct itr_m& itr, const T_key&  key_in); // insert from itr value of find() for operator[]
 	struct itr_m insert(struct itr_m& itr,       T_key&& key_in); // insert from itr value of find() for operator[]
@@ -464,6 +467,16 @@ template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct 
 template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::insert(      T_key&& key_in, const T_val&  val_in){ insert_preproc_m(); insert_m(key_in, val_in, std::move, T_val    ); }
 template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::insert(const T_key&  key_in,       T_val&& val_in){ insert_preproc_m(); insert_m(key_in, val_in, T_key,     std::move); }
 template <class T_key, class T_val, class T_hash, class T_key_eq> inline struct itr_m sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::insert(      T_key&& key_in,       T_val&& val_in){ insert_preproc_m(); insert_m(key_in, val_in, std::move, std::move); }
+
+template <class T_key, class T_val, class T_hash, class T_key_eq>
+inline std::pair<struct itr_m, bool> sstd::CHashT<T_key, T_val, T_hash, T_key_eq>::insert(const value_type& v){ // for STL (1). Ref: https://cpprefjp.github.io/reference/unordered_map/unordered_map/insert.html
+	// Implemented with reference to operator[].
+	auto itrF = find(v.first);
+	if(itrF._state_R()!=itr_end_m){ return std::pair<struct itr_m, bool>(itrF, false); }
+	
+	auto itrA = insert(itrF, v.first);
+	return std::pair<struct itr_m, bool>(itrF, true);
+}
 
 //---
 

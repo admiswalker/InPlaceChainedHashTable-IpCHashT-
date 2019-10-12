@@ -9,7 +9,7 @@
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 // definitions
-/*
+//*
 typedef std::unordered_map<uint64,uint64>                                    uHashT;
 typedef sstd::CHashT<uint64,uint64>                                          cHashT;
 typedef sstd::IpCHashT_u8hS<uint64,uint64>                                   iHashT_u8h; // uint8, half (maxLoadfactor50), Successful search major option
@@ -18,7 +18,7 @@ typedef sstd::IpCHashT_u16fS<uint64,uint64>                                  iHa
 typedef google::dense_hash_map<uint64,uint64>                                dHashT;
 typedef ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>> fHashT;
 //*/
-//*
+/*
 typedef std::unordered_map<uint64,uint64>                                    uHashT;
 typedef sstd::CHashT<uint64,uint64>                                          cHashT;
 typedef sstd::IpCHashT_u8hU<uint64,uint64>                                   iHashT_u8h; // uint8, half (maxLoadfactor50), Unsuccessful search major option
@@ -236,7 +236,8 @@ void bench_insert(T_hashTable& hashT, const uint64 limitSize, std::vector<double
 		time_m timem; sstd::measureTime_start(timem);
 		for(uint i=0; i<interval; i++){
 			uint64 r = vecR_toInsert[i];
-			hashT[r] = r;
+//			hashT[r] = r;
+			hashT.insert(std::pair<uint64,uint64>(r,r));
 		}
 		double nsec = sstd::measureTime_stop_ns(timem);
 		
@@ -298,7 +299,8 @@ void bench_insert_et(T_hashTable& hashT, const uint64 limitSize, std::vector<dou
 		time_m timem; sstd::measureTime_start(timem);
 		for(uint i=0; i<interval; i++){
 			uint64 r = vecR_toInsert[i];
-			hashT[r] = r;
+//			hashT[r] = r;
+			hashT.insert(std::pair<uint64,uint64>(r,r)); // insert with "hashT[r] = r;" will slow down IpCHashT-successfulMajorOption.
 		}
 		double ms = sstd::measureTime_stop_ms(timem);
 		totalTime_sec += ms / 1000.0;
@@ -639,7 +641,7 @@ void RUN_ALL_BENCHS(){
 	// insert: elapsed time [sec]
 	bench2plot_insert_et(saveDir+"/insert_et",          saveAs, initSize_wRehash,  limitSize);/*
 	bench2plot_insert_et(saveDir+"/insert_et_preAlloc", saveAs, initSize_preAlloc, limitSize);
-	
+	/*
 	// find: search speed [quely/sec]
 	bench2plot_find(saveDir+"/find_successful_search", saveAs, initSize_wRehash, limitSize);
 	bench2plot_find_failedAll(saveDir+"/find_unsuccessful_search", saveAs, initSize_wRehash, limitSize);

@@ -58,6 +58,20 @@ TEST(sstd_CHashT, insert_f){
 	hashT.insert(itr, 4); itr.val() = 99;
 	{ auto itr = hashT.find(4); ASSERT_TRUE(itr.val()==99); }
 }
+//-----------------------------------------------------------------------------------------------------------------------------------------------
+// insert for STL compatibility
+
+TEST(sstd_CHashT, STL_c_insert_01){
+	// STL insert (1). Ref: https://cpprefjp.github.io/reference/unordered_map/unordered_map/insert.html
+	
+	sstd::CHashT<uint64, uint64> hashT;
+	auto itr_TF1 = hashT.insert(std::pair<uint64,uint64>(1,1));
+	ASSERT_TRUE( itr_TF1.second==true  );
+	auto itr_TF2 = hashT.insert(std::pair<uint64,uint64>(1,1));
+	ASSERT_TRUE( itr_TF2.second==false );
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------
 TEST(sstd_CHashT, find){
 	// case 1. when key is on the table
 	{
