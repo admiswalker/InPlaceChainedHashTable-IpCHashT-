@@ -115,10 +115,9 @@ void bench_usedMemory(T_hashTable& hashT, const uint64 limitSize, std::vector<do
 	uint64 interval  = limitSize/splitNum;
 	uint64 tSize_prev = hashT.bucket_count(); // table size
 	for(uint sn=0; sn<splitNum; sn++){
-		// insert
 		for(uint i=0; i<interval; i++){
 			uint64 r = rand();
-			hashT[r] = r;
+			hashT.insert(std::pair<uint64,uint64>(r,r));
 		}
 		
 		double h_GB = sstd::status_VmHWM() / (1024.0*1024.0);
@@ -232,12 +231,10 @@ void bench_insert(T_hashTable& hashT, const uint64 limitSize, std::vector<double
 			vecR_toInsert[i] = rand();
 		}
 		
-		// insert
 		time_m timem; sstd::measureTime_start(timem);
 		for(uint i=0; i<interval; i++){
 			uint64 r = vecR_toInsert[i];
-//			hashT[r] = r;
-			hashT.insert(std::pair<uint64,uint64>(r,r));
+			hashT.insert(std::pair<uint64,uint64>(r,r)); // insert with "hashT[r] = r;" will slow down dense_hash_map and IpCHashT-successfulMajorOption.
 		}
 		double nsec = sstd::measureTime_stop_ns(timem);
 		
@@ -295,12 +292,10 @@ void bench_insert_et(T_hashTable& hashT, const uint64 limitSize, std::vector<dou
 			vecR_toInsert[i] = rand();
 		}
 		
-		// insert
 		time_m timem; sstd::measureTime_start(timem);
 		for(uint i=0; i<interval; i++){
 			uint64 r = vecR_toInsert[i];
-//			hashT[r] = r;
-			hashT.insert(std::pair<uint64,uint64>(r,r)); // insert with "hashT[r] = r;" will slow down IpCHashT-successfulMajorOption.
+			hashT.insert(std::pair<uint64,uint64>(r,r)); // insert with "hashT[r] = r;" will slow down dense_hash_map and IpCHashT-successfulMajorOption.
 		}
 		double ms = sstd::measureTime_stop_ms(timem);
 		totalTime_sec += ms / 1000.0;
@@ -352,11 +347,10 @@ void bench_find(T_hashTable& hashT, const uint64 limitSize, std::vector<double>&
 	
 	uint64 numFound=0ull, numNotFound=0ull;
 	for(;;){
-		// insert
 		for(uint i=0; i<interval; i++){
 			uint64 r = rand();
 			vecR <<= r;
-			hashT[r] = r;
+			hashT.insert(std::pair<uint64,uint64>(r,r));
 		}
 		
 		vecX_num <<= hashT.size();
@@ -432,11 +426,10 @@ void bench_find_failedAll(T_hashTable& hashT, const uint64 limitSize, std::vecto
 	
 	uint64 numFound=0ull, numNotFound=0ull;
 	for(;;){
-		// insert
 		for(uint i=0; i<interval; i++){
 			uint64 r = rand();
 			vecR <<= r;
-			hashT[r] = r;
+			hashT.insert(std::pair<uint64,uint64>(r,r));
 		}
 		
 		vecX_num <<= hashT.size();
@@ -505,11 +498,10 @@ void bench_erase(T_hashTable& hashT, const uint64 limitSize, std::vector<double>
 	std::vector<uint64> vecR(limitSize); vecR.clear();
 	
 	for(;;){
-		// insert
 		for(uint i=0; i<interval; i++){
 			uint64 r = rand();
 			vecR <<= r;
-			hashT[r] = r;
+			hashT.insert(std::pair<uint64,uint64>(r,r));
 		}
 		
 		vecX_num <<= hashT.size();
@@ -530,11 +522,11 @@ void bench_erase(T_hashTable& hashT, const uint64 limitSize, std::vector<double>
 			hashT.erase( vecR_toErase[i] );
 		}
 		double nsec = sstd::measureTime_stop_ns(timem);
-		// insert
+		
 		for(uint i=0; i<interval; i++){
 			uint64 r = rand();
 			vecR[vecR_idx[i]] = r;
-			hashT[r] = r;
+			hashT.insert(std::pair<uint64,uint64>(r,r));
 		}
 		vecY_quely_per_us <<= ((double)interval * 1000.0) / (nsec);
 		
@@ -581,7 +573,7 @@ void bench_maxLoadFactor(T_hashTable& hashT, const uint64 limitSize, std::vector
 	double lf_prev=0.0;
 	while(hashT.size()<limitSize){
 		uint64 r = rand();
-		hashT[r] = r;
+		hashT.insert(std::pair<uint64,uint64>(r,r));
 		double lf = hashT.load_factor();
 		if(lf < lf_prev){
 			vecX_tSize <<= (double)hashT.bucket_count()-1.0;
@@ -637,11 +629,11 @@ void RUN_ALL_BENCHS(){
 	/*
 	// insert: insertion speed [query/sec]
 	bench2plot_insert(saveDir+"/insert", saveAs, initSize_wRehash, limitSize);
-	//*/
+	
 	// insert: elapsed time [sec]
-	bench2plot_insert_et(saveDir+"/insert_et",          saveAs, initSize_wRehash,  limitSize);/*
+	bench2plot_insert_et(saveDir+"/insert_et",          saveAs, initSize_wRehash,  limitSize);
 	bench2plot_insert_et(saveDir+"/insert_et_preAlloc", saveAs, initSize_preAlloc, limitSize);
-	/*
+	
 	// find: search speed [quely/sec]
 	bench2plot_find(saveDir+"/find_successful_search", saveAs, initSize_wRehash, limitSize);
 	bench2plot_find_failedAll(saveDir+"/find_unsuccessful_search", saveAs, initSize_wRehash, limitSize);
@@ -682,7 +674,7 @@ void RUN_ALL_BENCHS(){
 		std::string savePath = saveDir +'/'+ffa +sstd::ssprintf("/%s_%03u", ffa.c_str(), i)+".csv";
 		bench2csv_find_failedAll(savePath, initSize_wRehash, limitSize);
 	}
-	
+	//*/
 	std::string iwR = "insert";
 	sstd::mkdir(saveDir+'/'+iwR);
 	for(uint i=fileNum(saveDir+'/'+iwR+"/*"); i<loopNum; i++){
@@ -703,7 +695,7 @@ void RUN_ALL_BENCHS(){
 		std::string savePath = saveDir +'/'+iE +sstd::ssprintf("/%s_%03u", iE.c_str(), i)+".csv";
 		bench2csv_insert_et(savePath, initSize_preAlloc, limitSize);
 	}
-	
+	/*
 	std::string ewR = "erase";
 	sstd::mkdir(saveDir+'/'+ewR);
 	for(uint i=fileNum(saveDir+'/'+ewR+"/*"); i<loopNum; i++){

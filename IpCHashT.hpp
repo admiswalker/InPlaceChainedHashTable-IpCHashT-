@@ -459,7 +459,7 @@ inline double get_maxLF(const sstd::IpCHashT_opt::maxLF100& rhs){ return 1.00; }
 template <class T_key, class T_val, class T_hash, class T_key_eq, typename T_shift, typename T_maxLF, typename T_major>
 inline void sstd::IpCHashT<T_key, T_val, T_hash, T_key_eq, T_shift, T_maxLF, T_major>::IpCHashT_constructor(uint64 tableSize){
 	if      ( sstd_IpCHashT::isUint8 (T_shift()) && sstd_IpCHashT::isMaxLF50 (T_maxLF()) ){ tableSize = tableSize*2;
-	}else if( sstd_IpCHashT::isUint8 (T_shift()) && sstd_IpCHashT::isMaxLF100(T_maxLF()) ){ tableSize = (uint64)(((double)tableSize)*1.333); // with uint8 and maxLT100 option, the load factor will reach a peak at about 0.75. So, 1/0.75 = 1.333.
+	}else if( sstd_IpCHashT::isUint8 (T_shift()) && sstd_IpCHashT::isMaxLF100(T_maxLF()) ){ tableSize = (uint64)(((double)tableSize)*1.429); // with uint8 and maxLT100 option, the load factor will reach a peak at about 0.70. So, 1/0.70 = 1.429.
 	}else if( sstd_IpCHashT::isUint16(T_shift()) && sstd_IpCHashT::isMaxLF50 (T_maxLF()) ){ tableSize = tableSize*2;
 	}else if( sstd_IpCHashT::isUint16(T_shift()) && sstd_IpCHashT::isMaxLF100(T_maxLF()) ){ tableSize = (uint64)(((double)tableSize)*1.026); // with uint16 and maxLT100 option, the load factor will reach a peak at about 0.975. So, 1/0.975 = 1.026.
 	}
