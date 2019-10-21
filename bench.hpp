@@ -536,7 +536,7 @@ void bench_erase(T_hashTable& hashT, const uint64 limitSize, std::vector<double>
 }
 //---
 void vvec2plot_erase(const std::string& savePath, const std::vector<std::string>& saveAs, const sstd::vvec<double>& vvecX, const sstd::vvec<double>& vvecY){
-	const char* xlabel = "Number of elements on the table [conut]\n(This axis is inverted.)";
+	const char* xlabel = "Number of elements on the table [conut]";
 	const char* ylabel = "Erasion speed [query/μs]";
 	std::vector<std::string> vecLabel={"std::unordered_map<uint64,uint64>", "sstd::CHashT<uint64,uint64>", "sstd::IpCHashT<uint64,uint64> (as uint8 and maxLF50)", "sstd::IpCHashT<uint64,uint64> (as uint8 and maxLF100)", "sstd::IpCHashT<uint64,uint64> (as uint16 and maxLF100)", "google::dense_hash_map<uint64,uint64>", "ska::flat_hash_map<uint64,uint64,ska::power_of_two_std_hash<uint64>>"};
 	
