@@ -30,7 +30,7 @@ $ ./exe_sProc
 ## File descriptions
 
 | File or Directory                         | Description                                                                            | Origin |
-|-------------------------------------------|----------------------------------------------------------------------------------------|--------|
+|-------------------------------------------|----------------------------------------------------------------------------------------|:------:|
 | bench                                     | Results of the benchmarks                                                              |        |
 | tmpBench                                  | Output directory of the benchmarks                                                     |        |
 | tmpDir                                    | Temporary directory for graph plotting                                                 |        |
