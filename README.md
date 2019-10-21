@@ -35,25 +35,25 @@ $ ./exe_sProc
 | tmpBench                                  | Output directory of the benchmarks                                                     |        |
 | tmpDir                                    | Temporary directory for graph plotting                                                 |        |
 | CHashT.hpp                                | Inplimentation of "sstd::CHashT"                                                       |        |
-| FNV\_Hash.cpp                             | Hash function for only implimentation test                                             | [軽量ハッシュアルゴリズム - Qiita](https://qiita.com/Ushio/items/a19083514d087a57fc72)           |
-| FNV\_Hash.hpp                             | Hash function for only implimentation test                                             | [軽量ハッシュアルゴリズム - Qiita](https://qiita.com/Ushio/items/a19083514d087a57fc72)           |
+| FNV\_Hash.cpp                             | Hash function for only implimentation test                                             | [Qiita](https://qiita.com/Ushio/items/a19083514d087a57fc72) |
+| FNV\_Hash.hpp                             | Hash function for only implimentation test                                             | [Qiita](https://qiita.com/Ushio/items/a19083514d087a57fc72) |
 | IpCHashT.hpp                              | Inplimentation of "sstd::IpCHashT" (Proposing method)                                  |        |
 | Makefile                                  | Makefile                                                                               |        |
 | README.md                                 | This file                                                                              |        |
-| ```SubStandardLibrary-SSTD--master.zip``` | Convenient functions set                                                               | [SubStandardLibrary - GitHub](https://github.com/admiswalker/SubStandardLibrary)             |
+| ```SubStandardLibrary-SSTD--master.zip``` | Convenient functions set                                                               | [GitHub](https://github.com/admiswalker/SubStandardLibrary) |
 | bench.hpp                                 | Benchmark                                                                              |        |
 | exe\_bench                                | Binary file for benchmark                                                              |        |
 | exe\_bench\_uM                            | Binary file for benchmarking allocated memory size called from exe\_bench              |        |
 | exe\_sProc                                | Binary file for statistical process of "main\_sProc.cpp"                               |        |
 | exe\_test                                 | Binary file for "test_CHashT.hpp" and "test_IpCHashT.hpp" called from "main\_test.cpp" |        |
-| ```flat_hash_map-master.zip```            | Inplimentation of "ska::flat\_hash\_map"                                               | [flat_hash_map - GitHub](https://github.com/skarupke/flat_hash_map) |
-| ```googletest-master.zip```               | Google's C++ test framework                                                            | [googletest - GitHub](https://github.com/google/googletest) |
+| ```flat_hash_map-master.zip```            | Inplimentation of "ska::flat\_hash\_map"                                               | [GitHub](https://github.com/skarupke/flat_hash_map) |
+| ```googletest-master.zip```               | Google's C++ test framework                                                            | [GitHub](https://github.com/google/googletest) |
 | main\_bench.cpp                           | Entry potion for "bench.hpp"                                                           |        |
 | main\_bench\_usedMemory.cpp               | Entry point of exe\_bench\_uM for benchmarking allocated memory size                   |        |
 | main\_sProc.cpp                           | Entry potion for generating merget graph.                                              |        |
 | main\_test.cpp                            | Entry potion for "test\_CHashT.hpp" and "test\_IpCHashT.hpp"                           |        |
 | plots.py                                  | Plotting functions for benchmark                                                       |        |
-| ```sparsehash-master.zip```               | Inplimentation of "google::dense\_hash\_map"                                           | [sparsehash - GitHub](https://github.com/sparsehash/sparsehash) |
+| ```sparsehash-master.zip```               | Inplimentation of "google::dense\_hash\_map"                                           | [GitHub](https://github.com/sparsehash/sparsehash) |
 | test\_CHashT.hpp                          | Test code for "CHashT.hpp"                                                             |        |
 | test\_IpCHashT.hpp                        | Test code for "IpCHashT.hpp"                                                           |        |
 | typeDef.h                                 | Type definitions for integer                                                           |        |
