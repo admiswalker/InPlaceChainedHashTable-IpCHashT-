@@ -29,7 +29,7 @@ $ ./exe_sProc
 
 ## File descriptions
 
-| File or Directory                         | Description                                                                            | Origin |
+| File or directory name                    | Description                                                                            | Origin |
 |-------------------------------------------|----------------------------------------------------------------------------------------|:------:|
 | bench                                     | Results of the benchmarks                                                              |        |
 | tmpBench                                  | Output directory of the benchmarks                                                     |        |
