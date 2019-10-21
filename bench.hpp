@@ -617,8 +617,8 @@ void bench2csv_maxLoadFactor(const std::string& savePath, const uint64 limitSize
 uint fileNum(const std::string& path_wWildCard){ return sstd::glob(path_wWildCard).size(); }
 
 void RUN_ALL_BENCHS(){
-	const uint64 limitSize = 200000000; // limit of memory (on 32 GB RAM PC)
-//	const uint64 limitSize = 5000000;
+//	const uint64 limitSize = 200000000; // limit of memory (on 32 GB RAM PC)
+	const uint64 limitSize = 5000000;
 	const uint64 initSize_wRehash  = 0ull;
 	const uint64 initSize_preAlloc = limitSize;
 	
@@ -626,7 +626,7 @@ void RUN_ALL_BENCHS(){
 	std::vector<std::string> saveAs = {".pdf", ".png"};
 	
 	//---------------------------------------------------------------------------------------------------------------------------------------------
-	/*
+	//*
 	// insert: insertion speed [query/sec]
 	bench2plot_insert(saveDir+"/insert", saveAs, initSize_wRehash, limitSize);
 	
@@ -674,7 +674,7 @@ void RUN_ALL_BENCHS(){
 		std::string savePath = saveDir +'/'+ffa +sstd::ssprintf("/%s_%03u", ffa.c_str(), i)+".csv";
 		bench2csv_find_failedAll(savePath, initSize_wRehash, limitSize);
 	}
-	//*/
+	
 	std::string iwR = "insert";
 	sstd::mkdir(saveDir+'/'+iwR);
 	for(uint i=fileNum(saveDir+'/'+iwR+"/*"); i<loopNum; i++){
@@ -695,7 +695,7 @@ void RUN_ALL_BENCHS(){
 		std::string savePath = saveDir +'/'+iE +sstd::ssprintf("/%s_%03u", iE.c_str(), i)+".csv";
 		bench2csv_insert_et(savePath, initSize_preAlloc, limitSize);
 	}
-	/*
+	
 	std::string ewR = "erase";
 	sstd::mkdir(saveDir+'/'+ewR);
 	for(uint i=fileNum(saveDir+'/'+ewR+"/*"); i<loopNum; i++){
